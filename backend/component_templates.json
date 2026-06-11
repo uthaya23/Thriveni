@@ -1,0 +1,500 @@
+{
+  "830 Ac wheel motor": {
+    "componentType": "KOMATSU 830E AC WHEEL MOTOR",
+    "incomingParts": [
+      {
+        "partName": "Sensor, Speed",
+        "quantity": 1
+      },
+      {
+        "partName": "INSULATOR W/ STUD",
+        "quantity": 6
+      },
+      {
+        "partName": "CABLE SPEED SENSOR",
+        "quantity": 1
+      },
+      {
+        "partName": "DRIVE RING",
+        "quantity": 1
+      },
+      {
+        "partName": "CLAMP",
+        "quantity": 1
+      },
+      {
+        "partName": "CONNECTION STRIP",
+        "quantity": 3
+      },
+      {
+        "partName": "MAIN CABLE",
+        "quantity": 3
+      }
+    ],
+    "electricalTests": {
+      "irTest": {
+        "appliedVoltage": "1000V",
+        "terminals": [
+          "R to G",
+          "Y to G",
+          "B to G"
+        ],
+        "standardValue": "Above 1MΩ"
+      },
+      "windingResistance": {
+        "terminals": [
+          "R to Y",
+          "Y to B",
+          "B to R"
+        ],
+        "standardValue": ""
+      }
+    },
+    "mechanicalChecklist": []
+  },
+  "830 DC alternator": {
+    "componentType": "830E DC MAIN ALTERNATOR",
+    "incomingParts": [
+      {
+        "partName": "FAN HOUSING, 2ND STAGE",
+        "quantity": 1
+      },
+      {
+        "partName": "IMPELLER 2nd STAGE",
+        "quantity": 1
+      },
+      {
+        "partName": "FAN HOUSING, 1ST STAGE",
+        "quantity": 1
+      },
+      {
+        "partName": "IMPELLER 1ST STAGE",
+        "quantity": 1
+      },
+      {
+        "partName": "CABLE, SPEED SENSOR",
+        "quantity": 1
+      },
+      {
+        "partName": "CONNECTOR - 0.125\" TO 1/4\" DIAMETER CABLE",
+        "quantity": 1
+      },
+      {
+        "partName": "MAGNETIC PICKUP, SPEED SENSOR",
+        "quantity": 1
+      },
+      {
+        "partName": "CARBON BRUSH",
+        "quantity": 6
+      },
+      {
+        "partName": "CARBON BRUSH HOLDER",
+        "quantity": 6
+      },
+      {
+        "partName": "CONNECTION BOX",
+        "quantity": 1
+      },
+      {
+        "partName": "AUXILIARY CABLE",
+        "quantity": 4
+      },
+      {
+        "partName": "MAIN CABLE",
+        "quantity": 3
+      },
+      {
+        "partName": "FIELD CABLE",
+        "quantity": 2
+      },
+      {
+        "partName": "1ST STAGE FAN HOUSING PLATE",
+        "quantity": 1
+      }
+    ],
+    "electricalTests": {
+      "irTest": {
+        "appliedVoltage": "1000V",
+        "terminals": [
+          "R to G",
+          "Y to G",
+          "B to G"
+        ],
+        "standardValue": null
+      },
+      "windingResistance": {
+        "terminals": [
+          "R to Y",
+          "Y to B",
+          "B to R"
+        ],
+        "standardValue": null
+      }
+    },
+    "mechanicalChecklist": []
+  },
+  "830 DC wheel motor": {
+    "componentType": "KOMATSU 830E DC WHEEL MOTOR",
+    "incomingParts": [
+      {
+        "partName": "Magnetic pickup",
+        "quantity": 1
+      },
+      {
+        "partName": "Brush holder",
+        "quantity": 4
+      },
+      {
+        "partName": "Brush",
+        "quantity": 12
+      },
+      {
+        "partName": "Armature cable A, AA",
+        "quantity": 2
+      },
+      {
+        "partName": "Magnetic pole cable S, SS, SX, SSX",
+        "quantity": 4
+      },
+      {
+        "partName": "Magnetic pickup cable",
+        "quantity": 2
+      },
+      {
+        "partName": "Drive Ring",
+        "quantity": 1
+      },
+      {
+        "partName": "Air Baffle",
+        "quantity": 2
+      },
+      {
+        "partName": "Mounting Bolt",
+        "quantity": 10
+      },
+      {
+        "partName": "Support, Brush Holder",
+        "quantity": 4
+      },
+      {
+        "partName": "Support Bolt",
+        "quantity": 4
+      },
+      {
+        "partName": "Clamp",
+        "quantity": 1
+      },
+      {
+        "partName": "Clamp",
+        "quantity": 1
+      },
+      {
+        "partName": "Sensor Terminal Block",
+        "quantity": 2
+      },
+      {
+        "partName": "Connection Strip",
+        "quantity": 6
+      },
+      {
+        "partName": "Jumper (link Strip)",
+        "quantity": 1
+      }
+    ],
+    "electricalTests": {
+      "irTest": {
+        "appliedVoltage": null,
+        "terminals": [
+          "S to G",
+          "SS to G",
+          "SX to G",
+          "SSX to G",
+          "A to G",
+          "AA to G"
+        ],
+        "standardValue": null
+      },
+      "windingResistance": {
+        "terminals": [
+          "S to SS",
+          "S to SSX",
+          "SX to SS",
+          "A to AA"
+        ],
+        "standardValue": null
+      }
+    },
+    "mechanicalChecklist": []
+  },
+  "830E Ac alternator": {
+    "componentType": "830E AC MAIN ALTERNATOR",
+    "incomingParts": [],
+    "electricalTests": {
+      "irTest": {
+        "appliedVoltage": "",
+        "terminals": [],
+        "standardValue": ""
+      },
+      "windingResistance": {
+        "terminals": [],
+        "standardValue": ""
+      }
+    },
+    "mechanicalChecklist": []
+  },
+  "eh5000 alternator": {
+    "componentType": "eh5000 alternator",
+    "incomingParts": [
+      {
+        "partName": "Bearing Temperature Sensor",
+        "quantity": 2
+      },
+      {
+        "partName": "RPM sensor",
+        "quantity": 1
+      },
+      {
+        "partName": "Rectifier Box",
+        "quantity": 1
+      },
+      {
+        "partName": "Rectifier",
+        "quantity": 1
+      },
+      {
+        "partName": "Rectifier Cover",
+        "quantity": 1
+      },
+      {
+        "partName": "Sensor Terminal Box Cover",
+        "quantity": 1
+      },
+      {
+        "partName": "Guard",
+        "quantity": 1
+      },
+      {
+        "partName": "Auxiliary Cable",
+        "quantity": 3
+      },
+      {
+        "partName": "Grease Pipe",
+        "quantity": 1
+      },
+      {
+        "partName": "Sensor Terminal Connector",
+        "quantity": 1
+      },
+      {
+        "partName": "Sensor Cable Terminal Strip",
+        "quantity": 4
+      }
+    ],
+    "electricalTests": {
+      "irTest": {
+        "appliedVoltage": "1000V",
+        "terminals": [
+          "R to G",
+          "Y to G",
+          "B to G",
+          "T1 to G",
+          "T2 to G",
+          "T3 to G",
+          "F1 to G",
+          "F2 to G",
+          "U to G",
+          "V to G",
+          "W to G"
+        ],
+        "standardValue": "Above 1MΩ"
+      },
+      "windingResistance": {
+        "terminals": [
+          "R to Y",
+          "Y to B",
+          "B to R",
+          "F1 to T2",
+          "T2 to T3",
+          "T3 to F1",
+          "F1 to F2",
+          "U to V",
+          "V to W",
+          "W to U"
+        ],
+        "standardValue": "0.2 Ω"
+      }
+    },
+    "mechanicalChecklist": []
+  },
+  "Eh5000 wheel motor": {
+    "componentType": "EH5000 wheel Motor",
+    "incomingParts": [
+      {
+        "partName": "HUB",
+        "quantity": 1
+      },
+      {
+        "partName": "COUPLING",
+        "quantity": 1
+      },
+      {
+        "partName": "DISC",
+        "quantity": 1
+      },
+      {
+        "partName": "SPEED SENSOR",
+        "quantity": 1
+      },
+      {
+        "partName": "THERMOMETER",
+        "quantity": 1
+      },
+      {
+        "partName": "SENSOR MOTOR BEARING TEM",
+        "quantity": 2
+      },
+      {
+        "partName": "BUS BAR",
+        "quantity": 1
+      },
+      {
+        "partName": "BUS BAR",
+        "quantity": 1
+      },
+      {
+        "partName": "BREAK DISC",
+        "quantity": 1
+      },
+      {
+        "partName": "BREAK DISC BOLT",
+        "quantity": 1
+      },
+      {
+        "partName": "PARKING BRAKE",
+        "quantity": 2
+      }
+    ],
+    "electricalTests": {
+      "irTest": {
+        "appliedVoltage": "1000V",
+        "terminals": [
+          "R to G",
+          "Y to G",
+          "B to G"
+        ],
+        "standardValue": "Not specified in document"
+      },
+      "windingResistance": {
+        "terminals": [
+          "R to Y",
+          "Y to B",
+          "B to R"
+        ],
+        "standardValue": "0.6 mΩ"
+      }
+    },
+    "mechanicalChecklist": []
+  },
+  "grid blower motor": {
+    "componentType": "Grid Blower Motor",
+    "incomingParts": [
+      {
+        "partName": "Terminal Box",
+        "quantity": 1
+      },
+      {
+        "partName": "Motor Outer Cover",
+        "quantity": 1
+      },
+      {
+        "partName": "Carbon Brush",
+        "quantity": 8
+      },
+      {
+        "partName": "Carbon Brush Holder",
+        "quantity": 8
+      },
+      {
+        "partName": "Covers",
+        "quantity": 2
+      },
+      {
+        "partName": "Covers",
+        "quantity": 4
+      },
+      {
+        "partName": "Terminal Link",
+        "quantity": 1
+      },
+      {
+        "partName": "Motor Mounting Bracket",
+        "quantity": 1
+      }
+    ],
+    "electricalTests": {
+      "irTest": {
+        "appliedVoltage": null,
+        "terminals": [],
+        "standardValue": null
+      },
+      "windingResistance": {
+        "terminals": [],
+        "standardValue": null
+      }
+    },
+    "mechanicalChecklist": []
+  },
+  "main blower motor": {
+    "componentType": "HITACHI MAIN BLOWER MOTOR",
+    "incomingParts": [
+      {
+        "partName": "WHEEL",
+        "quantity": 1
+      },
+      {
+        "partName": "WHEEL",
+        "quantity": 1
+      },
+      {
+        "partName": "BASE",
+        "quantity": 1
+      },
+      {
+        "partName": "CONNECTOR FOR CABLE",
+        "quantity": 1
+      },
+      {
+        "partName": "CONDUIT BOX",
+        "quantity": 1
+      },
+      {
+        "partName": "GREASE PIPE",
+        "quantity": 4
+      },
+      {
+        "partName": "ELBOW",
+        "quantity": 2
+      },
+      {
+        "partName": "NIPPLE",
+        "quantity": 2
+      },
+      {
+        "partName": "NAME PLATE",
+        "quantity": 1
+      }
+    ],
+    "electricalTests": {
+      "irTest": {
+        "appliedVoltage": "",
+        "terminals": [],
+        "standardValue": ""
+      },
+      "windingResistance": {
+        "terminals": [],
+        "standardValue": ""
+      }
+    },
+    "mechanicalChecklist": []
+  }
+}

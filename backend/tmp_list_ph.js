@@ -1,0 +1,10 @@
+const fs = require('fs');
+const path = require('path');
+const AdmZip = require('adm-zip');
+const zip = new AdmZip(path.join(__dirname, 'templates', 'master-report-template.docx'));
+const xml = zip.readAsText('word/document.xml');
+const re = /{{(.*?)}}/g;
+const placeholders = [];
+let m;
+while ((m = re.exec(xml)) !== null) placeholders.push(m[1]);
+console.log('PLACEHOLDERS', Array.from(new Set(placeholders)).sort());
