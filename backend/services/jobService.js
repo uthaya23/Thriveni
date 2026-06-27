@@ -8,6 +8,7 @@ const User = require('../models/User');
 const ProductionPlan = require('../models/ProductionPlan');
 const { MachineModel } = require('../models/AdminLookups');
 const generateJobNo = require('../utils/generateJobNo');
+const AssetService = require('./AssetService');
 const Logger = require('../utils/logger');
 const ApiResponse = require('../utils/apiResponse');
 const Pagination = require('../utils/pagination');
@@ -89,6 +90,9 @@ class JobService {
       const job = new Job(jobData);
       await linkJobToProductionPlan(job);
       await job.save();
+
+      // Auto-create or update asset registry
+      await AssetService.findOrCreateAsset(job, userId);
 
       Logger.info('Job created successfully', { jobId: job._id, jobNo: job.jobNo });
       return ApiResponse.created(job, 'Job created successfully');

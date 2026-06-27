@@ -91,6 +91,7 @@ const loginLimiter = rateLimit({
 app.use('/api/auth/login', loginLimiter);
 app.use('/api/auth',           require('./routes/authRoutes'));
 app.use('/api/jobs',           require('./routes/jobRoutes'));
+app.use('/api/assets',         require('./routes/assetRoutes'));
 app.use('/api/equipment',      require('./routes/equipmentRoutes'));
 app.use('/api/users',          require('./routes/userRoutes'));
 app.use('/api/reports',        require('./routes/reportRoutes'));

@@ -233,6 +233,22 @@ export default function CreateJobPage() {
                   placeholder="Equipment serial number"
                   value={form.serialNumber}
                   onChange={e => handleInputChange('serialNumber', e.target.value)}
+                  onBlur={async (e) => {
+                    const sn = e.target.value.trim();
+                    if (!sn) return;
+                    try {
+                      const res = await api.get(`/assets/check/${sn}`);
+                      if (res.data?.data?.hasDuplicate) {
+                        const existing = res.data.data.existingJob;
+                        toast.error(
+                          `Warning: ${sn} already has an active job — ${existing.jobNo} (${existing.status})`,
+                          { duration: 6000 }
+                        );
+                      }
+                    } catch (err) {
+                      // Silent fail — do not block job creation
+                    }
+                  }}
                 />
               </div>
                </div>
