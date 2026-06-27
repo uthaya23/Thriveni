@@ -19,9 +19,12 @@ const generateToken = (id) => jwt.sign({ id }, process.env.JWT_SECRET, { expires
 // POST /api/auth/login
 router.post('/login', loginLimiter, asyncHandler(async (req, res) => {
   let { username, password } = req.body;
-  if (username) username = username.trim().toLowerCase();
+  if (username) username = username.trim();
   
-  const user = await User.findOne({ username, active: true });
+  const user = await User.findOne({ 
+    username: { $regex: new RegExp(`^${username}$`, 'i') }, 
+    active: true 
+  });
   if (!user || !(await user.matchPassword(password))) {
     return res.status(401).json(ApiResponse.unauthorized('Invalid username or password'));
   }
