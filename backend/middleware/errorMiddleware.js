@@ -10,12 +10,21 @@ const errorHandler = (err, req, res, next) => {
   let error = { ...err };
   error.message = err.message;
 
+  // Suppress ENOENT errors for missing build files in development mode (expected — no build exists)
+  if (err.code === 'ENOENT' && err.path && err.path.includes('build')) {
+    return res.status(404).json({ status: 'dev-mode', message: 'No production build. Use React dev server.' });
+  }
+
+  // Suppress WebSocket upgrade noise
+  if (req.headers.upgrade) return next();
+
   Logger.error('Unhandled error occurred', err, {
     url: req.url,
     method: req.method,
     ip: req.ip,
     userAgent: req.get('User-Agent')
   });
+
 
   // Mongoose bad ObjectId
   if (err.name === 'CastError') {

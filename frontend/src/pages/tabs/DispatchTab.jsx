@@ -21,6 +21,7 @@ const DispatchTab = forwardRef(({ jobId, isReadOnly }, ref) => {
       const existingData = res.data._id ? res.data : null;
       setData(existingData || {
         dispatchDate: '',
+        sendSite: '',
         transportDetails: '',
         checklist: [
           { item: 'All tests passed', checked: 'Yes' },
@@ -36,6 +37,7 @@ const DispatchTab = forwardRef(({ jobId, isReadOnly }, ref) => {
     }).catch(() => {
       setData({
         dispatchDate: '',
+        sendSite: '',
         transportDetails: '',
         checklist: [],
         dispatchPhotos: [],
@@ -70,10 +72,14 @@ const DispatchTab = forwardRef(({ jobId, isReadOnly }, ref) => {
   const SummaryView = () => (
     <div className="space-y-10 py-4 animate-in fade-in duration-500">
       <div className="bg-slate-900 rounded-2xl p-8 text-slate-100 shadow-xl relative overflow-hidden border-l-4 border-emerald-500">
-        <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
             <label className="text-[10px] font-black text-emerald-500 uppercase tracking-widest block mb-2">Release Date</label>
             <div className="text-2xl font-black">{data.dispatchDate ? new Date(data.dispatchDate).toLocaleDateString('en-IN', { dateStyle: 'long' }) : 'Pending Dispatch'}</div>
+          </div>
+          <div>
+            <label className="text-[10px] font-black text-emerald-500 uppercase tracking-widest block mb-2">Sending Site (Destination)</label>
+            <div className="text-2xl font-black">{data.sendSite || '—'}</div>
           </div>
           <div>
             <label className="text-[10px] font-black text-emerald-500 uppercase tracking-widest block mb-2">Logistics Information</label>
@@ -168,7 +174,7 @@ const DispatchTab = forwardRef(({ jobId, isReadOnly }, ref) => {
         <SummaryView />
       ) : (
         <div className="space-y-12 pb-20 animate-in fade-in duration-500">
-          <section className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm grid grid-cols-1 md:grid-cols-2 gap-8">
+          <section className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="form-control">
               <label className="label-text text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">Planned Release Date</label>
               <input 
@@ -176,6 +182,16 @@ const DispatchTab = forwardRef(({ jobId, isReadOnly }, ref) => {
                 className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-4 focus:ring-blue-100 transition-all outline-none font-bold text-slate-700" 
                 value={data.dispatchDate ? data.dispatchDate.split('T')[0] : ''} 
                 onChange={e => setData({...data, dispatchDate: e.target.value})}
+              />
+            </div>
+            <div className="form-control">
+              <label className="label-text text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">Sending Site (Destination)</label>
+              <input 
+                type="text"
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-4 focus:ring-blue-100 transition-all outline-none font-bold text-slate-700" 
+                placeholder="e.g. Korba Site"
+                value={data.sendSite || ''} 
+                onChange={e => setData({...data, sendSite: e.target.value})}
               />
             </div>
             <div className="form-control">

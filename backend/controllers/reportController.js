@@ -2,11 +2,9 @@ const asyncHandler = require('express-async-handler');
 const path = require('path');
 const reportGenerationService = require('../services/reportGenerationService');
 const Job = require('../models/Job');
-const Inspection = require('../models/Inspection');
-const Dismantling = require('../models/Dismantling');
-const Assembly = require('../models/Assembly');
-const Testing = require('../models/Testing');
+const JobData = require('../models/JobData');
 const Photo = require('../models/Photo');
+const ApiResponse = require('../utils/apiResponse');
 
 /**
  * Report Controller
@@ -26,50 +24,90 @@ exports.generateReport = asyncHandler(async (req, res) => {
     const reportDoc = await Report.findById(reportId);
     
     if (!reportDoc) {
-      return res.status(404).json({ success: false, message: 'Report not found' });
+      return res.status(404).json(ApiResponse.notFound('Report not found'));
+    }
+
+    if (!reportDoc.isEngineerReviewed) {
+      return res.status(403).json(ApiResponse.error('Report must be reviewed by an engineer before export', 403));
+    }
+    if (!reportDoc.isQaApproved || !['Final Approved', 'Exported'].includes(reportDoc.status)) {
+      return res.status(403).json(ApiResponse.error('Report must be QA verified and final approved before export', 403));
     }
 
     const jobId = reportDoc.job;
 
-    // Fetch job and related stage documents from database
-    const [job, inspection, dismantling, assembly, testing] = await Promise.all([
+    // Fetch job and unified stage data from JobData
+    // Legacy models (Inspection, Assembly, Dismantling, Testing) retired
+    const [job, stageData] = await Promise.all([
       Job.findById(jobId).lean(),
-      Inspection.findOne({ job: jobId }).lean(),
-      Dismantling.findOne({ job: jobId }).lean(),
-      Assembly.findOne({ job: jobId }).lean(),
-      Testing.findOne({ job: jobId }).lean(),
+      JobData.findOne({ job: jobId }).lean(),
     ]);
 
     if (!job) {
-      return res.status(404).json({ success: false, message: 'Job not found' });
+      return res.status(404).json(ApiResponse.notFound('Job not found'));
     }
 
+    const categorizedPhotos = reportDoc.categorizedPhotos || [];
     const photoStageMap = {};
-    if (reportDoc.categorizedPhotos && Array.isArray(reportDoc.categorizedPhotos)) {
-      // Sort by order
-      const sortedPhotos = [...reportDoc.categorizedPhotos].sort((a, b) => (a.order || 0) - (b.order || 0));
-      sortedPhotos.forEach(p => {
-        // Map category to template placeholder
-        let placeholder = null;
-        const cat = p.category.toLowerCase();
-        if (cat.includes('receive')) placeholder = 'receivedCondition';
-        else if (cat.includes('inspect')) placeholder = 'inspection';
-        else if (cat.includes('dismantl')) placeholder = 'dismantling';
-        else if (cat.includes('assembl')) placeholder = 'assembly';
-        else if (cat.includes('test')) placeholder = 'testing';
-        else if (cat.includes('rotor')) placeholder = 'damagedParts';
-        else if (cat.includes('bearing')) placeholder = 'damagedParts'; // fallback
+    const photoArrays = {
+      receivedPhotos: [],
+      inspectionPhotos: [],
+      dismantlingPhotos: [],
+      damagedPartsPhotos: [],
+      assemblyPhotos: [],
+      testingPhotos: [],
+      finalPhotos: []
+    };
 
-        // We only map the first photo per placeholder if the template only supports one
-        // Note: For a robust system, docxtemplater image replacer should handle arrays, but we will use the first match for now
+    if (Array.isArray(categorizedPhotos)) {
+      const sortedPhotos = [...categorizedPhotos].sort((a, b) => (a.order || 0) - (b.order || 0));
+      sortedPhotos.forEach((p) => {
+        const urlValue = typeof p.url === 'string' ? p.url : (p.filename || '');
+        const filename = String(urlValue).split('/').pop();
+        let localPath = urlValue;
+        if (!localPath.startsWith('/uploads') && !localPath.startsWith('data:image') && !localPath.startsWith('http')) {
+          localPath = path.join(__dirname, '../uploads', filename);
+        }
+
+        const cat = (p.category || '').toLowerCase();
+        let placeholder = null;
+        let arrayKey = null;
+
+        if (cat.includes('receive') || cat.includes('inspection')) {
+          placeholder = 'receivedCondition';
+          arrayKey = 'receivedPhotos';
+        } else if (cat.includes('dismantl')) {
+          placeholder = 'dismantling';
+          arrayKey = 'dismantlingPhotos';
+        } else if (cat.includes('assembl')) {
+          placeholder = 'assembly';
+          arrayKey = 'assemblyPhotos';
+        } else if (cat.includes('test')) {
+          placeholder = 'testing';
+          arrayKey = 'testingPhotos';
+        } else if (cat.includes('rotor') || cat.includes('bearing') || cat.includes('damage')) {
+          placeholder = 'damagedParts';
+          arrayKey = 'damagedPartsPhotos';
+        } else if (cat.includes('final') || cat.includes('dispatch')) {
+          placeholder = 'finalCondition';
+          arrayKey = 'finalPhotos';
+        }
+
         if (placeholder && !photoStageMap[placeholder]) {
-          const filename = p.url.split('/').pop();
-          photoStageMap[placeholder] = path.join(__dirname, '../uploads', filename);
+          photoStageMap[placeholder] = typeof localPath === 'string' ? localPath : '';
+        }
+
+        if (arrayKey && urlValue) {
+          photoArrays[arrayKey].push({
+            image: localPath,
+            caption: p.caption || `${p.category || 'Photo'} ${photoArrays[arrayKey].length + 1}`
+          });
         }
       });
     }
 
     const jobData = {
+      ...photoArrays,
       jobNo: job.jobNo,
       job: {
         jobNo: job.jobNo,
@@ -93,29 +131,34 @@ exports.generateReport = asyncHandler(async (req, res) => {
         runningHours: job.previousRunningHours || '',
       },
       inspection: {
-        date: inspection?.inspectionDate || new Date().toISOString(),
-        observations: inspection?.observations || '',
-        physicalCondition: inspection?.physicalCondition || '',
-        electricalCondition: inspection?.electricalCondition || '',
-        mechanicalCondition: inspection?.mechanicalCondition || '',
+        date: stageData?.stage1?.completionDate || stageData?.stage1?.startDate || new Date().toISOString(),
+        observations: stageData?.stage1?.overallRemarks || '',
+        physicalCondition: stageData?.stage1?.inspectionDecision || '',
+        electricalCondition: JSON.stringify(stageData?.stage1?.electricalTests || {}),
+        mechanicalCondition: stageData?.stage1?.inspectionDecisionReason || '',
       },
       dismantling: {
-        date: dismantling?.startDate || '',
-        partsRemoved: dismantling?.partConditions?.map(p => p.partName) || [],
-        damagedParts: dismantling?.findings?.join('; ') || '',
-        conditionFound: dismantling?.partConditions?.map(p => `${p.partName}: ${p.condition}`).join('; ') || '',
+        date: stageData?.stage2?.startDate || '',
+        partsRemoved: Object.keys(stageData?.stage2?.dismantlingChecklist || {}),
+        damagedParts: Object.entries(stageData?.stage2?.componentConditionAssessment || {})
+          .filter(([, v]) => v?.decision === 'Replace')
+          .map(([k]) => k)
+          .join('; ') || '',
+        conditionFound: Object.entries(stageData?.stage2?.componentConditionAssessment || {})
+          .map(([k, v]) => `${k}: ${v?.decision || 'Assessed'}`)
+          .join('; ') || '',
       },
       assembly: {
-        date: assembly?.completionDate || '',
-        newPartsInstalled: assembly?.materialsUsed?.map(m => m.itemName) || [],
-        repairedParts: assembly?.workLogs?.filter(l => l.workDone.toLowerCase().includes('repair')).map(l => l.workDone).join('; ') || '',
-        changedParts: '', // Add if needed
+        date: stageData?.stage3?.completionDate || stageData?.stage3?.assemblyCompletionDate || '',
+        newPartsInstalled: (stageData?.stage3?.materialsUsed || []).map(m => m.name).filter(Boolean),
+        repairedParts: Object.keys(stageData?.stage3?.assemblyChecklist || {}).join('; ') || '',
+        changedParts: (stageData?.stage3?.materialsUsed || []).map(m => `${m.name} x${m.quantity}`).join(', ') || '',
       },
       testing: {
-        date: testing?.updatedAt || '',
-        irReadings: testing?.finalIrTests?.reduce((acc, t) => ({ ...acc, [t.terminal]: t.irValue }), {}) || {},
-        results: testing?.result || '',
-        status: testing?.result || '',
+        date: stageData?.stage4?.completionDate || stageData?.stage4?.startDate || '',
+        irReadings: stageData?.stage4?.electricalTests || {},
+        results: stageData?.stage4?.overallRemarks || '',
+        status: stageData?.stage4?.status || '',
       },
       photos: {
         receivedCondition: photoStageMap.receivedCondition || null,
@@ -129,27 +172,37 @@ exports.generateReport = asyncHandler(async (req, res) => {
       summaries: {
         executiveSummary: reportDoc.executiveSummary,
         inspectionFindings: reportDoc.visualInspectionSummary,
-        dismantlingSummary: reportDoc.partsConditionAnalysis,
-        assemblySummary: reportDoc.assemblyDescription,
+        electricalInspectionSummary: reportDoc.electricalInspectionSummary,
+        partsConditionAnalysis: reportDoc.partsConditionAnalysis,
+        failureAnalysis: reportDoc.failureAnalysis || {},
+        workPerformed: reportDoc.workPerformed,
+        assemblyDescription: reportDoc.assemblyDescription,
         testingSummary: reportDoc.testingSummary,
+        finalConclusion: reportDoc.finalConclusion,
+        recommendations: reportDoc.recommendations,
         conclusions: reportDoc.finalConclusion,
       }
     };
 
     const reportResult = await reportGenerationService.generateReport(jobData);
 
-    res.status(200).json({
-      success: true,
-      message: 'Report generated successfully',
-      data: reportResult,
-    });
+    if (reportDoc.status !== 'Exported') {
+      reportDoc.status = 'Exported';
+      reportDoc.reviewHistory = reportDoc.reviewHistory || [];
+      reportDoc.reviewHistory.push({
+        action: 'Exported',
+        user: req.user._id,
+        role: req.user.role || 'Approver',
+        comment: 'Report exported as final DOCX',
+        date: new Date()
+      });
+      await reportDoc.save();
+    }
+
+    res.status(200).json(ApiResponse.success('Report generated successfully', reportResult));
   } catch (error) {
     console.error('Report generation error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to generate report',
-      error: error.message,
-    });
+    res.status(500).json(ApiResponse.error(`Failed to generate report: ${error.message}`, 500));
   }
 });
 
@@ -164,10 +217,7 @@ exports.downloadReport = asyncHandler(async (req, res) => {
 
     // Validate format
     if (!['pdf', 'docx'].includes(format)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid format. Supported: pdf, docx',
-      });
+      return res.status(400).json(ApiResponse.badRequest('Invalid format. Supported: pdf, docx'));
     }
 
     // Get report file
@@ -185,11 +235,7 @@ exports.downloadReport = asyncHandler(async (req, res) => {
     res.send(fileBuffer);
   } catch (error) {
     console.error('Report download error:', error);
-    res.status(404).json({
-      success: false,
-      message: 'Report not found',
-      error: error.message,
-    });
+    res.status(404).json(ApiResponse.error(`Report not found: ${error.message}`, 404));
   }
 });
 
@@ -201,21 +247,13 @@ exports.listReports = asyncHandler(async (req, res) => {
   try {
     const reports = reportGenerationService.listGeneratedReports();
 
-    res.status(200).json({
-      success: true,
-      message: 'Reports retrieved successfully',
-      data: {
-        count: reports.length,
-        reports: reports,
-      },
-    });
+    res.status(200).json(ApiResponse.success('Reports retrieved successfully', {
+      count: reports.length,
+      reports: reports,
+    }));
   } catch (error) {
     console.error('Error listing reports:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to list reports',
-      error: error.message,
-    });
+    res.status(500).json(ApiResponse.error(`Failed to list reports: ${error.message}`, 500));
   }
 });
 
@@ -230,27 +268,17 @@ exports.getReportStatus = asyncHandler(async (req, res) => {
     const job = await Job.findOne({ jobNo }).lean();
 
     if (!job) {
-      return res.status(404).json({
-        success: false,
-        message: 'Job not found',
-      });
+      return res.status(404).json(ApiResponse.notFound('Job not found'));
     }
 
-    res.status(200).json({
-      success: true,
-      data: {
-        jobNo: job.jobNo,
-        status: job.status,
-        reportGenerated: job.reportGenerated || false,
-        generatedAt: job.reportGeneratedAt || null,
-      },
-    });
+    res.status(200).json(ApiResponse.success('Report status retrieved successfully', {
+      jobNo: job.jobNo,
+      status: job.status,
+      reportGenerated: job.reportGenerated || false,
+      generatedAt: job.reportGeneratedAt || null,
+    }));
   } catch (error) {
     console.error('Error getting report status:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to get report status',
-      error: error.message,
-    });
+    res.status(500).json(ApiResponse.error(`Failed to get report status: ${error.message}`, 500));
   }
 });

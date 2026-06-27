@@ -2,10 +2,12 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
+import { FiEye, FiEyeOff } from 'react-icons/fi';
 
 export default function LoginPage() {
   const [form, setForm] = useState({ username: '', password: '' });
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -37,9 +39,26 @@ export default function LoginPage() {
             <label>Username</label>
             <input type="text" placeholder="Enter username" value={form.username} onChange={e => setForm({ ...form, username: e.target.value })} required />
           </div>
-          <div className="form-group">
+          <div className="form-group relative">
             <label>Password</label>
-            <input type="password" placeholder="••••••••" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} required />
+            <div className="relative">
+              <input 
+                type={showPassword ? "text" : "password"} 
+                placeholder="••••••••" 
+                value={form.password} 
+                onChange={e => setForm({ ...form, password: e.target.value })} 
+                required 
+                style={{ paddingRight: '2.5rem' }}
+              />
+              <button 
+                type="button" 
+                onClick={() => setShowPassword(!showPassword)} 
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+              >
+                {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+              </button>
+            </div>
           </div>
           <button type="submit" className="btn btn-primary" disabled={loading} style={{ padding: '0.85rem', width: '100%', fontSize: '1rem' }}>
             {loading ? 'Authenticating...' : 'Sign In'}

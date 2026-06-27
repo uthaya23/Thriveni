@@ -20,7 +20,7 @@ export default function ProductionPlanningHub() {
       const res = await api.get(`/production-plans/dashboard`, {
         params: { financialYear: filterFY, quarter: filterQ }
       });
-      setStats(res.data.data);
+      setStats(res.data);
     } catch (err) {
       console.error(err);
       toast.error('Failed to load dashboard statistics');
@@ -36,7 +36,7 @@ export default function ProductionPlanningHub() {
       const res = await api.get(`/production-plans`, {
         params: { financialYear: filterFY, quarter: filterQ }
       });
-      setPlans(res.data.data || []);
+      setPlans(res.data || []);
     } catch (err) {
       console.error(err);
       toast.error('Failed to load production plans');
@@ -361,50 +361,97 @@ function MatrixTab({ plans, filterQ }) {
 
   const matrixData = Object.values(grouped).sort((a,b) => a.make.localeCompare(b.make) || a.model.localeCompare(b.model));
   
-  // Determine Columns dynamically based on available months or hardcode Q1/Q2/Q3/Q4 if Annual
+  // Determine columns statically or dynamically based on quarter filter
   let columns = [];
   if (filterQ === 'All') {
-    columns = ['Q1', 'Q2', 'Q3', 'Q4'];
+    columns = ['2026-04', '2026-05', '2026-06', '2026-07', '2026-08', '2026-09', '2026-10', '2026-11', '2026-12', '2027-01', '2027-02', '2027-03'];
+  } else if (filterQ === 'Q1') {
+    columns = ['2026-04', '2026-05', '2026-06'];
+  } else if (filterQ === 'Q2') {
+    columns = ['2026-07', '2026-08', '2026-09'];
+  } else if (filterQ === 'Q3') {
+    columns = ['2026-10', '2026-11', '2026-12'];
+  } else if (filterQ === 'Q4') {
+    columns = ['2027-01', '2027-02', '2027-03'];
   } else {
-    // Collect all unique months in this quarter
     const mSet = new Set();
     plans.forEach(p => p.month && mSet.add(p.month));
     columns = Array.from(mSet).sort();
   }
 
-  // Calculate Column Aggregates if Annual
   const getColData = (item, col) => {
-    if (filterQ === 'All') {
-      // Aggregate by quarter logic here if we had month->quarter mapping inside item. 
-      // Simplified: We assume plans have 'quarter' field but Matrix grouped them by month.
-      // Let's filter original plans to sum up
-      let plan = 0, actual = 0;
-      plans.filter(p => p.make===item.make && p.model===item.model && p.description===item.component && p.quarter === col)
-           .forEach(p => { plan+=p.plannedQty; actual+=p.completedQty; });
-      return { plan, actual };
-    } else {
-      return item.months[col] || { plan: 0, actual: 0 };
-    }
+    return item.months[col] || { plan: 0, actual: 0 };
   };
 
+  const getMonthName = (mStr) => {
+    if (!mStr || typeof mStr !== 'string') return mStr;
+    const parts = mStr.split('-');
+    if (parts.length !== 2) return mStr;
+    const monthIndex = parseInt(parts[1], 10) - 1;
+    const stdMonths = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    return stdMonths[monthIndex] || mStr;
+  };
+
+  // Split into Table 1 and Table 2 to match Excel layout exactly
+  const table1Data = matrixData.filter(item => 
+    ['830E AC', '830E DC', '75306/75302', 'EH4500'].includes(item.model)
+  );
+
+  const table2Data = matrixData.filter(item => 
+    !['830E AC', '830E DC', '75306/75302', 'EH4500'].includes(item.model)
+  );
+
   const handleExport = () => {
-    const wsData = matrixData.map(item => {
+    const wsData = [];
+    
+    // Add Table 1 header
+    wsData.push({ 'Make': 'FLEET 1: STANDARD EQUIPMENT PLAN', 'Model': '', 'Component': '' });
+    
+    table1Data.forEach(item => {
       const row = {
         'Make': item.make,
-        'Model': item.model,
+        'Model': item.model === '75306/75302' ? '75306 / 75302' : item.model,
         'Component': item.component,
       };
       columns.forEach(c => {
         const cd = getColData(item, c);
-        row[`${c} Plan`] = cd.plan;
-        row[`${c} Actual`] = cd.actual;
+        row[`${getMonthName(c)} Plan`] = cd.plan;
+        row[`${getMonthName(c)} Actual`] = cd.actual;
       });
       row['Total Plan'] = item.totalPlan;
       row['Total Actual'] = item.totalActual;
       row['Pending'] = Math.max(0, item.totalPlan - item.totalActual);
       row['Achievement %'] = item.totalPlan > 0 ? ((item.totalActual/item.totalPlan)*100).toFixed(1) : 0;
       row['Latest Remark'] = item.remarks.length > 0 ? item.remarks[item.remarks.length-1].remark : '';
-      return row;
+      wsData.push(row);
+    });
+
+    // Add empty row separator
+    wsData.push({});
+
+    // Add Table 2 header
+    wsData.push({ 'Make': 'FLEET 2: SPECIAL PROJECTS PLAN', 'Model': '', 'Component': '' });
+
+    table2Data.forEach(item => {
+      const row = {
+        'Make': item.make,
+        'Model': item.model === 'EH5000' ? 'EH5000 / for 20No\'s Machine' : item.model,
+        'Component': item.component,
+      };
+      columns.forEach(c => {
+        const cd = getColData(item, c);
+        row[`${getMonthName(c)} Plan`] = cd.plan;
+        row[`${getMonthName(c)} Actual`] = cd.actual;
+      });
+      row['Total Plan'] = item.totalPlan;
+      row['Total Actual'] = item.totalActual;
+      row['Pending'] = Math.max(0, item.totalPlan - item.totalActual);
+      row['Achievement %'] = item.totalPlan > 0 ? ((item.totalActual/item.totalPlan)*100).toFixed(1) : 0;
+      row['Latest Remark'] = item.remarks.length > 0 ? item.remarks[item.remarks.length-1].remark : '';
+      wsData.push(row);
     });
     
     const ws = XLSX.utils.json_to_sheet(wsData);
@@ -413,88 +460,161 @@ function MatrixTab({ plans, filterQ }) {
     XLSX.writeFile(wb, `Production_Plan_Matrix.xlsx`);
   };
 
-  return (
-    <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm overflow-x-auto animate-in fade-in">
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-sm font-black uppercase tracking-tight text-slate-800">Plan vs Actual Matrix</h3>
-        <button onClick={handleExport} className="btn btn-xs bg-slate-900 text-white hover:bg-slate-800">Export Excel</button>
-      </div>
-      
-      <table className="w-full text-center border-collapse border border-slate-300 min-w-[1200px]">
-        <thead>
-          <tr className="bg-slate-100 border-b border-slate-300">
-            <th colSpan="3" className="p-2 border border-slate-300"></th>
-            {columns.map(c => (
-              <th key={c} colSpan="2" className="p-2 border border-slate-300 bg-yellow-100 text-slate-800 font-black uppercase text-xs">{c}</th>
-            ))}
-            <th colSpan="3" className="p-2 border border-slate-300 bg-purple-100 text-purple-900 font-black uppercase text-xs">Summary</th>
-            <th className="p-2 border border-slate-300"></th>
-          </tr>
-          <tr className="bg-slate-50 text-[10px] font-black uppercase tracking-widest text-slate-600">
-            <th className="p-2 border border-slate-300 w-24">Make</th>
-            <th className="p-2 border border-slate-300 w-32">Model</th>
-            <th className="p-2 border border-slate-300 w-40">Component</th>
-            
-            {columns.map(c => (
-              <React.Fragment key={c}>
-                <th className="p-2 border border-slate-300 w-14 bg-yellow-50">Plan</th>
-                <th className="p-2 border border-slate-300 w-14">Actual</th>
-              </React.Fragment>
-            ))}
-            
-            <th className="p-2 border border-slate-300 w-14 bg-purple-50">T.Plan</th>
-            <th className="p-2 border border-slate-300 w-14 bg-purple-50">T.Actual</th>
-            <th className="p-2 border border-slate-300 w-14 bg-red-50 text-red-700">Pend</th>
-            
-            <th className="p-2 border border-slate-300 w-64 text-left">Remarks History</th>
-          </tr>
-        </thead>
-        <tbody>
-          {matrixData.map((item, idx) => {
-            const pending = Math.max(0, item.totalPlan - item.totalActual);
-            const ach = item.totalPlan > 0 ? parseFloat(((item.totalActual/item.totalPlan)*100).toFixed(1)) : 0;
-            const statusClass = ach >= 100 ? 'text-green-600' : (ach > 0 ? 'text-orange-500' : 'text-red-500');
-            
-            return (
-              <tr key={idx} className="text-[11px] font-bold text-slate-700 hover:bg-slate-50">
-                <td className="p-2 border border-slate-300 uppercase">{item.make}</td>
-                <td className="p-2 border border-slate-300 uppercase">{item.model}</td>
-                <td className="p-2 border border-slate-300 text-left">{item.component}</td>
+  const renderTable = (title, dataList) => {
+    if (dataList.length === 0) return null;
+
+    // Calculate column totals
+    const colTotals = {};
+    columns.forEach(c => {
+      colTotals[c] = { plan: 0, actual: 0 };
+    });
+    let grandTotalPlan = 0;
+    let grandTotalActual = 0;
+    let grandTotalPending = 0;
+
+    dataList.forEach(item => {
+      columns.forEach(c => {
+        const cd = getColData(item, c);
+        colTotals[c].plan += cd.plan;
+        colTotals[c].actual += cd.actual;
+      });
+      grandTotalPlan += item.totalPlan;
+      grandTotalActual += item.totalActual;
+      grandTotalPending += Math.max(0, item.totalPlan - item.totalActual);
+    });
+
+    const grandAch = grandTotalPlan > 0 ? ((grandTotalActual / grandTotalPlan) * 100).toFixed(1) : 0;
+
+    return (
+      <div className="mb-10 bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div className="bg-slate-800 text-white px-4 py-3 font-black text-xs uppercase tracking-wider flex justify-between items-center">
+          <span>{title}</span>
+          <span className="text-[10px] text-slate-300 font-bold">
+            {dataList.length} Items Listed
+          </span>
+        </div>
+        
+        <div className="overflow-x-auto">
+          <table className="w-full text-center border-collapse border border-slate-300 min-w-[1200px]">
+            <thead>
+              <tr className="bg-slate-100 border-b border-slate-300 text-xs">
+                <th colSpan="3" className="p-2 border-r border-slate-300"></th>
+                {columns.map(c => (
+                  <th key={c} colSpan="2" className="p-2 border-r border-slate-300 bg-yellow-100/80 text-slate-800 font-black uppercase text-xs">
+                    {getMonthName(c)}
+                  </th>
+                ))}
+                <th colSpan="3" className="p-2 border-r border-slate-300 bg-purple-100 text-purple-900 font-black uppercase text-xs">Summary</th>
+                <th className="p-2"></th>
+              </tr>
+              <tr className="bg-slate-50 text-[10px] font-black uppercase tracking-widest text-slate-600 border-b border-slate-300">
+                <th className="p-2 border-r border-slate-300 w-24">Make</th>
+                <th className="p-2 border-r border-slate-300 w-44">Model</th>
+                <th className="p-2 border-r border-slate-300 w-48 text-left pl-4">Component</th>
                 
-                {columns.map(c => {
-                  const d = getColData(item, c);
-                  return (
-                    <React.Fragment key={c}>
-                      <td className="p-2 border border-slate-300 bg-yellow-50">{d.plan || '-'}</td>
-                      <td className="p-2 border border-slate-300">{d.actual || '-'}</td>
-                    </React.Fragment>
-                  );
-                })}
+                {columns.map(c => (
+                  <React.Fragment key={c}>
+                    <th className="p-2 border-r border-slate-300 w-14 bg-yellow-50/50">Plan</th>
+                    <th className="p-2 border-r border-slate-300 w-14">Actual</th>
+                  </React.Fragment>
+                ))}
                 
-                <td className="p-2 border border-slate-300 bg-purple-50 text-purple-900">{item.totalPlan}</td>
-                <td className="p-2 border border-slate-300 bg-purple-50 text-purple-900">{item.totalActual}</td>
-                <td className="p-2 border border-slate-300 bg-red-50 text-red-600">{pending}</td>
+                <th className="p-2 border-r border-slate-300 w-14 bg-purple-50">T.Plan</th>
+                <th className="p-2 border-r border-slate-300 w-14 bg-purple-50">T.Actual</th>
+                <th className="p-2 border-r border-slate-300 w-14 bg-red-50 text-red-700">Pend</th>
                 
-                <td className="p-2 border border-slate-300 text-left">
-                  <div className={`text-[9px] mb-1 uppercase tracking-widest font-black ${statusClass}`}>
-                    {ach >= 100 ? '✓ Exceeded/On Target' : '⚠ Behind Plan'} ({ach}%)
-                  </div>
-                  {item.remarks.length > 0 ? (
-                    <div className="space-y-1 max-h-24 overflow-y-auto pr-1 custom-scrollbar">
-                      {item.remarks.sort((a,b)=>new Date(b.date)-new Date(a.date)).map((r, i) => (
-                        <div key={i} className="text-[9px] leading-tight bg-slate-100 p-1 rounded border border-slate-200">
-                          <span className="text-slate-400 font-black mr-1">{new Date(r.date).toLocaleDateString('en-GB')}</span>
-                          <span className="text-slate-600 font-medium">{r.remark}</span>
+                <th className="p-2 text-left pl-4">Remarks History</th>
+              </tr>
+            </thead>
+            <tbody>
+              {dataList.map((item, idx) => {
+                const pending = Math.max(0, item.totalPlan - item.totalActual);
+                const ach = item.totalPlan > 0 ? parseFloat(((item.totalActual/item.totalPlan)*100).toFixed(1)) : 0;
+                const statusClass = ach >= 100 ? 'text-green-600' : (ach > 0 ? 'text-orange-500' : 'text-red-500');
+                
+                let displayModel = item.model;
+                if (item.model === 'EH5000') {
+                  displayModel = 'EH5000 / for 20No\'s Machine';
+                } else if (item.model === '75306/75302') {
+                  displayModel = '75306 / 75302';
+                }
+
+                return (
+                  <tr key={idx} className="text-[11px] font-bold text-slate-700 hover:bg-slate-50 border-b border-slate-200">
+                    <td className="p-2 border-r border-slate-300 uppercase">{item.make}</td>
+                    <td className="p-2 border-r border-slate-300 uppercase font-black">{displayModel}</td>
+                    <td className="p-2 border-r border-slate-300 text-left pl-4 font-medium">{item.component}</td>
+                    
+                    {columns.map(c => {
+                      const d = getColData(item, c);
+                      return (
+                        <React.Fragment key={c}>
+                          <td className="p-2 border-r border-slate-300 bg-yellow-50/30 font-black">{d.plan || '-'}</td>
+                          <td className="p-2 border-r border-slate-300 font-black text-slate-600">{d.actual || '-'}</td>
+                        </React.Fragment>
+                      );
+                    })}
+                    
+                    <td className="p-2 border-r border-slate-300 bg-purple-50/50 text-purple-900 font-black">{item.totalPlan}</td>
+                    <td className="p-2 border-r border-slate-300 bg-purple-50/50 text-purple-900 font-black">{item.totalActual}</td>
+                    <td className="p-2 border-r border-slate-300 bg-red-50/50 text-red-600 font-black">{pending}</td>
+                    
+                    <td className="p-2 text-left pl-4">
+                      <div className={`text-[9px] mb-1 uppercase tracking-widest font-black ${statusClass}`}>
+                        {ach >= 100 ? '✓ Completed' : (ach > 0 ? `⚠ In Progress (${ach}%)` : `Pending (${ach}%)`)}
+                      </div>
+                      {item.remarks.length > 0 ? (
+                        <div className="space-y-1 max-h-24 overflow-y-auto pr-1 custom-scrollbar">
+                          {item.remarks.sort((a,b)=>new Date(b.date)-new Date(a.date)).map((r, i) => (
+                            <div key={i} className="text-[9px] leading-tight bg-slate-100 p-1 rounded border border-slate-200">
+                              <span className="text-slate-400 font-black mr-1">{new Date(r.date).toLocaleDateString('en-GB')}</span>
+                              <span className="text-slate-600 font-medium">{r.remark}</span>
+                            </div>
+                          ))}
                         </div>
-                      ))}
-                    </div>
-                  ) : <span className="text-slate-400 italic text-[10px]">No remarks</span>}
+                      ) : <span className="text-slate-400 italic text-[10px]">No remarks</span>}
+                    </td>
+                  </tr>
+                );
+              })}
+              
+              {/* TOTAL Row */}
+              <tr className="bg-emerald-500 text-white text-[11px] font-black uppercase">
+                <td colSpan="3" className="p-2.5 border-r border-emerald-600 text-right pr-4">TOTAL</td>
+                {columns.map(c => (
+                  <React.Fragment key={c}>
+                    <td className="p-2.5 border-r border-emerald-600 bg-emerald-600 text-white font-black">{colTotals[c].plan || '-'}</td>
+                    <td className="p-2.5 border-r border-emerald-600 bg-emerald-700 text-white font-black">{colTotals[c].actual || '-'}</td>
+                  </React.Fragment>
+                ))}
+                <td className="p-2.5 border-r border-emerald-600 bg-emerald-600 text-white font-black">{grandTotalPlan}</td>
+                <td className="p-2.5 border-r border-emerald-600 bg-emerald-700 text-white font-black">{grandTotalActual}</td>
+                <td className="p-2.5 border-r border-emerald-600 bg-red-700 text-white font-black">{grandTotalPending}</td>
+                <td className="p-2.5 text-left pl-4 bg-emerald-700 text-yellow-300">
+                  ACHIEVEMENT RATE: {grandAch}%
                 </td>
               </tr>
-            );
-          })}
-        </tbody>
-      </table>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="space-y-6 animate-in fade-in">
+      <div className="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+        <div>
+          <h3 className="text-sm font-black uppercase tracking-tight text-slate-800">Q1 Month-wise Production Matrix</h3>
+          <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-0.5">April, May, and June Targets & Completions</p>
+        </div>
+        <button onClick={handleExport} className="btn btn-xs bg-slate-900 text-white hover:bg-slate-800 border-0 uppercase font-black tracking-wider px-3 py-1">
+          Export Matrix
+        </button>
+      </div>
+
+      {renderTable("FLEET 1: STANDARD EQUIPMENT PLAN (KOMATSU, BELAZ, EH4500)", table1Data)}
+      {renderTable("FLEET 2: SPECIAL PROJECTS & OTHER CONTRACTS (EH5000, L2350)", table2Data)}
     </div>
   );
 }

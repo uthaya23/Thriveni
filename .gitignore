@@ -1,6 +1,35 @@
-**/node_modules/
-**/.cache/
+# Dependencies
+node_modules/
+
+# Build
+dist/
+build/
+.next/
+
+# Environment
 .env
-**/build/
-**/dist/
-.DS_Store
+.env.*
+.env.local
+
+# Logs
+logs/
+*.log
+
+# Uploads
+backend/uploads/
+uploads/
+
+# Generated Reports
+backend/generated-reports/
+generated-reports/
+reports/generated/
+
+# PDFs
+*.pdf
+
+# Images (only if generated)
+generated-images/
+ai-images/
+
+# Office temp files
+~$*

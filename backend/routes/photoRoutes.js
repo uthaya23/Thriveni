@@ -6,6 +6,7 @@ const fs = require('fs');
 const Photo = require('../models/Photo');
 const { protect } = require('../middleware/authMiddleware');
 const asyncHandler = require('express-async-handler');
+const ApiResponse = require('../utils/apiResponse');
 
 // Ensure uploads dir exists
 const uploadDir = path.join(__dirname, '../uploads/photos');
@@ -36,13 +37,13 @@ router.get('/:jobId', asyncHandler(async (req, res) => {
   const query = { job: req.params.jobId };
   if (req.query.stage) query.stage = req.query.stage;
   const photos = await Photo.find(query).sort({ createdAt: -1 }).populate('uploadedBy', 'name');
-  res.json(photos);
+  res.json(ApiResponse.success('Photos retrieved successfully', photos));
 }));
 
 // POST /api/photos/:jobId — upload multiple images
 router.post('/:jobId', upload.array('photos', 20), asyncHandler(async (req, res) => {
   if (!req.files || req.files.length === 0)
-    return res.status(400).json({ message: 'No files uploaded' });
+    return res.status(400).json(ApiResponse.badRequest('No files uploaded'));
 
   const { stage, caption } = req.body;
   const docs = await Photo.insertMany(req.files.map(f => ({
@@ -57,20 +58,20 @@ router.post('/:jobId', upload.array('photos', 20), asyncHandler(async (req, res)
     uploadedBy: req.user._id,
   })));
 
-  res.status(201).json(docs);
+  res.status(201).json(ApiResponse.created(docs, 'Photos uploaded successfully'));
 }));
 
 // DELETE /api/photos/:photoId
 router.delete('/:photoId', asyncHandler(async (req, res) => {
   const photo = await Photo.findById(req.params.photoId);
-  if (!photo) return res.status(404).json({ message: 'Photo not found' });
+  if (!photo) return res.status(404).json(ApiResponse.notFound('Photo not found'));
 
   // Delete file from disk
   const filePath = path.join(__dirname, '../uploads/photos', photo.filename);
   if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
 
   await photo.deleteOne();
-  res.json({ message: 'Photo deleted' });
+  res.json(ApiResponse.success('Photo deleted successfully', null));
 }));
 
 module.exports = router;

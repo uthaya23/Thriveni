@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <title>Thriveni Rebuild Center Technical Overhaul Report</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap');
 
         :root {
             --primary-navy: #0B132B;
@@ -21,8 +21,26 @@
 
         @page {
             size: A4;
-            margin: 10mm 0;
-            /* Only top/bottom margin for the printer */
+            margin-top: 10mm;
+            margin-bottom: 15mm;
+            margin-left: 0;
+            margin-right: 0;
+            @bottom-right {
+                content: "Page " counter(page);
+                font-family: 'Inter', sans-serif;
+                font-size: 8px;
+                font-weight: 500;
+                color: #64748B;
+                padding-right: 15mm;
+            }
+        }
+
+        @page :first {
+            margin-top: 0;
+            margin-bottom: 0;
+            @bottom-right {
+                content: "";
+            }
         }
 
         * {
@@ -30,9 +48,9 @@
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', 'Roboto', Arial, sans-serif;
             color: var(--text-dark);
-            font-size: 7.5pt;
+            font-size: 8pt;
             margin: 0;
             padding: 0 15mm;
             /* 🔥 Forces left and right margins directly on the body */
@@ -111,26 +129,21 @@
 
         /* ── SECTION HEADER ── */
         .section-header {
-            background-color: var(--bg-light);
-            border-left: 4px solid var(--accent-gold);
-            border-bottom: 1px solid var(--border-color);
+            font-family: 'Montserrat', 'Inter', 'Roboto', sans-serif;
             color: var(--primary-navy);
-            padding: 5px 10px;
+            padding: 0 0 4px 0;
             font-weight: 800;
-            font-size: 9pt;
+            font-size: 13.5pt;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin: 35px 0 12px 0;
-            /* ✅ Added 35px of top space to push it down from tables */
+            letter-spacing: 0.04em;
+            margin: 20px 0 10px 0;
+            border-bottom: 2px solid var(--accent-gold);
             display: flex;
             justify-content: space-between;
             align-items: center;
             page-break-inside: avoid;
-            /* Keeps the header attached to its content */
             page-break-after: avoid !important;
-            /* Forces the header to stick to the content below it */
             break-after: avoid !important;
-            /* Modern syntax for newer PDF engines */
         }
 
         /* Optional: If a section header is the very first thing on a page, remove the extra top margin so it aligns perfectly with the top edge */
@@ -145,11 +158,11 @@
         }
 
         .sub-section-header {
+            font-family: 'Montserrat', 'Inter', 'Roboto', sans-serif;
             font-weight: 700;
-            font-size: 8pt;
+            font-size: 8.5pt;
             color: var(--secondary-blue);
-            margin: 24px 0 12px 0;
-            /* ✅ Added breathing room top and bottom */
+            margin: 14px 0 6px 0;
             text-transform: uppercase;
             letter-spacing: 0.03em;
             border-bottom: 1px dashed var(--border-color);
@@ -169,7 +182,7 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 30px;
+            margin-bottom: 12px;
             table-layout: fixed;
         }
 
@@ -179,7 +192,7 @@
             padding: 4px 6px;
             text-align: left;
             vertical-align: middle;
-            font-size: 7pt;
+            font-size: 7.5pt;
             word-wrap: break-word;
             overflow-wrap: break-word;
         }
@@ -929,13 +942,13 @@
             <div style="border-bottom: 4px solid #E58200; margin-bottom: 36px;"></div>
 
             <div class="cover-main-title"
-                style="margin-bottom:16px; font-size:11pt; font-weight:800; color:#E58200; text-align:center; text-transform:uppercase; letter-spacing:0.05em;">
-                TECHNICAL OVERHAUL REPORT</div>
+                style="margin-bottom:16px; font-size:14pt; font-weight:600; color:#D97706; text-align:center; text-transform:uppercase; letter-spacing:0.08em; font-family: 'Montserrat', 'Inter', sans-serif;">
+                Technical Overhaul Report</div>
             <div class="cover-title"
-                style="margin-bottom:12px; font-size:18pt; font-weight:800; color:var(--primary-navy); text-align:center; line-height: 1.2;">
-                EQUIPMENT PERFORMANCE & OVERHAUL SERVICE<br>RECORD</div>
+                style="margin-bottom:12px; font-size:28pt; font-weight:800; color:var(--primary-navy); text-align:center; line-height: 1.15; font-family: 'Montserrat', 'Inter', sans-serif;">
+                Industrial Rebuild Report</div>
             <div class="cover-subtitle"
-                style="font-size:11pt; font-weight:700; color:var(--text-muted); margin-bottom:32px; text-transform:uppercase; letter-spacing:0.03em; text-align:center;">
+                style="font-size:12pt; font-weight:500; color:var(--text-muted); margin-bottom:32px; text-transform:uppercase; letter-spacing:0.03em; text-align:center; font-family: 'Inter', sans-serif;">
                 {{fallback job.equipmentModel 'N/A'}} — {{fallback job.description 'N/A'}}
             </div>
 
@@ -1007,29 +1020,17 @@
                 </table>
             </div>
 
-            <div
-                style="position: absolute; bottom: 10mm; left: 0; right: 0; border-top: 1px solid var(--border-color); padding-top: 8px; display: flex; justify-content: space-between; align-items: flex-start;">
-                <div
-                    style="font-size: 6.5pt; color: var(--primary-navy); font-weight: 600; line-height: 1.4; text-transform: uppercase;">
-                    CONFIDENTIAL TECHNICAL OVERHAUL DOCUMENT • THRIVENI EARTHMOVERS & INFRA PVT. LTD.<br>
-                    <span style="color: var(--text-muted);">REGULATION & QUALITY COMPLIANCE • </span><span
-                        style="font-weight: 800; color: var(--primary-navy);">REBUILT PARTNER SERVICE REPORT</span>
-                </div>
-                {{#if qrCode}}
-                <div style="text-align:center;">
-                    <img src="{{qrCode}}" alt="QR Code" style="width:45px; height:auto; margin-bottom: 2px;" />
-                    <div style="font-size:5.5pt; font-weight: 700; color: var(--primary-navy);">SCAN JOB HISTORY</div>
-                </div>
-                {{/if}}
+
+            {{#if qrCode}}
+            <div style="text-align:center;">
+                <img src="{{qrCode}}" alt="QR Code" style="width:45px; height:auto; margin-bottom: 2px;" />
+                <div style="font-size:5.5pt; font-weight: 700; color: var(--primary-navy);">SCAN JOB HISTORY</div>
             </div>
+            {{/if}}
         </div>
         <!-- FOOTER -->
-        <div class="report-footer" style="border-top: none; position: absolute; bottom: 0; left: 0; right: 0;">
+        <div class="report-footer" style="border-top: none; position: absolute; bottom: 12mm; left: 15mm; right: 15mm; font-family: 'Inter', sans-serif; font-size: 8px; font-weight: 500;">
             <span>CONFIDENTIAL • THRIVENI EARTHMOVERS &amp; INFRA PRIVATE LIMITED</span>
-            <span
-                style="font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--primary-navy);">JOB:
-                {{job.jobNo}} &nbsp;|&nbsp; REPORT: {{report.reportNo}}</span>
-            <span>Page 1</span>
         </div>
     </div>
 
@@ -1060,9 +1061,6 @@
                 <td style="border: none; padding: 10mm 0 0 0; background: transparent;">
                     <div class="report-footer">
                         <span>CONFIDENTIAL • THRIVENI EARTHMOVERS & INFRA PRIVATE LIMITED</span>
-                        <span
-                            style="font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--primary-navy);">JOB:
-                            {{job.jobNo}} &nbsp;|&nbsp; REPORT: {{report.reportNo}}</span>
                     </div>
                 </td>
             </tr>
@@ -1071,37 +1069,22 @@
             <tr>
                 <td style="border: none; padding: 0; background: transparent;">
                     <!-- ───────────────────────────────────────────────────────────────── -->
-                    <!-- PAGE 2: EXECUTIVE SUMMARY & TECHNICAL REGISTRY -->
+                    <!-- PAGE 2: JOB OVERVIEW & EXECUTIVE SUMMARY -->
                     <!-- ───────────────────────────────────────────────────────────────── -->
 
 
-                    <div class="section-header" style="margin-bottom: 36px;">
-                        1.0 EXECUTIVE SUMMARY & TECHNICAL REGISTRY
-
+                    <div class="section-header">
+                        01. Executive Summary
                     </div>
 
-                    <div class="summary-dashboard" style="margin-bottom: 12px;">
-                        <div class="dashboard-card">
-                            <span class="dashboard-label">Job Number</span>
-                            <span class="dashboard-val">{{job.jobNo}}</span>
-                        </div>
-                        <div class="dashboard-card">
-                            <span class="dashboard-label">Equipment Model</span>
-                            <span class="dashboard-val">{{fallback job.equipmentModel 'N/A'}}</span>
-                        </div>
-                        <div class="dashboard-card">
-                            <span class="dashboard-label">Final Status</span>
-                            <span class="dashboard-val badge-status">REBUILT & CERTIFIED</span>
-                        </div>
+                    <div style="text-align: justify; margin-bottom: 12px; font-size: 8pt; background: var(--bg-light); padding: 10px 12px; border-radius: 4px; border: 1px solid var(--border-color); line-height: 1.6;">
+                        {{{editable 'report.executiveSummary' report.executiveSummary 'Executive summary details are not recorded.'}}}
+                    </div>
+                    <div class="section-header" style="margin-top: 14px;">
+                        02. Job Information
                     </div>
 
-                    <div
-                        style="text-align: justify; margin-bottom: 12px; font-size: 7.5pt; background: var(--bg-light); padding: 8px; border-radius: 4px; border: 1px solid var(--border-color); line-height: 1.45;">
-                        <strong>Executive Technical Summary:</strong> {{fallback report.executiveSummary 'Executive
-                        summary details are not recorded.'}}
-                    </div>
-
-                    <div class="sub-section-header">1.1 Component Technical Registry</div>
+                    <div class="sub-section-header">2.1 Component Technical Registry</div>
                     <table style="margin-bottom: 0;">
                         <tr>
                             <td class="table-label">Description</td>
@@ -1128,7 +1111,40 @@
                         </tr>
                     </table>
 
-                    <div class="sub-section-header" style="margin-top: 12px;">1.2 Repair Scope Summary</div>
+                    <div class="sub-section-header" style="margin-top: 8px;">2.2 Component Hours & Installation
+                        Details</div>
+                    <table style="margin-bottom: 0;">
+                        <tr>
+                            <td class="table-label">Installed Hour</td>
+                            <td class="table-data">{{fallback job.installedHour 'N/A'}}</td>
+                            <td class="table-label">Installed Date</td>
+                            <td class="table-data">{{fallback job.installedDate 'N/A'}}</td>
+                        </tr>
+                        <tr>
+                            <td class="table-label">Removal Hour</td>
+                            <td class="table-data">{{fallback job.removalHour 'N/A'}}</td>
+                            <td class="table-label">Removal Date</td>
+                            <td class="table-data">{{fallback job.removalDate 'N/A'}}</td>
+                        </tr>
+                        <tr>
+                            <td class="table-label">Life Hour</td>
+                            <td colspan="3" class="table-data">{{fallback job.lifeHour 'N/A'}}</td>
+                        </tr>
+                    </table>
+
+                    {{#if isWheelMotor}}
+                    <div class="sub-section-header" style="margin-top: 8px;">2.3 Wheel Motor Technical Registry</div>
+                    <table style="margin-bottom: 0;">
+                        <tr>
+                            <td class="table-label">Final Drive Number</td>
+                            <td class="table-data">{{fallback job.finalDriveNo 'N/A'}}</td>
+                            <td class="table-label">Final Drive Model</td>
+                            <td class="table-data">{{fallback job.finalDriveModel 'N/A'}}</td>
+                        </tr>
+                    </table>
+                    {{/if}}
+
+                    <div class="sub-section-header" style="margin-top: 8px;">2.4 Repair Scope Summary</div>
                     <table style="margin-bottom: 0;">
                         <thead>
                             <tr>
@@ -1181,307 +1197,118 @@
 
 
                     <!-- ───────────────────────────────────────────────────────────────── -->
-                    <!-- PAGE 3: COMPONENT REBUILD SUMMARY & KPI DASHBOARD -->
+                    <!-- STAGE 1: INCOMING INSPECTION -->
                     <!-- ───────────────────────────────────────────────────────────────── -->
-
-
                     <div class="section-header">
-                        2.0 COMPONENT REBUILD SUMMARY & WORKSHOP KPI DASHBOARD
-
-                    </div>
-
-                    <div class="sub-section-header">2.1 Lifecycle Stage Completion Dates</div>
-                    <div class="kpi-grid">
-                        <div class="kpi-card">
-                            <span class="kpi-label">Received Date</span>
-                            <span class="kpi-val">{{dates.receivedDate}}</span>
-                        </div>
-                        <div class="kpi-card">
-                            <span class="kpi-label">Inspection Date</span>
-                            <span class="kpi-val">{{dates.inspectionDate}}</span>
-                        </div>
-                        <div class="kpi-card">
-                            <span class="kpi-label">Dismantling Date</span>
-                            <span class="kpi-val">{{dates.dismantlingDate}}</span>
-                        </div>
-                        <div class="kpi-card">
-                            <span class="kpi-label">Assembly Date</span>
-                            <span class="kpi-val">{{dates.assemblyDate}}</span>
-                        </div>
-                        <div class="kpi-card">
-                            <span class="kpi-label">Testing Date</span>
-                            <span class="kpi-val">{{dates.testingDate}}</span>
-                        </div>
-                        <div class="kpi-card">
-                            <span class="kpi-label">Dispatch Date</span>
-                            <span class="kpi-val">{{dates.dispatchDate}}</span>
-                        </div>
-                    </div>
-
-                    <div class="sub-section-header">2.2 Workshop Efficiency & Labor KPIs</div>
-                    <div class="kpi-grid">
-                        <div class="kpi-card highlight">
-                            <span class="kpi-label">Total Rebuild Duration</span>
-                            <span class="kpi-val">{{rebuildDurationDays}} Days</span>
-                        </div>
-                        <div class="kpi-card highlight">
-                            <span class="kpi-label">Total Labor Hours Logged</span>
-                            <span class="kpi-val">{{totalLaborHours}} Hours</span>
-                        </div>
-                        <div class="kpi-card">
-                            <span class="kpi-label">Components Repaired</span>
-                            <span class="kpi-val" style="color: var(--accent-green);">{{componentsRepaired}}
-                                Items</span>
-                        </div>
-                        <div class="kpi-card">
-                            <span class="kpi-label">Components Replaced</span>
-                            <span class="kpi-val" style="color: var(--accent-gold);">{{componentsReplaced}} Items</span>
-                        </div>
-                        <div class="kpi-card">
-                            <span class="kpi-label">Component Status</span>
-                            <span class="kpi-val badge-status" style="font-size: 8pt;">{{componentStatus}}</span>
-                        </div>
-                    </div>
-
-                    {{#if cost.hasCostData}}
-                    <div class="sub-section-header">2.3 Repair Value & Business Impact</div>
-                    <table style="margin-bottom: 0;">
-                        <thead>
-                            <tr>
-                                <th>Refurbishment Financial Metrics</th>
-                                <th style="text-align: right; width: 25%;">Amount (INR)</th>
-                                <th>Business Value Impact Remarks</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td class="table-label">New OEM Replacement Cost</td>
-                                <td style="text-align: right; font-weight: 700; color: var(--text-dark);">
-                                    {{cost.newReplacementCost}}</td>
-                                <td>Represents standard acquisition cost for a new component.</td>
-                            </tr>
-                            <tr>
-                                <td class="table-label">Thriveni Certified Overhaul Cost</td>
-                                <td style="text-align: right; font-weight: 700; color: var(--accent-gold);">
-                                    {{cost.repairCost}}</td>
-                                <td>Complete re-manufacture under strict QA.</td>
-                            </tr>
-                            <tr style="background-color: #f0fdf4;">
-                                <td class="table-label" style="color: var(--accent-green);">Net Capital Savings Achieved
-                                </td>
-                                <td
-                                    style="text-align: right; font-weight: 800; color: var(--accent-green); font-size: 8.5pt;">
-                                    {{cost.savingsAchieved}}</td>
-                                <td style="font-weight: 700; color: var(--accent-green);">71% Capital conservation
-                                    compared to direct replacement.</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    {{/if}}
-
-
-                    <div class="sub-section-header" style="margin-top: 12px;">2.4 Workshop Delivery Process Compliance
-                    </div>
-                    <table style="margin-bottom: 12px;">
-                        <thead>
-                            <tr>
-                                <th style="width: 25%;">Process Stage</th>
-                                <th style="width: 25%;">Standard Requirement</th>
-                                <th style="width: 30%;">Actual Execution</th>
-                                <th style="width: 20%; text-align: center;">Compliance</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td style="font-weight: 700;">Incoming Inspection</td>
-                                <td>24h receipt-to-inspection window</td>
-                                <td>Logged {{dates.inspectionDate}} with photographic documentation</td>
-                                <td style="text-align: center;"><span class="badge-pass">COMPLIANT</span></td>
-                            </tr>
-                            <tr>
-                                <td style="font-weight: 700;">Dismantling Protocol</td>
-                                <td>Stage-by-stage documented teardown</td>
-                                <td>Bearing removed, shaft measured, damage mapped with photos</td>
-                                <td style="text-align: center;"><span class="badge-pass">COMPLIANT</span></td>
-                            </tr>
-                            <tr>
-                                <td style="font-weight: 700;">Varnish Process</td>
-                                <td>Dual-coat impregnation at 130-140 deg C</td>
-                                <td>Two-stage baking and varnishing completed per OEM spec</td>
-                                <td style="text-align: center;"><span class="badge-pass">COMPLIANT</span></td>
-                            </tr>
-                            <tr>
-                                <td style="font-weight: 700;">Final Assembly QA</td>
-                                <td>Air gap and torque verification before closure</td>
-                                <td>All casing bolts torqued, air gaps verified by lead engineer</td>
-                                <td style="text-align: center;"><span class="badge-pass">COMPLIANT</span></td>
-                            </tr>
-                            <tr>
-                                <td style="font-weight: 700;">Quality Sign-Off</td>
-                                <td>Dual signature: Engineer + QA Inspector</td>
-                                <td>QA sign-off completed after IR and surge testing passed</td>
-                                <td style="text-align: center;"><span class="badge-pass">COMPLIANT</span></td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <div class="sub-section-header">2.5 Component Status Summary</div>
-                    <div class="summary-dashboard" style="margin-bottom: 0;">
-                        <div class="dashboard-card">
-                            <span class="dashboard-label">Rebuild Status</span>
-                            <span class="dashboard-val badge-status">REBUILT &amp; CERTIFIED</span>
-                        </div>
-                        <div class="dashboard-card">
-                            <span class="dashboard-label">Overhaul Duration</span>
-                            <span class="dashboard-val">{{rebuildDurationDays}} Days</span>
-                        </div>
-                        <div class="dashboard-card">
-                            <span class="dashboard-label">Parts Replaced</span>
-                            <span class="dashboard-val">{{componentsReplaced}} OEM Items</span>
-                        </div>
+                        03. As Received Condition
                     </div>
 
 
-                    <!-- ───────────────────────────────────────────────────────────────── -->
-                    <!-- PAGE 4: VISUAL & PHYSICAL INSPECTION FINDINGS -->
-                    <!-- ───────────────────────────────────────────────────────────────── -->
 
 
-                    <div class="section-header">
-                        3.0 PHYSICAL & VISUAL INSPECTION FINDINGS
 
+                    <div style="text-align: justify; margin-bottom: 12px; font-size: 7.5pt; line-height: 1.6; background: var(--bg-light); padding: 10px 12px; border-radius: 4px; border: 1px solid var(--border-color);">
+                        {{{editable 'report.visualInspectionSummary' report.visualInspectionSummary 'Incoming visual check details are compiled in the checklists below.'}}}
                     </div>
 
-                    <div style="text-align: justify; margin-bottom: 8px; font-size: 7.5pt;">
-                        {{fallback report.visualInspectionSummary 'Incoming visual check details are compiled in the
-                        checklists below.'}}
-                    </div>
 
-                    <div class="sub-section-header">3.1 Structural & External Assessment Groupings</div>
-                    <div
-                        style="background-color: var(--bg-light); border: 1px solid var(--border-color); border-radius: 4px; padding: 10px; margin-bottom: 10px;">
-                        <ul class="bullet-list" style="font-size: 7.5pt; line-height: 1.45;">
-                            <li><strong>External Condition:</strong> {{fallback inspection.physicalCondition 'Dust and
-                                grease build-up. Local paint scaling on the external casing.'}}</li>
-                            <li><strong>Physical Damage:</strong> {{fallback inspection.observations 'No signs of case
-                                fracture or structural welding defects.'}}</li>
-                            <li><strong>Engineering Findings:</strong> {{fallback inspection.mechanicalCondition
-                                'Bearing journals show standard wear. Seal faces require polishing.'}}</li>
-                        </ul>
-                    </div>
-
-                    <div class="sub-section-header">3.2 Missing Components Overview</div>
-                    <div class="kpi-grid" style="margin-bottom: 10px;">
-                        <div class="kpi-card">
-                            <span class="kpi-label">Total Missing Parts</span>
-                            <span class="kpi-val">{{missingSummary.totalMissing}} Items</span>
-                        </div>
-                        <div class="kpi-card">
-                            <span class="kpi-label">Critical Components</span>
-                            <span class="kpi-val" style="color: var(--accent-red);">{{missingSummary.criticalMissing}}
-                                Items</span>
-                        </div>
-                        <div class="kpi-card">
-                            <span class="kpi-label">Electrical Components</span>
-                            <span class="kpi-val"
-                                style="color: var(--accent-gold);">{{missingSummary.electricalMissing}} Items</span>
-                        </div>
-                        <div class="kpi-card">
-                            <span class="kpi-label">Mechanical Components</span>
-                            <span class="kpi-val">{{missingSummary.mechanicalMissing}} Items</span>
-                        </div>
-                    </div>
-
-                    <div class="sub-section-header">3.3 Initial Check-in Missing Parts Checklist</div>
+                    <div class="sub-section-header">2.2 Incoming Parts Checklist</div>
                     <table style="margin-bottom: 0;">
                         <thead>
                             <tr>
                                 <th style="width: 45%;">Component Description</th>
-                                <th style="width: 20%; text-align: center;">Qty Missing</th>
-                                <th style="width: 35%;">Observations / Remarks</th>
+                                <th style="width: 15%; text-align: center;">Status</th>
+                                <th style="width: 40%;">Observations / Remarks</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {{#each inspection.missingParts}}
+                            {{#each inspection.allParts}}
                             <tr>
-                                <td style="font-weight: 700; color: var(--secondary-blue);">{{fallback this.partName
-                                    'N/A'}}</td>
-                                <td style="text-align: center; font-weight: 800; color: var(--accent-red);">{{fallback
-                                    this.quantity '0'}}</td>
-                                <td>{{fallback this.remarks 'N/A'}}</td>
+                                <td style="font-weight: 700; color: var(--secondary-blue);">{{fallback this.partName 'N/A'}}</td>
+                                <td style="text-align: center;">
+                                    {{#ifEquals this.status 'Present'}}
+                                    <span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:7.5pt;font-weight:800;background:#f0fdf4;color:#16a34a;border:1px solid #16a34a40;">PRESENT</span>
+                                    {{else}}
+                                    {{#ifEquals this.status 'Missing'}}
+                                    <span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:7.5pt;font-weight:800;background:#fef2f2;color:#dc2626;border:1px solid #dc262640;">MISSING</span>
+                                    {{else}}
+                                    {{#ifEquals this.status 'Damaged'}}
+                                    <span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:7.5pt;font-weight:800;background:#fef9c3;color:#854d0e;border:1px solid #854d0e40;">DAMAGED</span>
+                                    {{else}}
+                                    <span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:7.5pt;font-weight:800;background:#f1f5f9;color:#475569;border:1px solid #47556940;">{{fallback this.status 'N/A'}}</span>
+                                    {{/ifEquals}}
+                                    {{/ifEquals}}
+                                    {{/ifEquals}}
+                                </td>
+                                <td>{{fallback this.remarks '—'}}</td>
                             </tr>
                             {{/each}}
-                            {{#unless inspection.missingParts}}
+                            {{#unless inspection.allParts}}
                             <tr>
-                                <td colspan="3"
-                                    style="text-align: center; color: var(--text-muted); font-style: italic;">No
-                                    components missing upon reception.</td>
+                                <td colspan="3" style="text-align: center; color: var(--text-muted); font-style: italic;">No parts checklist recorded.</td>
                             </tr>
                             {{/unless}}
                         </tbody>
                     </table>
 
 
-                    <!-- ───────────────────────────────────────────────────────────────── -->
-                    <!-- PAGE 5: INITIAL ELECTRICAL TESTS & DISMANTLING ANALYSIS -->
-                    <!-- ───────────────────────────────────────────────────────────────── -->
 
 
-                    <div class="section-header">
-                        4.0 INITIAL ELECTRICAL TESTS & DISMANTLING ANALYSIS
-
-                    </div>
-
-                    <div style="text-align: justify; margin-bottom: 6px; font-size: 7.5pt;">
-                        {{fallback report.electricalInspectionSummary 'Initial electrical logging is tabulated below.'}}
-                    </div>
-
-                    <div class="sub-section-header">4.1 Initial Insulation Resistance (IR) Profile</div>
+                    <div class="sub-section-header">3.2 Initial Insulation Resistance (IR) Profile</div>
                     <table style="margin-bottom: 6px;">
                         <thead>
                             <tr>
                                 <th>Terminal Pair</th>
-                                <th style="width: 25%;">IR Value</th>
-                                <th style="width: 15%;">Unit</th>
+                                <th style="width: 15%; text-align: center;">Applied Volts</th>
+                                <th style="width: 15%; text-align: center;">Std Value</th>
+                                <th style="width: 15%;">IR Value</th>
+                                <th style="width: 10%;">Unit</th>
                                 <th>Remarks / Assessment</th>
                             </tr>
                         </thead>
                         <tbody>
                             {{#each inspection.initialIrTests}}
+                            {{#if this.groupHeader}}
                             <tr>
-                                <td style="font-weight: 700; font-family: monospace;">{{fallback this.terminal 'N/A'}}
-                                </td>
-                                <td class="table-data" style="color: var(--accent-red);">{{fallback this.irValue 'N/A'}}
-                                </td>
+                                <td colspan="6" style="background:#f1f5f9; font-weight:800; font-size:7pt; color:#334155; text-transform:uppercase; padding-top:4px; padding-bottom:4px; border-top:1px solid #e2e8f0; border-bottom:1px solid #e2e8f0;">{{this.groupHeader}}</td>
+                            </tr>
+                            {{/if}}
+                            <tr>
+                                <td style="font-weight: 700; font-family: 'JetBrains Mono', monospace; padding-left:16px;">{{fallback this.terminalDisplay this.terminal 'N/A'}}</td>
+                                <td style="text-align: center; font-weight: 600;">{{fallback this.appliedVoltage '—'}}</td>
+                                <td style="text-align: center; font-weight: 600;">&gt; 1</td>
+                                <td class="table-data" style="color: var(--accent-red);">{{fallback this.irValue 'N/A'}}</td>
                                 <td>{{fallback this.unit 'MΩ'}}</td>
                                 <td>{{fallback this.remarks 'Requires clean & re-varnish.'}}</td>
                             </tr>
                             {{/each}}
                             {{#unless inspection.initialIrTests}}
                             <tr>
-                                <td colspan="4"
-                                    style="text-align: center; color: var(--text-muted); font-style: italic;">No initial
-                                    IR testing data recorded.</td>
+                                <td colspan="6" style="text-align: center; color: var(--text-muted); font-style: italic;">No initial IR testing data recorded.</td>
                             </tr>
                             {{/unless}}
                         </tbody>
                     </table>
 
-                    <div class="sub-section-header">4.2 Initial Winding Resistance Log</div>
+                    <div class="sub-section-header">3.3 Initial Winding Resistance Log</div>
                     <table style="margin-bottom: 8px;">
                         <thead>
                             <tr>
                                 <th>Terminal Group</th>
-                                <th style="width: 25%;">Measured Value</th>
+                                <th style="width: 20%;">Measured Value</th>
                                 <th style="width: 15%;">Unit</th>
                                 <th>Remarks / Deviation</th>
                             </tr>
                         </thead>
                         <tbody>
                             {{#each inspection.initialResistanceTests}}
+                            {{#if this.groupHeader}}
                             <tr>
-                                <td style="font-weight: 700; font-family: monospace;">{{fallback this.terminals 'N/A'}}
-                                </td>
+                                <td colspan="4" style="background:#f1f5f9; font-weight:800; font-size:7pt; color:#334155; text-transform:uppercase; padding-top:4px; padding-bottom:4px; border-top:1px solid #e2e8f0; border-bottom:1px solid #e2e8f0;">{{this.groupHeader}}</td>
+                            </tr>
+                            {{/if}}
+                            <tr>
+                                <td style="font-weight: 700; font-family: 'JetBrains Mono', monospace; padding-left:16px;">{{fallback this.terminalDisplay this.terminals 'N/A'}}</td>
                                 <td class="table-data">{{fallback this.value 'N/A'}}</td>
                                 <td>{{fallback this.unit 'Ω'}}</td>
                                 <td>{{fallback this.remarks 'Acceptable tolerance.'}}</td>
@@ -1489,19 +1316,32 @@
                             {{/each}}
                             {{#unless inspection.initialResistanceTests}}
                             <tr>
-                                <td colspan="4"
-                                    style="text-align: center; color: var(--text-muted); font-style: italic;">No initial
-                                    winding resistance data recorded.</td>
+                                <td colspan="4" style="text-align: center; color: var(--text-muted); font-style: italic;">No initial winding resistance data recorded.</td>
                             </tr>
                             {{/unless}}
                         </tbody>
                     </table>
 
-                    <div class="sub-section-header">5.0 Dismantling & Parts Integrity Assessment</div>
-                    <div style="text-align: justify; margin-bottom: 6px; font-size: 7.5pt;">
-                        {{fallback report.partsConditionAnalysis 'Dismantling process and component wear details are
-                        listed below.'}}
+                    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid #475569;border-radius:4px;padding:8px 10px;margin-bottom:10px;">
+                        <div style="font-size:7.5pt;font-weight:700;color:#1e293b;margin-bottom:4px;">Initial Electrical Assessment Summary</div>
+                        <div style="text-align: justify; font-size: 7.5pt; color: #334155; line-height: 1.5;">
+                            {{{editable 'report.electricalInspectionSummary' report.electricalInspectionSummary 'Initial electrical logging is tabulated above.'}}}
+                        </div>
                     </div>
+
+                    {{#if dismantling}}
+                    <!-- ───────────────────────────────────────────────────────────────── -->
+                    <!-- STAGE 2: DISMANTLING & ANALYSIS -->
+                    <!-- ───────────────────────────────────────────────────────────────── -->
+                    <div class="section-header">
+                        04. Dismantling Observations
+                    </div>
+                    <div class="sub-section-header">4.1 Parts Integrity Assessment</div>
+                    {{#if report.partsConditionAnalysis}}
+                    <div style="text-align: justify; margin-bottom: 10px; font-size: 7.5pt; line-height: 1.6; background: var(--bg-light); padding: 10px 12px; border-radius: 4px; border: 1px solid var(--border-color);">
+                        {{report.partsConditionAnalysis}}
+                    </div>
+                    {{/if}}
                     <table>
                         <thead>
                             <tr>
@@ -1511,23 +1351,34 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {{#each dismantling.partConditions}}
+                            {{#each dismantling.componentConditionAssessment}}
                             <tr>
-                                <td style="font-weight: 700; color: var(--secondary-blue);">{{fallback this.partName
-                                    'N/A'}}</td>
-                                <td>{{fallback this.condition 'N/A'}}</td>
+                                <td style="font-weight: 700; color: var(--secondary-blue);">{{@key}}</td>
+                                <td>
+                                    <div><strong>Condition:</strong> {{fallback this.remark 'N/A'}}</div>
+                                    {{#if this.aiSummary}}
+                                    <div style="margin-top: 4px; font-size: 6.5pt; color: var(--text-muted);">
+                                        <strong>Technical Assessment:</strong> {{this.aiSummary}}
+                                    </div>
+                                    {{/if}}
+                                </td>
                                 <td style="text-align: center;">
-                                    {{#ifEquals this.repairable 'Yes'}}
+                                    {{#ifEquals this.decision 'Reuse'}}
                                     <span class="badge-pass"
-                                        style="background-color: #f0fdf4; border: 1px solid #16a34a30; padding: 1px 6px; border-radius: 3px; font-size: 6.5pt;">REPAIR</span>
+                                        style="background-color: #f0fdf4; border: 1px solid #16a34a30; padding: 1px 6px; border-radius: 3px; font-size: 6.5pt; text-transform: uppercase;">REUSE</span>
+                                    {{else}}
+                                    {{#ifEquals this.decision 'Repair'}}
+                                    <span class="badge-pass"
+                                        style="background-color: #fffbeb; border: 1px solid #fef3c7; padding: 1px 6px; border-radius: 3px; font-size: 6.5pt; text-transform: uppercase; color: var(--accent-gold);">REPAIR</span>
                                     {{else}}
                                     <span class="badge-fail"
-                                        style="background-color: #fef2f2; border: 1px solid #dc262630; padding: 1px 6px; border-radius: 3px; font-size: 6.5pt;">REPLACE</span>
+                                        style="background-color: #fef2f2; border: 1px solid #dc262630; padding: 1px 6px; border-radius: 3px; font-size: 6.5pt; text-transform: uppercase;">REPLACE</span>
+                                    {{/ifEquals}}
                                     {{/ifEquals}}
                                 </td>
                             </tr>
                             {{/each}}
-                            {{#unless dismantling.partConditions}}
+                            {{#unless dismantling.componentConditionAssessment}}
                             <tr>
                                 <td colspan="3"
                                     style="text-align: center; color: var(--text-muted); font-style: italic;">No
@@ -1536,72 +1387,73 @@
                             {{/unless}}
                         </tbody>
                     </table>
+                    {{/if}}
 
 
-                    <!-- ───────────────────────────────────────────────────────────────── -->
-                    <!-- PAGE 6: ENGINEERING ASSESSMENT & FAILURE ANALYSIS -->
-                    <!-- ───────────────────────────────────────────────────────────────── -->
+
+
+
 
 
                     <div class="section-header">
-                        6.0 ENGINEERING ASSESSMENT & FAILURE ANALYSIS
-
-                    </div>
-
-                    <div
-                        style="display: flex; justify-content: space-between; align-items: center; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 4px; padding: 5px 8px; margin-bottom: 8px;">
-                        <div style="font-size: 7.5pt; font-weight: 700; color: #166534;">
-                            Engineering Technical Assessment
-                            <span style="font-weight: 500; color: #374151; margin-left: 5px;">— Generated from
-                                inspection, dismantling, assembly, and testing records.</span>
-                        </div>
-                        <div
-                            style="background-color: var(--accent-green); color: #ffffff; font-weight: 700; font-size: 6.5pt; padding: 2px 8px; border-radius: 9999px; letter-spacing: 0.03em; text-transform: uppercase;">
-                            ✓ Verified Against Workshop Records
-                        </div>
+                        05. Engineering Assessment
                     </div>
 
                     <div class="assessment-container">
                         <div class="assessment-card root-cause">
                             <div class="assessment-title">1. Root Cause of Failure</div>
-                            <p class="assessment-body">{{fallback failureAnalysis.rootCause 'No root cause failure
-                                analysis details compiled.'}}</p>
+                            <p class="assessment-body">{{{editable 'failureAnalysis.rootCause' failureAnalysis.rootCause 'No root cause failure
+                                analysis details compiled.'}}}</p>
                         </div>
                         <div class="assessment-card evidence">
                             <div class="assessment-title">2. Observed Evidence</div>
-                            <p class="assessment-body">{{fallback failureAnalysis.evidence 'No physical or electrical
-                                evidence compiled.'}}</p>
+                            <p class="assessment-body">{{{editable 'failureAnalysis.evidence' failureAnalysis.evidence 'No physical or electrical
+                                evidence compiled.'}}}</p>
                         </div>
                         <div class="assessment-card impact">
                             <div class="assessment-title">3. Reliability Impact</div>
-                            <p class="assessment-body">{{fallback failureAnalysis.impact 'No system or component
-                                reliability impact defined.'}}</p>
+                            <p class="assessment-body">{{{editable 'failureAnalysis.impact' failureAnalysis.impact 'No system or component
+                                reliability impact defined.'}}}</p>
                         </div>
                         <div class="assessment-card action">
                             <div class="assessment-title">4. Recommended Action</div>
-                            <p class="assessment-body">{{fallback failureAnalysis.recommendedAction 'No corrective
-                                recommendations generated.'}}</p>
+                            <p class="assessment-body">{{{editable 'failureAnalysis.recommendedAction' failureAnalysis.recommendedAction 'No corrective
+                                recommendations generated.'}}}</p>
                         </div>
                     </div>
 
-                    <div class="sub-section-header">6.1 Overhaul Work Executed Summary</div>
+                    <div class="sub-section-header">5.1 Overhaul Work Executed</div>
+                    {{#if report.workPerformedList}}
+                    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid #475569;border-radius:4px;padding:8px 10px;margin-bottom:10px;">
+                        <ul style="margin: 0; padding-left: 16px; font-size: 7.5pt; color: #334155; line-height: 1.55;">
+                            {{#each report.workPerformedList}}
+                            <li style="margin-bottom: 4px;">{{this}}</li>
+                            {{/each}}
+                        </ul>
+                    </div>
+                    {{else}}
                     <div style="text-align: justify; font-size: 7.5pt; line-height: 1.45;">
-                        {{fallback report.workPerformed 'Overhaul execution and assembly work details are not
-                        recorded.'}}
+                        {{{editable 'report.workPerformed' report.workPerformed 'Overhaul execution and assembly work details are not recorded.'}}}
                     </div>
+                    {{/if}}
 
 
                     <!-- ───────────────────────────────────────────────────────────────── -->
-                    <!-- PAGE 7: REBUILD & MECHANICAL ASSEMBLY PROCESS -->
+                    <!-- STAGE 3: REBUILD & ASSEMBLY -->
                     <!-- ───────────────────────────────────────────────────────────────── -->
 
-
+                    {{#if assembly}}
                     <div class="section-header">
-                        7.0 REBUILD & MECHANICAL ASSEMBLY PROCESS
-
+                        06. Rebuild & Assembly
                     </div>
 
-                    <div class="sub-section-header">7.1 Dynamic Assembly Milestones Timeline</div>
+                    {{#if report.assemblyDescription}}
+                    <div style="text-align: justify; margin-bottom: 10px; font-size: 7.5pt; line-height: 1.6; background: var(--bg-light); padding: 10px 12px; border-radius: 4px; border: 1px solid var(--border-color);">
+                        {{report.assemblyDescription}}
+                    </div>
+                    {{/if}}
+
+                    <div class="sub-section-header">6.1 Assembly Milestones Timeline</div>
                     <div class="timeline">
                         {{#each assembly.timeline}}
                         <div class="timeline-item active">
@@ -1610,10 +1462,10 @@
                                 <h4 class="timeline-title">{{this.title}}</h4>
                                 <p class="timeline-desc">{{this.desc}}</p>
                             </div>
-                            {{/each}}
                         </div>
+                        {{/each}}
 
-                        <div class="sub-section-header">7.2 Shop Rebuild Labor Registry</div>
+                        <div class="sub-section-header">6.2 Rebuild Labor Registry</div>
                         <table style="margin-bottom: 0;">
                             <thead>
                                 <tr>
@@ -1623,15 +1475,16 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {{#each assembly.workLogs}}
+                                {{#each assembly.assemblyChecklist}}
+                                {{#if this.checked}}
                                 <tr>
-                                    <td style="font-weight: 700; color: var(--secondary-blue);">{{fallback this.workDone
-                                        'N/A'}}</td>
-                                    <td>{{fallback this.technician 'N/A'}}</td>
-                                    <td style="text-align: center; font-weight: 700;">{{fallback this.hours '0'}} h</td>
+                                    <td style="font-weight: 700; color: var(--secondary-blue);">{{@key}}</td>
+                                    <td>{{fallback ../assembly.technician 'TRC Technician'}}</td>
+                                    <td style="text-align: center; font-weight: 700;">Completed</td>
                                 </tr>
+                                {{/if}}
                                 {{/each}}
-                                {{#unless assembly.workLogs}}
+                                {{#unless assembly.assemblyChecklist}}
                                 <tr>
                                     <td colspan="3"
                                         style="text-align: center; color: var(--text-muted); font-style: italic;">No
@@ -1640,19 +1493,21 @@
                                 {{/unless}}
                             </tbody>
                         </table>
+                        {{/if}}
 
 
-                        <!-- ───────────────────────────────────────────────────────────────── -->
-                        <!-- PAGE 8: QUALITY CONTROL & TESTING VERIFICATION -->
-                        <!-- ───────────────────────────────────────────────────────────────── -->
-
-
+                        {{#if testing}}
                         <div class="section-header">
-                            8.0 QUALITY CONTROL & TESTING VERIFICATION
-
+                            07. Test Results
                         </div>
 
-                        <div class="sub-section-header">8.1 Insulation Resistance Comparison (Before vs. After)</div>
+                        {{#if report.testingSummary}}
+                        <div style="text-align: justify; margin-bottom: 10px; font-size: 7.5pt; line-height: 1.6; background: var(--bg-light); padding: 10px 12px; border-radius: 4px; border: 1px solid var(--border-color);">
+                            {{report.testingSummary}}
+                        </div>
+                        {{/if}}
+
+                        <div class="sub-section-header">7.1 IR Comparison (Before vs. After)</div>
                         <table>
                             <thead>
                                 <tr>
@@ -1667,7 +1522,7 @@
                             </tbody>
                         </table>
 
-                        <div class="sub-section-header">8.2 Materials Replaced (New OEM Components Issued)</div>
+                        <div class="sub-section-header">7.2 Materials Replaced (New OEM Components)</div>
                         <table style="margin-bottom: 0;">
                             <thead>
                                 <tr>
@@ -1679,7 +1534,7 @@
                             <tbody>
                                 {{#each assembly.materialsUsed}}
                                 <tr>
-                                    <td style="font-weight: 700; color: var(--secondary-blue);">{{fallback this.itemName
+                                    <td style="font-weight: 700; color: var(--secondary-blue);">{{fallback this.name
                                         'N/A'}}</td>
                                     <td style="text-align: center; font-weight: 700; color: var(--accent-green);">
                                         {{fallback this.quantity '0'}}</td>
@@ -1695,17 +1550,134 @@
                                 {{/unless}}
                             </tbody>
                         </table>
+                        {{/if}}
+
+                        {{#if testing.finalResistanceTests}}
+                        <div class="sub-section-header">7.3 Final Winding Resistance Log</div>
+                        <table style="margin-bottom: 0;">
+                            <thead>
+                                <tr>
+                                    <th>Terminal Group</th>
+                                    <th style="width: 20%;">Measured Value</th>
+                                    <th style="width: 15%;">Unit</th>
+                                    <th>Status / Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{#each testing.finalResistanceTests}}
+                                {{#if this.groupHeader}}
+                                <tr>
+                                    <td colspan="4" style="background:#f1f5f9; font-weight:800; font-size:7pt; color:#334155; text-transform:uppercase; padding-top:4px; padding-bottom:4px; border-top:1px solid #e2e8f0; border-bottom:1px solid #e2e8f0;">{{this.groupHeader}}</td>
+                                </tr>
+                                {{/if}}
+                                <tr>
+                                    <td style="font-weight: 700; font-family: 'JetBrains Mono', monospace; padding-left:16px;">{{fallback this.terminalDisplay this.terminals 'N/A'}}</td>
+                                    <td class="table-data">{{fallback this.value 'N/A'}}</td>
+                                    <td>{{fallback this.unit 'Ω'}}</td>
+                                    <td>{{fallback this.remarks 'Acceptable'}}</td>
+                                </tr>
+                                {{/each}}
+                            </tbody>
+                        </table>
+                        {{/if}}
+
+                        {{#if testing.surgeTestsList}}
+                        <div class="sub-section-header">7.4 Surge Test Results</div>
+                        <table style="margin-bottom: 0;">
+                            <thead>
+                                <tr>
+                                    <th>Winding / Phase</th>
+                                    <th style="width: 25%; text-align: center;">Applied Voltage (V)</th>
+                                    <th style="width: 30%;">Waveform Assessment</th>
+                                    <th style="width: 15%; text-align: center;">Result</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{#each testing.surgeTestsList}}
+                                <tr>
+                                    <td style="font-weight: 700; font-family: 'JetBrains Mono', monospace;">{{fallback this.winding 'N/A'}}</td>
+                                    <td style="text-align: center; font-weight: 700;">{{fallback this.appliedVoltage 'N/A'}}</td>
+                                    <td>{{fallback this.waveform 'Balanced'}}</td>
+                                    <td style="text-align: center;">
+                                        {{#ifEquals this.waveform 'Balanced'}}
+                                        <span class="badge-pass">PASS</span>
+                                        {{else}}
+                                        <span class="badge-fail">REVIEW</span>
+                                        {{/ifEquals}}
+                                    </td>
+                                </tr>
+                                {{/each}}
+                            </tbody>
+                        </table>
+                        {{/if}}
+
+                        {{#if testing.functionalTestsList}}
+                        <div class="sub-section-header">7.5 Functional Run Tests</div>
+                        <table style="margin-bottom: 0;">
+                            <thead>
+                                <tr>
+                                    <th>Test Description</th>
+                                    <th style="width: 20%; text-align: center;">Result</th>
+                                    <th>Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{#each testing.functionalTestsList}}
+                                <tr>
+                                    <td style="font-weight: 700; color: var(--secondary-blue);">{{fallback this.name 'N/A'}}</td>
+                                    <td style="text-align: center;">
+                                        {{#ifEquals this.status 'Pass'}}
+                                        <span class="badge-pass">PASS</span>
+                                        {{else}}
+                                        <span class="badge-fail">{{fallback this.status 'FAIL'}}</span>
+                                        {{/ifEquals}}
+                                    </td>
+                                    <td>{{fallback this.remarks '—'}}</td>
+                                </tr>
+                                {{/each}}
+                            </tbody>
+                        </table>
+                        {{/if}}
+
+                        {{#if testing.sensorTestsList}}
+                        <div class="sub-section-header">7.6 Sensor / Transducer Verification</div>
+                        <table style="margin-bottom: 0;">
+                            <thead>
+                                <tr>
+                                    <th>Sensor / Device</th>
+                                    <th style="width: 25%; text-align: center;">Resistance (Ω)</th>
+                                    <th style="width: 20%; text-align: center;">Result</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{#each testing.sensorTestsList}}
+                                <tr>
+                                    <td style="font-weight: 700; color: var(--secondary-blue);">{{fallback this.name 'N/A'}}</td>
+                                    <td style="text-align: center; font-family: monospace;">{{fallback this.resistanceValue '—'}}</td>
+                                    <td style="text-align: center;">
+                                        {{#ifEquals this.status 'Pass'}}
+                                        <span class="badge-pass">PASS</span>
+                                        {{else}}
+                                        <span class="badge-fail">{{fallback this.status 'FAIL'}}</span>
+                                        {{/ifEquals}}
+                                    </td>
+                                </tr>
+                                {{/each}}
+                            </tbody>
+                        </table>
+                        {{/if}}
+
 
 
                         <!-- ───────────────────────────────────────────────────────────────── -->
-                        <!-- PAGE 9: BEFORE VS AFTER COMPARISON DASHBOARD -->
+                        <!-- STAGE 5: DISPATCH & FINAL REVIEW -->
                         <!-- ───────────────────────────────────────────────────────────────── -->
-
-
+                        {{#if dispatch}}
                         <div class="section-header">
-                            9.0 BEFORE VS. AFTER OVERHAUL COMPARISON DASHBOARD
-
+                            08. Performance & Dispatch
                         </div>
+
+
 
                         <div style="text-align: justify; margin-bottom: 12px; font-size: 7.5pt;">
                             Visual summary comparison of the component's state before starting refurbishment
@@ -1739,7 +1711,7 @@
                                     style="background: #f1f5f9; padding: 6px; font-weight: 700; text-align: center; border-bottom: 1px solid var(--border-color); font-size: 8pt; color: var(--secondary-blue); text-transform: uppercase; letter-spacing: 0.03em;">
                                     REBUILT & CERTIFIED STATE</div>
                                 <div
-                                    style="height: 180px; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 8px; background: var(--bg-light);">
+                                    style="height: 220px; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 8px; background: var(--bg-light);">
                                     {{#if afterPhoto}}
                                     <img src="{{afterPhoto}}"
                                         style="max-width: 100%; max-height: 100%; object-fit: contain;">
@@ -1755,65 +1727,158 @@
                             </div>
                         </div>
 
-                        <div
-                            style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 10px; font-size: 7.5pt; color: #166534; line-height: 1.45;">
-                            <strong>Overhaul Assessment Summary:</strong> Component was completely rebuilt using
-                            certified processes. Mechanical dimensions, electrical parameters, and paint finishes comply
-                            fully with original manufacturer guidelines. Dynamic load test confirms optimal operational
-                            parameters.
+                        <div style="text-align: justify; margin-bottom: 12px; font-size: 7.5pt; line-height: 1.6; background: var(--bg-light); padding: 10px 12px; border-radius: 4px; border: 1px solid var(--border-color);">
+                            {{{editable 'report.workPerformed' report.workPerformed 'Component was fully rebuilt using certified processes. Mechanical dimensions, electrical parameters, and paint finishes comply with original manufacturer guidelines. All functional run tests confirm optimal operational parameters.'}}}
                         </div>
+                        {{/if}}
 
-                        <div class="sub-section-header" style="margin-top: 12px;">9.1 Overhaul Performance Comparison
-                            Parameters</div>
+                        {{#if cost.hasCostData}}
+                        <div class="sub-section-header">Repair Value & Business Impact</div>
                         <table style="margin-bottom: 0;">
                             <thead>
                                 <tr>
-                                    <th style="width: 30%;">Parameter</th>
-                                    <th style="width: 30%; text-align: center;">As-Received Condition</th>
-                                    <th style="width: 30%; text-align: center;">Post-Overhaul Condition</th>
-                                    <th style="width: 10%; text-align: center;">Result</th>
+                                    <th>Refurbishment Financial Metrics</th>
+                                    <th style="text-align: right; width: 25%;">Amount (INR)</th>
+                                    <th>Business Value Impact Remarks</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td style="font-weight: 700;">Stator IR (R-G)</td>
-                                    <td style="text-align: center;">102 MOhm</td>
-                                    <td style="text-align: center; font-weight: 700; color: var(--accent-green);">757
-                                        MOhm</td>
-                                    <td style="text-align: center;"><span class="badge-pass">PASS</span></td>
+                                    <td class="table-label">New OEM Replacement Cost</td>
+                                    <td style="text-align: right; font-weight: 700; color: var(--text-dark);">
+                                        {{cost.newReplacementCost}}</td>
+                                    <td>Represents standard acquisition cost for a new component.</td>
                                 </tr>
                                 <tr>
-                                    <td style="font-weight: 700;">Field Winding IR (F1-G)</td>
-                                    <td style="text-align: center;">6.72 MOhm</td>
-                                    <td style="text-align: center; font-weight: 700; color: var(--accent-green);">574
-                                        MOhm</td>
-                                    <td style="text-align: center;"><span class="badge-pass">PASS</span></td>
+                                    <td class="table-label">Thriveni Certified Overhaul Cost</td>
+                                    <td style="text-align: right; font-weight: 700; color: var(--accent-gold);">
+                                        {{cost.repairCost}}</td>
+                                    <td>Complete re-manufacture under strict QA.</td>
                                 </tr>
-                                <tr>
-                                    <td style="font-weight: 700;">Bearing Condition</td>
-                                    <td style="text-align: center; color: var(--accent-red);">Worn - Excessive Radial
-                                        Play</td>
-                                    <td style="text-align: center; font-weight: 700; color: var(--accent-green);">New
-                                        OEM Bearing Installed</td>
-                                    <td style="text-align: center;"><span class="badge-pass">PASS</span></td>
-                                </tr>
-                                <tr>
-                                    <td style="font-weight: 700;">Shaft Journal</td>
-                                    <td style="text-align: center; color: var(--accent-red);">Below OEM Tolerance</td>
-                                    <td style="text-align: center; font-weight: 700; color: var(--accent-green);">
-                                        Reclaimed to OEM Dimensions</td>
-                                    <td style="text-align: center;"><span class="badge-pass">PASS</span></td>
-                                </tr>
-                                <tr>
-                                    <td style="font-weight: 700;">External Condition</td>
-                                    <td style="text-align: center; color: var(--accent-red);">Corroded, Paint Scaling
+                                <tr style="background-color: #f0fdf4;">
+                                    <td class="table-label" style="color: var(--accent-green);">Net Capital Savings
+                                        Achieved
                                     </td>
-                                    <td style="text-align: center; font-weight: 700; color: var(--accent-green);">
-                                        Cleaned, Painted, Sealed</td>
-                                    <td style="text-align: center;"><span class="badge-pass">PASS</span></td>
+                                    <td
+                                        style="text-align: right; font-weight: 800; color: var(--accent-green); font-size: 8.5pt;">
+                                        {{cost.savingsAchieved}}</td>
+                                    <td style="font-weight: 700; color: var(--accent-green);">71% Capital conservation
+                                        compared to direct replacement.</td>
                                 </tr>
                             </tbody>
                         </table>
+                        {{/if}}
+
+
+                        <div class="sub-section-header" style="margin-top: 12px;">Workshop Delivery Process Compliance
+                        </div>
+                        <table style="margin-bottom: 12px;">
+                            <thead>
+                                <tr>
+                                    <th style="width: 25%;">Process Stage</th>
+                                    <th style="width: 25%;">Standard Requirement</th>
+                                    <th style="width: 30%;">Actual Execution</th>
+                                    <th style="width: 20%; text-align: center;">Compliance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="font-weight: 700;">Incoming Inspection</td>
+                                    <td>24h receipt-to-inspection window</td>
+                                    <td>Logged {{dates.inspectionDate}} with photographic documentation</td>
+                                    <td style="text-align: center;"><span class="badge-pass">COMPLIANT</span></td>
+                                </tr>
+                                <tr>
+                                    <td style="font-weight: 700;">Dismantling Protocol</td>
+                                    <td>Stage-by-stage documented teardown</td>
+                                    <td>Bearing removed, shaft measured, damage mapped with photos</td>
+                                    <td style="text-align: center;"><span class="badge-pass">COMPLIANT</span></td>
+                                </tr>
+                                <tr>
+                                    <td style="font-weight: 700;">Varnish Process</td>
+                                    <td>Dual-coat impregnation at 130-140 deg C</td>
+                                    <td>Two-stage baking and varnishing completed per OEM spec</td>
+                                    <td style="text-align: center;"><span class="badge-pass">COMPLIANT</span></td>
+                                </tr>
+                                <tr>
+                                    <td style="font-weight: 700;">Final Assembly QA</td>
+                                    <td>Air gap and torque verification before closure</td>
+                                    <td>All casing bolts torqued, air gaps verified by lead engineer</td>
+                                    <td style="text-align: center;"><span class="badge-pass">COMPLIANT</span></td>
+                                </tr>
+                                <tr>
+                                    <td style="font-weight: 700;">Quality Sign-Off</td>
+                                    <td>Dual signature: Engineer + QA Inspector</td>
+                                    <td>QA sign-off completed after IR and surge testing passed</td>
+                                    <td style="text-align: center;"><span class="badge-pass">COMPLIANT</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+
+
+
+
+
+                        <div class="section-header">
+                            09. Conclusion & Recommendations
+                        </div>
+
+                        <div class="conclusion-box">
+                            <div class="conclusion-title">
+                                <svg style="width: 12px; height: 12px; vertical-align: middle; margin-right: 3px;"
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                Official Technical Verdict
+                            </div>
+                            <div
+                                style="text-align: justify; font-size: 7.5pt; font-weight: 600; color: var(--accent-green); line-height: 1.45;">
+                                {{{editable 'report.finalConclusion' report.finalConclusion 'Official statement not generated yet.'}}}
+                            </div>
+                        </div>
+
+                        <div class="recommendation-box">
+                            <div class="recommendation-title">
+                                <svg style="width: 12px; height: 12px; vertical-align: middle; margin-right: 3px;"
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                                    </path>
+                                </svg>
+                                Preventive Maintenance Recommendations
+                            </div>
+                            <div
+                                style="text-align: justify; font-size: 7.5pt; font-weight: 500; color: #92400e; line-height: 1.45;">
+                                {{{editable 'report.recommendations' report.recommendations 'Maintenance advice not generated yet.'}}}
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 25px; display: flex; justify-content: space-between;">
+                            <div style="text-align: center; width: 200px;">
+                                <div
+                                    style="height: 25px; border-bottom: 1.5px solid var(--border-color); width: 100%; margin-bottom: 4px;">
+                                </div>
+                                <div style="font-weight: 800; font-size: 7.5pt; color: var(--primary-navy);">
+                                    INSPECTED BY</div>
+                                <div style="font-size: 7pt; color: var(--text-muted);">{{fallback user.name 'TRC
+                                    Workshop Engineer'}}</div>
+                            </div>
+                            <div style="text-align: center; width: 200px;">
+                                <div
+                                    style="height: 25px; border-bottom: 1.5px solid var(--border-color); width: 100%; margin-bottom: 4px;">
+                                </div>
+                                <div style="font-weight: 800; font-size: 7.5pt; color: var(--primary-navy);">
+                                    AUTHORISED SIGNATORY</div>
+                                <div style="font-size: 7pt; color: var(--text-muted);">Workshop Operations Manager
+                                </div>
+                            </div>
+                        </div>
+
+
 
 
                         <!-- ───────────────────────────────────────────────────────────────── -->
@@ -1822,96 +1887,30 @@
                         {{#each photoPages}}
                         <div style="page-break-before: always;">
 
-                        <div class="section-header">
-                            10.0 CATEGORIZED PHOTO DOCUMENTATION
+                            <div class="section-header">
+                            10. Photo Documentation
 
-                        </div>
-
-                        <div class="sub-section-header">{{this.title}}</div>
-                        <div class="photo-grid">
-                            {{#each this.photos}}
-                            <div class="photo-card {{this.sizeClass}}">
-                                <div class="photo-frame">
-                                    <img src="{{this.url}}" alt="Photo Documentation">
-                                </div>
-                                <div class="photo-caption">{{this.caption}}</div>
                             </div>
-                            {{/each}}
-                        </div>
+
+                            <div class="sub-section-header">{{this.title}}</div>
+                            <div class="photo-grid">
+                                {{#each this.photos}}
+                                <div class="photo-card {{this.sizeClass}}">
+                                    <div class="photo-frame">
+                                        <img src="{{this.url}}" alt="Photo Documentation">
+                                    </div>
+                                    <div class="photo-caption">{{this.caption}}</div>
+                                </div>
+                                {{/each}}
+                            </div>
 
                         </div>
                         {{/each}}
-
-                            <!-- ───────────────────────────────────────────────────────────────── -->
-                            <!-- PAGE 12: TECHNICAL CONCLUSION & RECOMMENDATIONS -->
-                            <!-- ───────────────────────────────────────────────────────────────── -->
-
-
-                            <div class="section-header">
-                                11.0 TECHNICAL CONCLUSION & PREVENTIVE RECOMMENDATIONS
-
-                            </div>
-
-                            <div class="conclusion-box">
-                                <div class="conclusion-title">
-                                    <svg style="width: 12px; height: 12px; vertical-align: middle; margin-right: 3px;"
-                                        fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                    </svg>
-                                    Official Technical Verdict
-                                </div>
-                                <div
-                                    style="text-align: justify; font-size: 7.5pt; font-weight: 600; color: var(--accent-green); line-height: 1.45;">
-                                    {{fallback report.finalConclusion 'Official statement not generated yet.'}}
-                                </div>
-                            </div>
-
-                            <div class="recommendation-box">
-                                <div class="recommendation-title">
-                                    <svg style="width: 12px; height: 12px; vertical-align: middle; margin-right: 3px;"
-                                        fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
-                                        </path>
-                                    </svg>
-                                    Preventive Maintenance Recommendations
-                                </div>
-                                <div
-                                    style="text-align: justify; font-size: 7.5pt; font-weight: 500; color: #92400e; line-height: 1.45;">
-                                    {{fallback report.recommendations 'Maintenance advice not generated yet.'}}
-                                </div>
-                            </div>
-
-                            <div style="margin-top: 25px; display: flex; justify-content: space-between;">
-                                <div style="text-align: center; width: 200px;">
-                                    <div
-                                        style="height: 25px; border-bottom: 1.5px solid var(--border-color); width: 100%; margin-bottom: 4px;">
-                                    </div>
-                                    <div style="font-weight: 800; font-size: 7.5pt; color: var(--primary-navy);">
-                                        INSPECTED BY</div>
-                                    <div style="font-size: 7pt; color: var(--text-muted);">{{fallback user.name 'TRC
-                                        Workshop Engineer'}}</div>
-                                </div>
-                                <div style="text-align: center; width: 200px;">
-                                    <div
-                                        style="height: 25px; border-bottom: 1.5px solid var(--border-color); width: 100%; margin-bottom: 4px;">
-                                    </div>
-                                    <div style="font-weight: 800; font-size: 7.5pt; color: var(--primary-navy);">
-                                        AUTHORISED SIGNATORY</div>
-                                    <div style="font-size: 7pt; color: var(--text-muted);">Workshop Operations Manager
-                                    </div>
-                                </div>
-                            </div>
-
 
                 </td>
             </tr>
         </tbody>
     </table>
-
     <!-- ───────────────────────────────────────────────────────────────── -->
     <!-- CERTIFICATE OF CONFORMANCE -->
     <!-- ───────────────────────────────────────────────────────────────── -->
@@ -2005,11 +2004,7 @@
 
         <!-- FOOTER -->
         <div class="report-footer" style="position: absolute; bottom: 0; left: 0; right: 0;">
-            <span>CONFIDENTIAL • THRIVENI EARTHMOVERS & INFRA PRIVATE LIMITED</span>
-            <span
-                style="font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--primary-navy);">Job:
-                {{job.jobNo}} &nbsp;|&nbsp; Report: {{report.reportNo}}</span>
-            <span>Page {{certificatePageNum}}</span>
+            <span style="font-size: 6pt; color: var(--text-muted);">Thriveni Earthmovers & Infra Pvt. Ltd.</span>
         </div>
     </div>
 

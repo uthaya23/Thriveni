@@ -1,11 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const ProductionPlanController = require('../controllers/productionPlanController');
-const { protect } = require('../middleware/authMiddleware');
+const { protect, notTechnician } = require('../middleware/authMiddleware');
 const asyncHandler = require('express-async-handler');
 
 // Apply protection middleware
 router.use(protect);
+router.use(notTechnician);
 
 // Planning Target CRUD Operations
 router.post('/', asyncHandler(ProductionPlanController.createPlanItem));

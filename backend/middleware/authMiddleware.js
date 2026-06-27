@@ -4,16 +4,24 @@ const User = require('../models/User');
 const protect = async (req, res, next) => {
   let token;
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    token = req.headers.authorization.split(' ')[1];
+  } else if (req.query.token) {
+    token = req.query.token;
+  }
+  
+  if (token) {
     try {
-      token = req.headers.authorization.split(' ')[1];
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       req.user = await User.findById(decoded.id).select('-password');
-      next();
+      if (!req.user) {
+        return res.status(401).json({ message: 'Not authorized, user no longer exists' });
+      }
+      return next();
     } catch (err) {
-      res.status(401).json({ message: 'Not authorized, token failed' });
+      return res.status(401).json({ message: 'Not authorized, token failed' });
     }
   }
-  if (!token) res.status(401).json({ message: 'Not authorized, no token' });
+  if (!token) return res.status(401).json({ message: 'Not authorized, no token' });
 };
 
 const adminOnly = (req, res, next) => {
@@ -21,4 +29,9 @@ const adminOnly = (req, res, next) => {
   else res.status(403).json({ message: 'Admin access only' });
 };
 
-module.exports = { protect, adminOnly };
+const notTechnician = (req, res, next) => {
+  if (req.user && req.user.role !== 'technician') next();
+  else res.status(403).json({ message: 'Action not permitted for technicians' });
+};
+
+module.exports = { protect, adminOnly, notTechnician };

@@ -12,22 +12,42 @@ const jobSchema = new mongoose.Schema({
   partNumber:       String,
   referenceJobNo:   String,
   orderNumber:      String,
-  receivedFrom:     { type: String, required: true },
+  receivedFrom:     String,
   repeatDetails:    String,
   previousRunningHours: String,
   siteComplaints:   String,
   scopeOfWork:      String,
-  dateReceived:     { type: String, required: true },
+  dateReceived:     Date,
+
+  // Stage details synced from other collections
+  disassyDate:      Date,
+  assyDate:         Date,
+  sendDate:         Date,
+  sendSite:         String,
+
+  // Wheel Motor Specific Fields
+  finalDriveNo:     String,
+  finalDriveModel:  String,
+  installedHour:    String,
+  installedDate:    Date,
+  removalHour:      String,
+  removalDate:      Date,
+  lifeHour:         String,
 
   // Component & Equipment type (links to admin collections)
   componentType:    String,          // e.g. Wheel Motor, Alternator, GBM, MBM
   equipmentModel:   { type: String, enum: ['EH5000','EH4500','830E AC','830E DC','BELAZ','OTHER'], default: 'OTHER' },
 
-  // Lifecycle stage
+  // Lifecycle stage — 5 fixed stages
+  // 'Visual Inspection & Incoming Assessment'
+  // 'Dismantling & Analysis'
+  // 'Pre-Assembly & Assembly'
+  // 'Testing & Dispatch'
+  // 'Report Generation'
+  // 'Completed'
   stage: {
     type: String,
-    enum: ['Received','Inspection','Dismantling','Assembly','Testing','Dispatch','Completed'],
-    default: 'Received'
+    default: 'Visual Inspection & Incoming Assessment'
   },
   status: {
     type: String,
@@ -43,7 +63,7 @@ const jobSchema = new mongoose.Schema({
   completedAt: Date,
   failureReportUrl: String,
   failureReportName: String,
-  inspectionAssignedTo: { type: String, required: true },
+  inspectionAssignedTo: String,
   productionPlan: { type: mongoose.Schema.Types.ObjectId, ref: 'ProductionPlan' },
 }, { timestamps: true });
 
@@ -51,14 +71,39 @@ const jobSchema = new mongoose.Schema({
 jobSchema.index({ stage: 1 });
 jobSchema.index({ status: 1 });
 jobSchema.index({ createdAt: -1 });
-// jobSchema.index({ jobNo: 1 }); // Removed to fix duplicate index warning
+jobSchema.index({ serialNumber: 1 });
+jobSchema.index({ receivedFrom: 1 });
+jobSchema.index({ componentType: 1 });
+jobSchema.index({ equipmentModel: 1 });
+jobSchema.index({ dateReceived: -1 });
+jobSchema.index({ dateReceived: -1, status: 1 });
 
 // Auto-generate jobNo if not provided (prefix J/TRC-)
 jobSchema.pre('validate', async function(next) {
+  // Auto-generate jobNo only if not provided
   if (!this.jobNo) {
     const count = await mongoose.model('Job').countDocuments();
     this.jobNo = `J/TRC/${String(count + 1).padStart(5, '0')}`;
   }
+
+  // Convert empty strings to null for all Date fields
+  // Prevents "" being stored instead of null when frontend sends empty date
+  const dateFields = [
+    'dateReceived',
+    'disassyDate',
+    'assyDate',
+    'sendDate',
+    'installedDate',
+    'removalDate',
+    'completedAt'
+  ];
+
+  dateFields.forEach(field => {
+    if (this[field] === '' || this[field] === 'Invalid Date') {
+      this[field] = null;
+    }
+  });
+
   next();
 });
 

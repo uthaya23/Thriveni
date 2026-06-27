@@ -74,7 +74,6 @@ export default function RowPhotoCapture({ value, onChange, isReadOnly = false })
             ref={fileInputRef}
             className="hidden"
             accept="image/*"
-            capture="environment"
             onChange={handleFileChange}
           />
         </>

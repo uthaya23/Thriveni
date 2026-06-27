@@ -2,14 +2,15 @@ const express = require('express');
 const router = express.Router();
 const Technician = require('../models/Technician');
 const { protect, adminOnly } = require('../middleware/authMiddleware');
+const ApiResponse = require('../utils/apiResponse');
 
 // Get all technicians
 router.get('/all', async (req, res) => {
   try {
     const technicians = await Technician.find({ active: true }).sort('name');
-    res.json({ success: true, technicians });
+    res.json(ApiResponse.success('Technicians retrieved successfully', { technicians }));
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    res.status(500).json(ApiResponse.error(err.message));
   }
 });
 
@@ -17,10 +18,10 @@ router.get('/all', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const technician = await Technician.findById(req.params.id);
-    if (!technician) return res.status(404).json({ success: false, message: 'Technician not found' });
-    res.json({ success: true, technician });
+    if (!technician) return res.status(404).json(ApiResponse.notFound('Technician not found'));
+    res.json(ApiResponse.success('Technician retrieved successfully', { technician }));
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    res.status(500).json(ApiResponse.error(err.message));
   }
 });
 
@@ -30,7 +31,7 @@ router.post('/', protect, adminOnly, async (req, res) => {
     const { name, department, status, currentTask } = req.body;
     
     if (!name || name.trim() === '') {
-      return res.status(400).json({ success: false, message: 'Technician name is required' });
+      return res.status(400).json(ApiResponse.badRequest('Technician name is required'));
     }
     
     const technician = new Technician({
@@ -41,9 +42,9 @@ router.post('/', protect, adminOnly, async (req, res) => {
     });
     
     await technician.save();
-    res.status(201).json({ success: true, technician, message: 'Technician added successfully' });
+    res.status(201).json(ApiResponse.created({ technician }, 'Technician added successfully'));
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    res.status(500).json(ApiResponse.error(err.message));
   }
 });
 
@@ -53,7 +54,7 @@ router.put('/:id', protect, adminOnly, async (req, res) => {
     const { name, department, status, currentTask, active } = req.body;
     
     const technician = await Technician.findById(req.params.id);
-    if (!technician) return res.status(404).json({ success: false, message: 'Technician not found' });
+    if (!technician) return res.status(404).json(ApiResponse.notFound('Technician not found'));
     
     if (name !== undefined) technician.name = name.trim();
     if (department !== undefined) technician.department = department;
@@ -62,9 +63,9 @@ router.put('/:id', protect, adminOnly, async (req, res) => {
     if (active !== undefined) technician.active = active;
     
     await technician.save();
-    res.json({ success: true, technician, message: 'Technician updated successfully' });
+    res.json(ApiResponse.success('Technician updated successfully', { technician }));
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    res.status(500).json(ApiResponse.error(err.message));
   }
 });
 
@@ -72,15 +73,15 @@ router.put('/:id', protect, adminOnly, async (req, res) => {
 router.delete('/:id', protect, adminOnly, async (req, res) => {
   try {
     const technician = await Technician.findById(req.params.id);
-    if (!technician) return res.status(404).json({ success: false, message: 'Technician not found' });
+    if (!technician) return res.status(404).json(ApiResponse.notFound('Technician not found'));
     
     // Soft delete - mark as inactive
     technician.active = false;
     await technician.save();
     
-    res.json({ success: true, message: 'Technician deleted successfully' });
+    res.json(ApiResponse.success('Technician deleted successfully', null));
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    res.status(500).json(ApiResponse.error(err.message));
   }
 });
 

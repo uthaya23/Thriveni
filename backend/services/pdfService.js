@@ -24,6 +24,9 @@ class PdfService {
     handlebars.registerHelper('ifEquals', function(arg1, arg2, options) {
       return (arg1 == arg2) ? options.fn(this) : options.inverse(this);
     });
+    handlebars.registerHelper('editable', function(fieldPath, value, defaultVal) {
+      return new handlebars.SafeString(value || defaultVal || '');
+    });
     handlebars.registerHelper('renderTestingComparisonTable', function (initialIrTests, finalIrTests) {
       const terminals = new Set();
       const initialMap = {};
@@ -113,7 +116,9 @@ class PdfService {
 
     try {
       const page = await browser.newPage();
-      await page.setContent(html, { waitUntil: 'load' });
+      await page.setContent(html, { waitUntil: 'domcontentloaded', timeout: 60000 });
+      // Add a tiny delay to ensure base64 images are painted
+      await new Promise(r => setTimeout(r, 1000));
       
       // Industrial PDF settings
       const jobNo = (data.job && data.job.jobNo) || 'N/A';

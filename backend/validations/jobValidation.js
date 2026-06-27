@@ -17,12 +17,27 @@ const jobBaseSchema = {
   scopeOfWork: Joi.string().trim().allow('', null),
   dateReceived: Joi.string().trim().allow('', null),
   
+  // Stage dates & site info
+  disassyDate: Joi.string().trim().allow('', null),
+  assyDate: Joi.string().trim().allow('', null),
+  sendDate: Joi.string().trim().allow('', null),
+  sendSite: Joi.string().trim().allow('', null),
+
+  // Wheel Motor Specific Fields
+  finalDriveNo: Joi.string().trim().allow('', null),
+  finalDriveModel: Joi.string().trim().allow('', null),
+  installedHour: Joi.string().trim().allow('', null),
+  installedDate: Joi.string().trim().allow('', null),
+  removalHour: Joi.string().trim().allow('', null),
+  removalDate: Joi.string().trim().allow('', null),
+  lifeHour: Joi.string().trim().allow('', null),
+
   // Component & Equipment model
   componentType: Joi.string().trim().allow('', null),
   equipmentModel: Joi.string().valid('EH5000', 'EH4500', '830E AC', '830E DC', 'BELAZ', 'OTHER').default('OTHER'),
 
   // Lifecycle
-  stage: Joi.string().valid('Received', 'Inspection', 'Dismantling', 'Assembly', 'Testing', 'Dispatch', 'Completed').default('Received'),
+  stage: Joi.string().allow('', null),
   status: Joi.string().valid('Active', 'Draft', 'Completed', 'Cancelled', 'Pending', 'In Progress', 'Done', 'RFD', 'On Hold').default('Pending'),
   priority: Joi.string().valid('Low', 'Medium', 'High', 'Critical').default('Medium'),
 

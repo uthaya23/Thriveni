@@ -1,58 +1,107 @@
-import React, { useEffect, useState, useImperativeHandle, forwardRef } from 'react';
+import React, { useEffect, useState, useImperativeHandle, forwardRef, useRef } from 'react';
+import InspectionTab from './InspectionTab';
 import { getImageUrl } from '../../utils/api';
 import api from '../../utils/api';
 import toast from 'react-hot-toast';
-import DynamicTable from '../../components/DynamicTable';
 
-const DismantlingTab = forwardRef(({ jobId, isReadOnly }, ref) => {
+const getChecklistItems = (job) => {
+  const type = (job?.componentType || '').toLowerCase();
+  
+  if (type.includes('wheel motor') || type.includes('eh5000') || type.includes('eh4500')) {
+    return [
+      'Drive Ring Removed',
+      'Drive Ring Cover Removed',
+      'Brake Caliper Removed',
+      'Brake Disc Removed',
+      'Encoder Assembly Removed',
+      'RTD Connections Removed',
+      'DE Outer Seal Removed',
+      'DE Inner Seal Removed',
+      'NDE Outer Seal Removed',
+      'NDE Inner Seal Removed',
+      'Rotor Removed',
+      'Stator Removed',
+      'DE Bearing Removed',
+      'NDE Bearing Removed'
+    ];
+  }
+  
+  if (type.includes('alternator')) {
+    return [
+      'Exciter Stator Removed',
+      'Exciter Rotor Removed',
+      'Main Rotor Removed',
+      'Bearing Housing Assembly Removed',
+      'Bearings Removed',
+      'Hub Removed',
+      'Engine Mounting Flange Removed',
+      'Diode Wheel / Rectifier Assembly Removed',
+      'DE Bearing Removed',
+      'NDE Bearing Removed',
+      'Cooling Fan Removed',
+      'Terminal Box Removed',
+      'RTD / TC Connections Removed'
+    ];
+  }
+
+  // Generic / Default (AC Motors, GBM, MBM, etc.)
+  return [
+    'Drive End Cover Removed',
+    'Non-Drive End Cover Removed',
+    'Cooling Fan Removed',
+    'Fan Cover Removed',
+    'Rotor Removed',
+    'Stator Removed',
+    'DE Bearing Removed',
+    'NDE Bearing Removed',
+    'Terminal Box Removed',
+    'Accessories/Sensors Removed'
+  ];
+};
+
+const DismantlingTab = forwardRef(({ jobId, job, isReadOnly }, ref) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [previewPhoto, setPreviewPhoto] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const inspectionTabRef = useRef();
 
   useImperativeHandle(ref, () => ({
     save: async () => {
       await handleSave();
+      if (inspectionTabRef.current?.save) {
+        await inspectionTabRef.current.save();
+      }
     },
     validate: () => {
-      if (!data.workLogs || data.workLogs.length === 0) {
-        toast.error("Validation Failed: At least one Dismantling Work Log entry is required.");
-        return false;
-      }
-      if (!data.partConditions || data.partConditions.length === 0) {
-        toast.error("Validation Failed: Component Condition Analysis must have at least one entry.");
-        return false;
-      }
-      const missingConditions = data.partConditions.some(p => !p.condition || p.condition.trim() === '');
-      if (missingConditions) {
-        toast.error("Validation Failed: All components in Condition Analysis must have a documented condition.");
-        return false;
+      if (inspectionTabRef.current?.validate) {
+        if (!inspectionTabRef.current.validate()) return false;
       }
       return true;
     }
   }));
 
   useEffect(() => {
-    // Attempt to fetch dismantling data if API exists, else initialize empty
     api.get(`/dismantling/${jobId}`).then(res => {
       const existingData = res.data._id ? res.data : null;
       setData(existingData || {
         startDate: '',
-        team: [],
-        workLogs: [],
-        partConditions: [],
-        findings: ['']
+        completionDate: '',
+        technician: '',
+        overallPhotos: [],
+        checklist: {}
       });
-      // If no data exists, start in edit mode
       setIsEditing(!existingData);
       setLoading(false);
     }).catch(() => {
       setData({
         startDate: '',
-        team: [],
-        workLogs: [],
-        partConditions: []
+        completionDate: '',
+        technician: '',
+        overallPhotos: [],
+        checklist: {}
       });
       setIsEditing(true);
       setLoading(false);
@@ -72,176 +121,88 @@ const DismantlingTab = forwardRef(({ jobId, isReadOnly }, ref) => {
     }
   };
 
+  const handlePhotoUpload = async (e) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    const files = Array.from(e.target.files);
+    
+    setUploading(true);
+    const formData = new FormData();
+    files.forEach(f => formData.append('images', f));
 
-  if (loading) return <div className="p-8 text-center text-gray-500">Loading dismantling forms...</div>;
-
-  const workLogColumns = [
-    { key: 'photo', label: 'Photos', type: 'photo' },
-    { key: 'date', label: 'Date', type: 'date' },
-    { key: 'workDone', label: 'Work Description', type: 'textarea' },
-    { key: 'technician', label: 'Resource', type: 'text' }
-  ];
-
-  const partConditionColumns = [
-    { key: 'photos', label: 'Photos', type: 'photo' },
-    { key: 'partName', label: 'Part Name', type: 'text' },
-    { key: 'condition', label: 'Condition', type: 'select', options: ['Good', 'Worn', 'Damaged', 'Replace', 'Repair', 'N/A'] },
-    { key: 'repairable', label: 'Repairable?', type: 'select', options: ['Yes', 'No'] },
-    { key: 'remarks', label: 'Manual Remarks', type: 'textarea' },
-    { key: 'aiSummary', label: 'AI Analysis', type: 'textarea' }
-  ];
-
-  const handleTeamChange = (e) => {
-    const teamArr = e.target.value.split(',').map(s => s.trim());
-    setData({ ...data, team: teamArr });
-  };
-
-  const handleAIComponentAnalysis = async (row, rowIndex) => {
-    if (!row.photos || row.photos.length === 0) {
-      toast.error('Please upload at least one photo for analysis');
-      return;
-    }
-
-    const loadingToast = toast.loading(`Analyzing ${row.partName || 'Component'}...`);
     try {
-      const { data: aiRes } = await api.post('/dismantling/analyze-component', {
-        componentName: row.partName,
-        photos: row.photos,
-        remarks: row.remarks
-      });
-
-      const updatedConditions = [...data.partConditions];
-      updatedConditions[rowIndex].aiSummary = aiRes.analysis;
-      setData({ ...data, partConditions: updatedConditions });
-      
-      toast.success('Analysis complete!', { id: loadingToast });
+      const res = await api.post('/upload', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+      setData(prev => ({
+        ...prev,
+        overallPhotos: [...(prev.overallPhotos || []), ...res.data.filenames]
+      }));
+      toast.success('Photos uploaded');
     } catch (err) {
-      console.error('AI Analysis failed:', err);
-      toast.error('AI Analysis failed', { id: loadingToast });
+      toast.error('Failed to upload photos');
+    } finally {
+      setUploading(false);
     }
   };
 
-  // ──── SUMMARY VIEW ──────────────────────────────────────────────────
+  if (loading) return <div className="p-8 text-center text-gray-500">Loading dismantling protocol...</div>;
+
   const SummaryView = () => (
-    <div className="space-y-10 py-4">
-      {/* Overview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="space-y-8 py-4 animate-in fade-in duration-500">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 shadow-sm">
-          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2">Operation Timeline</label>
-          <div className="flex items-center gap-4">
-            <div className="bg-blue-100 p-3 rounded-lg text-blue-600">📅</div>
-            <div>
-              <div className="text-lg font-black text-slate-800">{data.startDate ? new Date(data.startDate).toLocaleDateString('en-IN', { dateStyle: 'long' }) : 'Not started'}</div>
-              <div className="text-xs text-slate-500 font-medium">Dismantling Commencement Date</div>
-            </div>
+          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2">Technician</label>
+          <div className="text-lg font-black text-slate-800">{data.technician || 'Not assigned'}</div>
+        </div>
+        <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 shadow-sm">
+          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2">Start Date</label>
+          <div className="text-lg font-black text-slate-800">
+            {data.startDate ? new Date(data.startDate).toLocaleDateString('en-IN', { dateStyle: 'medium' }) : '--'}
           </div>
         </div>
         <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 shadow-sm">
-          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2">Assigned Personnel</label>
-          <div className="flex items-center gap-4">
-            <div className="bg-purple-100 p-3 rounded-lg text-purple-600">👥</div>
-            <div>
-              <div className="text-lg font-black text-slate-800">
-                {(data.team && data.team.length > 0) ? data.team.join(' • ') : 'No team assigned'}
-              </div>
-              <div className="text-xs text-slate-500 font-medium">Auto-Electric Workshop Team</div>
-            </div>
+          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2">Completion Date</label>
+          <div className="text-lg font-black text-slate-800">
+            {data.completionDate ? new Date(data.completionDate).toLocaleDateString('en-IN', { dateStyle: 'medium' }) : '--'}
           </div>
         </div>
       </div>
 
-      {/* Tables Summary */}
-      <div className="space-y-8">
-        <div>
-          <div className="flex items-center gap-2 mb-4">
-            <div className="w-1.5 h-6 bg-blue-500 rounded-full"></div>
-            <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Operational Progress Logs</h3>
+      <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 shadow-sm">
+        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-4">Overall Dismantling Photos (Min 3 required: Before, During, After)</label>
+        {data.overallPhotos && data.overallPhotos.length > 0 ? (
+          <div className="flex gap-3 flex-wrap">
+            {data.overallPhotos.map((url, i) => (
+              <img key={i} src={getImageUrl(url)} onClick={() => setPreviewPhoto(url)} className="w-32 h-32 object-cover rounded-xl border-2 border-slate-200 shadow-sm cursor-pointer hover:border-blue-500 transition-all hover:scale-105" alt="Dismantling Evidence" />
+            ))}
           </div>
-          {data.workLogs && data.workLogs.length > 0 ? (
-            <div className="overflow-x-auto rounded-xl border border-slate-200 shadow-sm">
-              <table className="w-full text-left border-collapse">
-                <thead className="bg-slate-50 border-b border-slate-200">
-                  <tr>
-                    <th className="p-4 text-[10px] font-bold text-slate-500 uppercase">Date</th>
-                    <th className="p-4 text-[10px] font-bold text-slate-500 uppercase">Work Description</th>
-                    <th className="p-4 text-[10px] font-bold text-slate-500 uppercase">Resource</th>
-                    <th className="p-4 text-[10px] font-bold text-slate-500 uppercase">Evidence</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {data.workLogs.map((log, i) => (
-                    <tr key={i} className="hover:bg-slate-50/50 transition-all">
-                      <td className="p-4 text-xs font-bold text-slate-700 font-mono">{log.date ? (log.date.includes('T') ? log.date.split('T')[0] : log.date) : ''}</td>
-                      <td className="p-4 text-xs text-slate-600 font-medium whitespace-pre-wrap">{log.workDone}</td>
-                      <td className="p-4 text-xs font-bold text-blue-600">{log.technician}</td>
-                      <td className="p-4 text-xs">
-                        <div className="flex gap-1 flex-wrap">
-                          {Array.isArray(log.photo) ? log.photo.map((p, pi) => (
-                            <img key={pi} src={getImageUrl(p)} className="w-8 h-8 object-cover rounded border border-slate-200 cursor-pointer hover:opacity-80 transition-all hover:scale-105" onClick={() => setPreviewPhoto(p)} />
-                          )) : (log.photo && <img src={getImageUrl(log.photo)} className="w-8 h-8 object-cover rounded border border-slate-200 cursor-pointer hover:opacity-80 transition-all hover:scale-105" onClick={() => setPreviewPhoto(log.photo)} />)}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <div className="p-8 text-center bg-slate-50 rounded-xl border border-dashed border-slate-300 text-slate-400 text-xs italic">No activity logs recorded for this stage.</div>
-          )}
-        </div>
+        ) : (
+          <div className="text-xs text-slate-500 italic">No photos uploaded.</div>
+        )}
+      </div>
 
-        <div>
-          <div className="flex items-center gap-2 mb-4">
-            <div className="w-1.5 h-6 bg-amber-500 rounded-full"></div>
-            <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Critical Component Status</h3>
-          </div>
-          {data.partConditions && data.partConditions.length > 0 ? (
-            <div className="overflow-x-auto rounded-xl border border-slate-200 shadow-sm">
-              <table className="w-full text-left border-collapse">
-                <thead className="bg-slate-50 border-b border-slate-200">
-                  <tr>
-                    <th className="p-4 text-[10px] font-bold text-slate-500 uppercase">Photos</th>
-                    <th className="p-4 text-[10px] font-bold text-slate-500 uppercase">Component Name</th>
-                    <th className="p-4 text-[10px] font-bold text-slate-500 uppercase">State</th>
-                    <th className="p-4 text-[10px] font-bold text-slate-500 uppercase">Repair</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {data.partConditions.map((c, i) => (
-                    <tr key={i} className="hover:bg-slate-50/50 transition-all">
-                      <td className="p-4">
-                        <div className="flex gap-1 flex-wrap">
-                          {Array.isArray(c.photos) ? c.photos.map((p, pi) => (
-                            <img key={pi} src={getImageUrl(p)} className="w-8 h-8 object-cover rounded border border-slate-200 cursor-pointer hover:opacity-80 transition-all hover:scale-105" onClick={() => setPreviewPhoto(p)} />
-                          )) : (c.photos && <img src={getImageUrl(c.photos)} className="w-8 h-8 object-cover rounded border border-slate-200 cursor-pointer hover:opacity-80 transition-all hover:scale-105" onClick={() => setPreviewPhoto(c.photos)} />)}
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <div className="text-xs font-bold text-slate-700">{c.partName}</div>
-                        {c.remarks && <div className="text-[10px] text-slate-400 mt-1 italic">M: {c.remarks}</div>}
-                        {c.aiSummary && <div className="text-[10px] text-blue-600 mt-0.5 font-medium flex gap-1 items-start"><span className="text-[10px]">🤖</span>{c.aiSummary}</div>}
-                      </td>
-                      <td className="p-4">
-                        <span className={`px-2 py-1 rounded text-[10px] font-black uppercase tracking-widest ${
-                          c.condition === 'Good' ? 'bg-green-100 text-green-700' : 
-                          (c.condition === 'Worn' || c.condition === 'Repair') ? 'bg-amber-100 text-amber-700' : 
-                          'bg-red-100 text-red-700'
-                        }`}>
-                          {c.condition}
-                        </span>
-                      </td>
-                      <td className="p-4 text-xs font-black text-slate-800">
-                        {c.repairable === 'Yes' ? '✅ YES' : '❌ NO'}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <div className="p-8 text-center bg-slate-50 rounded-xl border border-dashed border-slate-300 text-slate-400 text-xs italic">No component analysis data available.</div>
-          )}
+      <div className="bg-white p-8 rounded-xl border border-slate-200 shadow-sm">
+        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-6">Dismantling Checklist</label>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {getChecklistItems(job).map((item, idx) => {
+            const itemData = data.checklist?.[item];
+            const isChecked = typeof itemData === 'object' ? (itemData?.checked || false) : !!itemData;
+            const checkDate = typeof itemData === 'object' ? (itemData?.date || '') : '';
+            
+            return (
+              <div key={idx} className={`flex items-center justify-between p-4 rounded-lg border ${isChecked ? 'bg-green-50 border-green-200' : 'bg-slate-50 border-slate-200'}`}>
+                <div className="flex items-center gap-3">
+                  <div className={`w-6 h-6 rounded flex items-center justify-center ${isChecked ? 'bg-green-500 text-white' : 'bg-slate-200 text-slate-400'}`}>
+                    {isChecked && '✓'}
+                  </div>
+                  <span className={`text-sm font-bold ${isChecked ? 'text-green-800' : 'text-slate-600'}`}>{item}</span>
+                </div>
+                {isChecked && checkDate && (
+                  <div className="text-xs font-bold text-green-700 bg-white px-2 py-1 rounded border border-green-200">
+                    {new Date(checkDate).toLocaleDateString('en-IN')}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
@@ -252,10 +213,14 @@ const DismantlingTab = forwardRef(({ jobId, isReadOnly }, ref) => {
       <div className="flex justify-between items-center mb-10 border-b border-slate-200 pb-6">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <div className="bg-blue-600 text-white w-10 h-10 rounded-xl flex items-center justify-center font-black shadow-lg shadow-blue-200">D</div>
-            <h2 className="text-2xl font-black text-slate-900 tracking-tight uppercase">Dismantling Operations</h2>
+            <div className="bg-slate-800 text-white w-10 h-10 rounded-xl flex items-center justify-center font-black shadow-lg shadow-slate-200">🛠️</div>
+            <h2 className="text-2xl font-black text-slate-900 tracking-tight uppercase">Dismantling Stage</h2>
           </div>
-          <p className="text-xs text-slate-500 font-bold uppercase tracking-widest ml-14">Heavy Equipment Component Overhaul Protocol</p>
+          <div className="flex items-center gap-4 text-xs font-bold uppercase tracking-widest ml-14 text-slate-500">
+            <span>Job: {job?.jobNo || '--'}</span>
+            <span>•</span>
+            <span>S/N: {job?.componentSerialNo || '--'}</span>
+          </div>
         </div>
         
         {!isReadOnly && (
@@ -265,7 +230,7 @@ const DismantlingTab = forwardRef(({ jobId, isReadOnly }, ref) => {
                 onClick={() => setIsEditing(true)}
                 className="px-6 py-2.5 bg-slate-900 text-white rounded-lg font-bold text-xs uppercase tracking-widest hover:bg-slate-800 transition-all shadow-md flex items-center gap-2"
               >
-                ✏️ Edit Details
+                ✏️ Edit Protocol
               </button>
             ) : (
               <>
@@ -280,7 +245,7 @@ const DismantlingTab = forwardRef(({ jobId, isReadOnly }, ref) => {
                   onClick={handleSave} 
                   disabled={saving}
                 >
-                  {saving ? <span className="loading loading-spinner loading-xs"></span> : '💾 Save Draft'}
+                  {saving ? <span className="loading loading-spinner loading-xs"></span> : '💾 Save Phase'}
                 </button>
               </>
             )}
@@ -291,11 +256,20 @@ const DismantlingTab = forwardRef(({ jobId, isReadOnly }, ref) => {
       {!isEditing ? (
         <SummaryView />
       ) : (
-        <div className="space-y-12 pb-20 animate-in fade-in duration-500">
-          {/* SECTION 1: Meta Info */}
-          <section className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="space-y-8 pb-20 animate-in fade-in duration-500">
+          <section className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="form-control w-full">
-              <label className="label-text text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">Dismantling Commencement Date</label>
+              <label className="label-text text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">Technician</label>
+              <input 
+                type="text"
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all outline-none font-bold text-slate-700" 
+                placeholder="Technician Name"
+                value={data.technician || ''} 
+                onChange={e => setData({...data, technician: e.target.value})}
+              />
+            </div>
+            <div className="form-control w-full">
+              <label className="label-text text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">Start Date</label>
               <input 
                 type="date"
                 className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all outline-none font-bold text-slate-700" 
@@ -304,69 +278,125 @@ const DismantlingTab = forwardRef(({ jobId, isReadOnly }, ref) => {
               />
             </div>
             <div className="form-control w-full">
-              <label className="label-text text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">Workshop Team Personnel (comma separated)</label>
+              <label className="label-text text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">Completion Date</label>
               <input 
-                type="text"
+                type="date"
                 className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all outline-none font-bold text-slate-700" 
-                placeholder="e.g. John Doe, Mike Smith"
-                value={(data.team || []).join(', ')} 
-                onChange={handleTeamChange}
+                value={data.completionDate ? data.completionDate.split('T')[0] : ''} 
+                onChange={e => setData({...data, completionDate: e.target.value})}
               />
             </div>
           </section>
 
-          {/* SECTION 2: Work Logs */}
-          <section className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-            <div className="px-8 py-4 bg-slate-50 border-b border-slate-200 flex items-center gap-3">
-              <span className="text-lg">⏱️</span>
-              <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest">Chronological Operations Log</h3>
+          <section className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest">Overall Dismantling Photos</h3>
+                <p className="text-xs text-slate-500 font-medium mt-1">Minimum 3 Required (Before, During, After Complete Dismantling)</p>
+              </div>
+              <div>
+                <label className="px-6 py-2.5 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg font-bold text-xs uppercase tracking-widest hover:bg-blue-100 transition-all shadow-sm cursor-pointer flex items-center gap-2">
+                  {uploading ? 'Uploading...' : '📸 Upload Photos'}
+                  <input type="file" multiple accept="image/*" className="hidden" onChange={handlePhotoUpload} disabled={uploading} />
+                </label>
+              </div>
             </div>
-            <div className="p-6">
-              <DynamicTable 
-                columns={workLogColumns} 
-                data={data.workLogs || []} 
-                onChange={v => setData({...data, workLogs: v})} 
-                onAI={async (row, rowIndex) => {
-                  if (!row.photo || (Array.isArray(row.photo) && row.photo.length === 0)) {
-                    toast.error('Please upload photo(s) for analysis');
-                    return;
-                  }
-                  const loadingToast = toast.loading('Summarizing work done...');
-                  try {
-                    const { data: aiRes } = await api.post('/dismantling/analyze-component', {
-                      componentName: 'Dismantling Procedure Step',
-                      photos: Array.isArray(row.photo) ? row.photo : [row.photo],
-                      remarks: row.workDone
-                    });
-                    const updatedLogs = [...data.workLogs];
-                    updatedLogs[rowIndex].workDone = aiRes.analysis;
-                    setData({ ...data, workLogs: updatedLogs });
-                    toast.success('Summary generated!', { id: loadingToast });
-                  } catch (err) { toast.error('Failed to generate summary', { id: loadingToast }); }
-                }}
-              />
-            </div>
+            
+            {data.overallPhotos && data.overallPhotos.length > 0 ? (
+              <div className="flex gap-4 flex-wrap">
+                {data.overallPhotos.map((url, i) => (
+                  <div key={i} className="relative group">
+                    <img src={getImageUrl(url)} onClick={() => setPreviewPhoto(url)} className="w-32 h-32 object-cover rounded-xl border-2 border-slate-200 shadow-sm cursor-pointer group-hover:border-blue-500 transition-all" alt="Evidence" />
+                    <button 
+                      className="absolute -top-2 -right-2 bg-red-500 text-white w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setData(prev => ({...prev, overallPhotos: prev.overallPhotos.filter((_, idx) => idx !== i)}));
+                      }}
+                    >✕</button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="w-full py-12 border-2 border-dashed border-slate-300 rounded-xl bg-slate-50 flex flex-col items-center justify-center text-slate-400">
+                <span className="text-4xl mb-3">🖼️</span>
+                <span className="text-xs font-bold uppercase tracking-widest">Drag & Drop or Click Upload</span>
+              </div>
+            )}
           </section>
 
-          {/* SECTION 3: Part Condition */}
-          <section className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-            <div className="px-8 py-4 bg-slate-50 border-b border-slate-200 flex items-center gap-3">
-              <span className="text-lg">⚙️</span>
-              <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest">Component Analysis & Condition Matrix</h3>
-            </div>
-            <div className="p-6">
-              <DynamicTable 
-                columns={partConditionColumns} 
-                data={data.partConditions || []} 
-                onChange={v => setData({...data, partConditions: v})} 
-                onAI={handleAIComponentAnalysis}
-              />
+          <section className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
+            <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest mb-6">Dismantling Checklist</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+              {getChecklistItems(job).map((item, idx) => {
+                const itemData = data.checklist?.[item];
+                const isChecked = typeof itemData === 'object' ? (itemData?.checked || false) : !!itemData;
+                const checkDate = typeof itemData === 'object' ? (itemData?.date || '') : '';
+
+                return (
+                  <div key={idx} className="flex items-center justify-between p-4 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors group">
+                    <div 
+                      className="flex items-center gap-4 cursor-pointer flex-1"
+                      onClick={() => {
+                        setData(prev => ({
+                          ...prev,
+                          checklist: {
+                            ...(prev.checklist || {}),
+                            [item]: {
+                              checked: !isChecked,
+                              date: !isChecked ? (checkDate || new Date().toISOString().split('T')[0]) : ''
+                            }
+                          }
+                        }));
+                      }}
+                    >
+                      <div className={`w-6 h-6 rounded flex items-center justify-center transition-all border-2 ${isChecked ? 'bg-blue-600 border-blue-600 text-white shadow-md shadow-blue-200 scale-110' : 'bg-white border-slate-300 text-transparent hover:border-blue-400'}`}>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
+                      </div>
+                      <span className={`text-sm font-bold transition-colors ${isChecked ? 'text-blue-800' : 'text-slate-600 group-hover:text-blue-600'}`}>{item}</span>
+                    </div>
+                    {isChecked && (
+                      <input 
+                        type="date"
+                        className="w-32 px-2 py-1 text-xs bg-white border border-slate-300 rounded focus:ring-2 focus:ring-blue-500 outline-none font-bold text-slate-700"
+                        value={checkDate}
+                        onChange={(e) => {
+                          setData(prev => ({
+                            ...prev,
+                            checklist: {
+                              ...(prev.checklist || {}),
+                              [item]: {
+                                checked: isChecked,
+                                date: e.target.value
+                              }
+                            }
+                          }));
+                        }}
+                      />
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </section>
         </div>
       )}
 
-      {/* Photo Preview Modal */}
+      {/* Embedded Dimensional Inspection Engine */}
+      <div className="mt-12 pt-12 border-t-2 border-dashed border-slate-300">
+        <div className="flex items-center gap-3 mb-6 px-4">
+          <span className="text-2xl">📏</span>
+          <h2 className="text-xl font-black text-slate-800 uppercase tracking-widest">Dimensional Inspection Phase</h2>
+        </div>
+        <InspectionTab 
+          ref={inspectionTabRef} 
+          jobId={jobId} 
+          job={job} 
+          stageNameFilter="Dimensional Inspection" 
+          isReadOnly={isReadOnly} 
+        />
+      </div>
+
       {previewPhoto && (
         <div 
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-sm animate-in fade-in duration-300 cursor-pointer"
@@ -376,14 +406,8 @@ const DismantlingTab = forwardRef(({ jobId, isReadOnly }, ref) => {
             <button 
               className="absolute top-4 right-4 z-10 w-10 h-10 bg-slate-800/80 hover:bg-slate-700/80 text-white rounded-full flex items-center justify-center font-bold text-lg transition-colors border border-slate-700/50"
               onClick={() => setPreviewPhoto(null)}
-            >
-              ✕
-            </button>
-            <img 
-              src={getImageUrl(previewPhoto)} 
-              alt="Preview" 
-              className="max-h-[85vh] max-w-full object-contain"
-            />
+            >✕</button>
+            <img src={getImageUrl(previewPhoto)} alt="Preview" className="max-h-[85vh] max-w-full object-contain" />
           </div>
         </div>
       )}

@@ -15,6 +15,8 @@ const materialItemSchema = new mongoose.Schema({
   remarks: String,
   suppliedBy: String,
   receivedDate: String,
+  inventoryItem: { type: mongoose.Schema.Types.ObjectId, ref: 'InventoryItem' },
+  issuedTransaction: { type: mongoose.Schema.Types.ObjectId, ref: 'InventoryTransaction' },
 }, { timestamps: true });
 
 // Auto-calculate totalCost

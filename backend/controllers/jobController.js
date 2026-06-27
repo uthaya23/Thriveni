@@ -13,8 +13,7 @@ class JobController {
    */
   static async createJob(req, res, next) {
     try {
-      console.log('--- CREATE JOB REQUEST PAYLOAD ---');
-      console.log(JSON.stringify(req.body, null, 2));
+      Logger.debug('Create job request received', { jobNo: req.body.jobNo, componentType: req.body.componentType });
       const result = await JobService.createJob(req.body, req.user?._id);
       res.status(result.statusCode).json(result);
     } catch (error) {
@@ -63,7 +62,7 @@ class JobController {
    */
   static async deleteJob(req, res, next) {
     try {
-      const result = await JobService.deleteJob(req.params.id);
+      const result = await JobService.deleteJob(req.params.id, req.user?._id);
       res.status(result.statusCode).json(result);
     } catch (error) {
       next(error);

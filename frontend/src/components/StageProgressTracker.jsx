@@ -1,7 +1,7 @@
 import React from 'react';
 import { FiCheck } from 'react-icons/fi';
 
-const STAGES = ['Received', 'Inspection', 'Dismantling', 'Assembly', 'Testing', 'Dispatch', 'Completed'];
+const STAGES = ['Received', 'Visual Inspection', 'Dismantling', 'Repair / Reclamation', 'Pre-Assembly', 'Assembly', 'Testing', 'Dispatch', 'Completed'];
 
 /**
  * Enterprise workflow tracker for stage-by-stage progression.

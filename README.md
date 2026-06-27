@@ -57,7 +57,6 @@ Edit `.env` if needed:
 ```
 PORT=5000
 MONGO_URI=mongodb://localhost:27017/thriveni
-JWT_SECRET=thriveni_rebuilt_secret_2026
 ```
 
 Create uploads folder:

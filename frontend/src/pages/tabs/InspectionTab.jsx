@@ -4,45 +4,52 @@ import toast from 'react-hot-toast';
 import DynamicTable from '../../components/DynamicTable';
 import CameraUploader from '../../components/CameraUploader';
 import ExpandableSection from '../../components/ExpandableSection';
-import { FiEye, FiZap, FiBox, FiChevronDown } from 'react-icons/fi';
+import { FiEye, FiZap, FiBox, FiBookOpen } from 'react-icons/fi';
 import { getTemplateForJob } from './inspectionTemplates';
+import { evaluateParameter } from '../../utils/inspectionEvaluator';
 
-const InspectionTab = forwardRef(({ jobId, job, isReadOnly }, ref) => {
+const InspectionTab = forwardRef(({ jobId, job, isReadOnly, stageNameFilter }, ref) => {
+  // Legacy State
   const [data, setData] = useState(null);
+  
+  // New OEM Engine State
+  const [oemTemplate, setOemTemplate] = useState(null);
+  const [measurements, setMeasurements] = useState({});
+  const [qaStatus, setQaStatus] = useState('Draft');
+  
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
   const [analyzing, setAnalyzing] = useState(false);
   const [previewPhoto, setPreviewPhoto] = useState(null);
+  const [showAIModal, setShowAIModal] = useState(false);
+  const [aiMotorType, setAiMotorType] = useState(job?.componentType || 'Wheel Motor');
+  const [aiCustomDetails, setAiCustomDetails] = useState('');
+  const [activeModal, setActiveModal] = useState(null);
 
   useImperativeHandle(ref, () => ({
     save: async () => {
       await handleSave();
     },
     validate: () => {
-      // Strict Validation Rules for Inspection Stage
-      if (!data.receivedPhotos || data.receivedPhotos.length === 0) {
-        toast.error("Validation Failed: At least 1 Inspection Photo is required.");
-        return false;
-      }
-      if (!data.externalCondition || data.externalCondition.trim() === '') {
-        toast.error("Validation Failed: External Condition is required.");
-        return false;
-      }
-      if (!data.damageNotes || data.damageNotes.trim() === '') {
-        toast.error("Validation Failed: Visible Anomalies (Damage Notes) are required.");
-        return false;
-      }
-      if (!data.initialFindings || data.initialFindings.trim() === '') {
-        toast.error("Validation Failed: Initial Engineering Verdict is required.");
-        return false;
-      }
-      // Check if any missing parts are "Not Checked"
-      if (data.missingParts && data.missingParts.length > 0) {
-        const unchecked = data.missingParts.some(p => !p.status || p.status === 'Not Checked');
-        if (unchecked) {
-          toast.error("Validation Failed: All parts in the Incoming Parts Checklist must have a status assigned.");
+      if (oemTemplate) {
+        let isValid = true;
+        const stagesToValidate = stageNameFilter 
+          ? oemTemplate.stages.filter(s => Array.isArray(stageNameFilter) ? stageNameFilter.includes(s.stageName) : s.stageName === stageNameFilter) 
+          : oemTemplate.stages;
+        stagesToValidate.forEach(stage => {
+          stage.categories.forEach(cat => {
+            cat.parameters.forEach(p => {
+              const m = measurements[p._id] || {};
+              if (p.measurementRequired && (!m.actualValue && m.actualValue !== 0 && m.status === 'PENDING' && !m.photos?.length && p.parameterType !== 'PHOTO_REQUIRED')) {
+                isValid = false;
+              }
+            });
+          });
+        });
+        if (!isValid) {
+          toast.error('Please complete all mandatory OEM parameters.');
           return false;
         }
       }
@@ -50,9 +57,31 @@ const InspectionTab = forwardRef(({ jobId, job, isReadOnly }, ref) => {
     }
   }));
 
-  const [showAIModal, setShowAIModal] = useState(false);
-  const [aiMotorType, setAiMotorType] = useState(job?.componentType || 'Wheel Motor');
-  const [aiCustomDetails, setAiCustomDetails] = useState('');
+  useEffect(() => {
+    api.get(`/inspection/${jobId}`).then(res => {
+      const respData = res.data;
+      const existingData = respData.inspection && respData.inspection._id ? respData.inspection : null;
+      
+      setOemTemplate(respData.template);
+      if (respData.template) {
+        setQaStatus(existingData?.qaStatus || 'Draft');
+        const mMap = {};
+        if (existingData && existingData.stageResults) {
+          existingData.stageResults.forEach(s => {
+            (s.measurements || []).forEach(m => { mMap[m.parameterId] = m; });
+          });
+        }
+        setMeasurements(mMap);
+      }
+      setIsEditing(!existingData);
+      setLoading(false);
+    }).catch(err => {
+      console.error(err);
+      toast.error('Failed to load inspection data');
+      setIsEditing(true);
+      setLoading(false);
+    });
+  }, [jobId, job]);
 
   const handleAIAnalyze = async (motorType, customDetails) => {
     if (!data.receivedPhotos?.length) {
@@ -82,127 +111,11 @@ const InspectionTab = forwardRef(({ jobId, job, isReadOnly }, ref) => {
     }
   };
 
-  useEffect(() => {
-    api.get(`/inspection/${jobId}`).then(res => {
-      const existingData = res.data._id ? res.data : null;
-      if (existingData) {
-        const template = getTemplateForJob(job);
-        const mergedData = { ...existingData };
-        
-        if (template) {
-          if (!mergedData.missingParts || mergedData.missingParts.length === 0) {
-            mergedData.missingParts = template.incomingParts.map(part => ({
-              photo: '',
-              partName: part.partName,
-              quantity: part.quantity,
-              status: part.status || 'Available',
-              remarks: '',
-              aiSummary: ''
-            }));
-          }
-          if (!mergedData.initialIrTests || mergedData.initialIrTests.length === 0) {
-            mergedData.initialIrTests = template.electricalTests.irTest ? 
-              template.electricalTests.irTest.terminals.map(term => ({
-                photo: '',
-                terminal: term,
-                voltage: template.electricalTests.irTest.appliedVoltage,
-                irValue: '',
-                unit: 'MΩ',
-                remarks: `Standard: ${template.electricalTests.irTest.standardValue}`
-              })) : [];
-          }
-          if (!mergedData.surgeTests || mergedData.surgeTests.length === 0) {
-            mergedData.surgeTests = template.electricalTests.windingResistance ?
-              template.electricalTests.windingResistance.terminals.map(term => ({
-                photo: '',
-                terminal: term,
-                voltage: 1000,
-                result: 'Pass',
-                remarks: `Standard Resistance: ${template.electricalTests.windingResistance.standardValue || 'Balanced'}`
-              })) : [];
-          }
-        }
-        setData(mergedData);
-      } else {
-        const template = getTemplateForJob(job);
-        setData({
-          receivedPhotos: [],
-          initialFindings: '',
-          missingParts: template ? template.incomingParts.map(part => ({
-            photo: '',
-            partName: part.partName,
-            quantity: part.quantity,
-            status: part.status || 'Available',
-            remarks: '',
-            aiSummary: ''
-          })) : [],
-          initialIrTests: (template && template.electricalTests && template.electricalTests.irTest) ? 
-            template.electricalTests.irTest.terminals.map(term => ({
-              photo: '',
-              terminal: term,
-              voltage: template.electricalTests.irTest.appliedVoltage,
-              irValue: '',
-              unit: 'MΩ',
-              remarks: `Standard: ${template.electricalTests.irTest.standardValue}`
-            })) : [],
-          surgeTests: (template && template.electricalTests && template.electricalTests.windingResistance) ?
-            template.electricalTests.windingResistance.terminals.map(term => ({
-              photo: '',
-              terminal: term,
-              voltage: 1000,
-              result: 'Pass',
-              remarks: `Standard Resistance: ${template.electricalTests.windingResistance.standardValue || 'Balanced'}`
-            })) : [],
-          externalCondition: '',
-          damageNotes: ''
-        });
-      }
-      setIsEditing(!existingData);
-      setLoading(false);
-    }).catch(() => {
-      const template = getTemplateForJob(job);
-      setData({
-        receivedPhotos: [],
-        initialFindings: '',
-        missingParts: template ? template.incomingParts.map(part => ({
-          photo: '',
-          partName: part.partName,
-          quantity: part.quantity,
-          status: part.status || 'Available',
-          remarks: '',
-          aiSummary: ''
-        })) : [],
-        initialIrTests: (template && template.electricalTests && template.electricalTests.irTest) ? 
-          template.electricalTests.irTest.terminals.map(term => ({
-            photo: '',
-            terminal: term,
-            voltage: template.electricalTests.irTest.appliedVoltage,
-            irValue: '',
-            unit: 'MΩ',
-            remarks: `Standard: ${template.electricalTests.irTest.standardValue}`
-          })) : [],
-          surgeTests: (template && template.electricalTests && template.electricalTests.windingResistance) ?
-            template.electricalTests.windingResistance.terminals.map(term => ({
-              photo: '',
-              terminal: term,
-              voltage: 1000,
-              result: 'Pass',
-              remarks: `Standard Resistance: ${template.electricalTests.windingResistance.standardValue || 'Balanced'}`
-            })) : [],
-        externalCondition: '',
-        damageNotes: ''
-      });
-      setIsEditing(true);
-      setLoading(false);
-    });
-  }, [jobId, job]);
-
   const handleAIMissingPartsAnalysis = async (row, rowIndex) => {
     if (!row.photo) {
       toast.error('Please upload a photo for analysis');
       return;
     }
-
     const loadingToast = toast.loading(`Analyzing ${row.partName || 'Component'}...`);
     try {
       const { data: aiRes } = await api.post('/dismantling/analyze-component', {
@@ -210,15 +123,43 @@ const InspectionTab = forwardRef(({ jobId, job, isReadOnly }, ref) => {
         photos: [row.photo],
         remarks: row.remarks
       });
-
       const updatedParts = [...data.missingParts];
       updatedParts[rowIndex].aiSummary = aiRes.analysis;
       setData({ ...data, missingParts: updatedParts });
-      
       toast.success('Analysis complete!', { id: loadingToast });
     } catch (err) {
-      console.error('AI Analysis failed:', err);
       toast.error('AI Analysis failed', { id: loadingToast });
+    }
+  };
+
+  const handleMeasurementChange = (parameterId, field, value, parameter) => {
+    setMeasurements(prev => {
+      const current = prev[parameterId] || {};
+      const updated = { ...current, [field]: value };
+      if (field === 'actualValue' && updated.actualValue !== '') {
+        updated.status = evaluateParameter(parameter, updated.actualValue);
+      }
+      return { ...prev, [parameterId]: updated };
+    });
+  };
+
+  const handleOemPhotoUpload = async (e, parameterId, parameter) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const loadingToast = toast.loading('Uploading photo...');
+    try {
+      const formData = new FormData();
+      formData.append('photo', file);
+      const { data } = await api.post('/upload', formData);
+      setMeasurements(prev => {
+        const current = prev[parameterId] || { photos: [] };
+        const updatedPhotos = [...(current.photos || []), data.fileUrl];
+        const newStatus = (parameter.parameterType === 'PHOTO_REQUIRED' && updatedPhotos.length > 0) ? 'PASS' : current.status;
+        return { ...prev, [parameterId]: { ...current, photos: updatedPhotos, status: newStatus || current.status } };
+      });
+      toast.success('Photo uploaded', { id: loadingToast });
+    } catch {
+      toast.error('Failed to upload photo', { id: loadingToast });
     }
   };
 
@@ -226,283 +167,273 @@ const InspectionTab = forwardRef(({ jobId, job, isReadOnly }, ref) => {
     setSaving(true);
     try {
       const payload = { ...data };
-      if (payload.photos) {
-        payload.photos = payload.photos.map(p => typeof p === 'object' && p !== null ? (p._id || p) : p);
+      if (payload.receivedPhotos) {
+        payload.receivedPhotos = payload.receivedPhotos.map(p => typeof p === 'object' && p !== null ? (p._id || p) : p);
       }
-      if (payload.inspectedBy) {
-        payload.inspectedBy = typeof payload.inspectedBy === 'object' && payload.inspectedBy !== null ? (payload.inspectedBy._id || payload.inspectedBy) : payload.inspectedBy;
+      if (oemTemplate) {
+        payload.templateId = oemTemplate._id;
+        payload.qaStatus = qaStatus;
+        payload.stageResults = (oemTemplate.stages || []).map(stage => ({
+          stageName: stage.stageName,
+          measurements: (stage.categories || []).flatMap(c => (c.parameters || []).map(p => {
+            const m = measurements[p._id] || {};
+            return {
+              parameterId: p._id,
+              actualValue: m.actualValue,
+              actualUnit: m.actualUnit,
+              status: m.status || 'PENDING',
+              photos: m.photos || [],
+              remarks: m.remarks || ''
+            };
+          }))
+        }));
       }
+
       await api.post(`/inspection/${jobId}`, payload);
-      toast.success('Initial Inspection data saved');
+      toast.success('Inspection data saved');
       setIsEditing(false);
     } catch (err) {
       console.error('Failed to save inspection:', err);
-      const errMsg = err?.response?.data?.message || err?.message || 'Server Error';
-      toast.error(`Failed to save inspection data: ${errMsg}`);
+      toast.error('Failed to save inspection data');
     } finally {
       setSaving(false);
     }
   };
 
+  const stagesToRender = (oemTemplate && oemTemplate.stages && stageNameFilter) 
+    ? oemTemplate.stages.filter(s => Array.isArray(stageNameFilter) ? stageNameFilter.includes(s.stageName) : s.stageName === stageNameFilter) 
+    : (oemTemplate?.stages || []);
+
+  const { percentage, critical, major, total, completedParams } = React.useMemo(() => {
+    let t = 0, c = 0, crit = 0, maj = 0;
+    (stagesToRender || []).forEach(stage => {
+      (stage.categories || []).forEach(cat => {
+        (cat.parameters || []).forEach(p => {
+          if (p.parameterType !== 'PHOTO_REQUIRED') {
+            t++;
+            const m = measurements ? measurements[p._id] : null;
+            if (m && ((m.actualValue !== undefined && m.actualValue !== '') || m.status === 'PASS' || m.status === 'FAIL' || m.status === 'CRITICAL')) c++;
+            if (m && m.status === 'CRITICAL') crit++;
+            if (m && m.status === 'FAIL' && p.severity !== 'CRITICAL') maj++;
+          }
+        });
+      });
+    });
+    return { percentage: t === 0 ? 0 : Math.round((c / t) * 100), critical: crit, major: maj, total: t, completedParams: c };
+  }, [stagesToRender, measurements]);
+
   if (loading) return <div className="p-8 text-center text-gray-500">Loading inspection forms...</div>;
 
-  const partsChecklistColumns = [
-    { key: 'photo', label: 'Photo', type: 'photo' },
-    { key: 'partName', label: 'Part Name', type: 'text' },
-    { key: 'quantity', label: 'Qty', type: 'number' },
-    { key: 'status', label: 'Status', type: 'select', options: ['Available', 'Missing', 'Damaged'] },
-    { key: 'remarks', label: 'Remarks', type: 'text' },
-    { key: 'aiSummary', label: 'AI Analysis', type: 'textarea' }
-  ];
+  const renderOemStageEngine = () => {
+    const isLocked = isReadOnly || !isEditing;
 
-  const irTestColumns = [
-    { key: 'photo', label: 'Photo', type: 'photo' },
-    { key: 'terminal', label: 'Terminal Name (e.g. U1, V1, W1)', type: 'text' },
-    { key: 'voltage', label: 'Applied Voltage (V)', type: 'number' },
-    { key: 'irValue', label: 'IR Value', type: 'text' },
-    { key: 'unit', label: 'Unit', type: 'select', options: ['kΩ', 'MΩ', 'GΩ'] },
-    { key: 'remarks', label: 'Remarks', type: 'text' }
-  ];
-
-  const surgeTestColumns = [
-    { key: 'photo', label: 'Photo', type: 'photo' },
-    { key: 'terminal', label: 'Terminal Pair', type: 'text' },
-    { key: 'voltage', label: 'Test Voltage (V)', type: 'number' },
-    { key: 'result', label: 'Result', type: 'select', options: ['Pass', 'Fail'] },
-    { key: 'remarks', label: 'Waveform Obs.', type: 'text' }
-  ];
-
-  const SummaryView = () => (
-    <div className="space-y-10 py-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <section className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
-          <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
-            📸 Arrival Documentation
-          </h3>
-          <span className="text-[10px] font-bold text-slate-400">{data.receivedPhotos?.length || 0} Images Captured</span>
-        </div>
-        <div className="p-6">
-          <div className="flex gap-4 flex-wrap">
-            {data.receivedPhotos?.length > 0 ? data.receivedPhotos.map((p, i) => (
-              <div key={i} className="group relative cursor-pointer" onClick={() => setPreviewPhoto(p)}>
-                <img src={getImageUrl(p)} alt="Received" className="w-32 h-32 object-cover rounded-xl border border-slate-200 shadow-sm transition-all group-hover:scale-105" />
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all rounded-xl flex items-center justify-center">
-                  <span className="text-[10px] text-white font-bold uppercase tracking-tighter">View Large</span>
+    return (
+      <div className="space-y-6">
+        {total > 0 && (
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
+            <div className="flex items-center gap-6">
+              <div className="relative w-20 h-20 flex items-center justify-center">
+                <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                  <path className="text-slate-100" strokeWidth="4" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                  <path className={`${percentage === 100 ? 'text-emerald-500' : 'text-blue-500'}`} strokeWidth="4" strokeDasharray={`${percentage}, 100`} stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                </svg>
+                <div className="absolute flex flex-col items-center justify-center">
+                  <span className="text-xl font-black text-slate-800">{percentage}%</span>
                 </div>
               </div>
-            )) : (
-              <div className="w-full py-8 text-center bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                <span className="text-xs text-slate-400 italic">No visual documentation available for arrival.</span>
+              <div>
+                <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest">Inspection Progress</h3>
+                <p className="text-xs font-bold text-slate-400 mt-1">{completedParams} of {total} Mandatory Checks Completed</p>
               </div>
-            )}
+            </div>
+            <div className="flex gap-4">
+              <div className="bg-red-50 border border-red-100 rounded-xl px-6 py-3 flex flex-col items-center justify-center min-w-[100px]">
+                <span className="text-2xl font-black text-red-600">{critical}</span>
+                <span className="text-[10px] font-bold text-red-500 uppercase tracking-widest mt-1">Critical</span>
+              </div>
+              <div className="bg-amber-50 border border-amber-100 rounded-xl px-6 py-3 flex flex-col items-center justify-center min-w-[100px]">
+                <span className="text-2xl font-black text-amber-600">{major}</span>
+                <span className="text-[10px] font-bold text-amber-500 uppercase tracking-widest mt-1">Major</span>
+              </div>
+            </div>
           </div>
-        </div>
-      </section>
-
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-slate-900 rounded-2xl p-8 text-slate-100 shadow-xl relative overflow-hidden border-l-4 border-amber-500">
-          <div className="relative z-10">
-            <label className="text-[10px] font-black text-amber-500 uppercase tracking-widest block mb-4">Initial Engineering Verdict</label>
-            <p className="text-sm font-medium leading-relaxed text-slate-300 italic whitespace-pre-wrap">
-              "{data.initialFindings || 'No detailed findings recorded during initial inspection.'}"
-            </p>
-          </div>
-          <div className="absolute top-4 right-4 text-4xl opacity-10">📝</div>
-        </div>
+        )}
         
-        <div className="space-y-4">
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
-            <div className="bg-blue-100 text-blue-600 w-12 h-12 rounded-xl flex items-center justify-center text-xl">🔍</div>
-            <div className="flex-1">
-              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">External State</label>
-              <div className="text-sm font-black text-slate-800 uppercase tracking-tight whitespace-pre-wrap leading-relaxed">{data.externalCondition || 'Unknown'}</div>
+        {stagesToRender.map((stage, sIdx) => (
+          <div key={sIdx} className="space-y-6">
+        <h2 className="text-lg font-black text-slate-800 uppercase tracking-widest flex items-center gap-2">
+          <span className="w-2 h-6 bg-blue-500 rounded-full"></span> {stage.stageName} (OEM Framework)
+        </h2>
+        
+        {(stage.categories || []).map((cat, cIdx) => (
+          <div key={cIdx} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div className="bg-slate-50 px-6 py-3 border-b border-slate-200">
+              <h3 className="text-xs font-bold text-slate-600 uppercase tracking-widest">{cat.categoryName}</h3>
             </div>
-          </div>
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
-            <div className="bg-red-100 text-red-600 w-12 h-12 rounded-xl flex items-center justify-center text-xl">⚠️</div>
-            <div className="flex-1">
-              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Visible Anomalies</label>
-              <div className="text-sm font-black text-slate-800 uppercase tracking-tight text-red-600 whitespace-pre-wrap leading-relaxed">{data.damageNotes || 'None reported'}</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <section>
-          <div className="flex items-center gap-2 mb-4">
-            <div className="w-1.5 h-6 bg-blue-500 rounded-full"></div>
-            <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest">Incoming Parts Checklist</h3>
-          </div>
-          {data.missingParts?.length > 0 ? (
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-              <table className="w-full text-left border-collapse">
-                <thead className="bg-slate-50 border-b border-slate-200">
-                  <tr>
-                    <th className="p-4 text-[10px] font-bold text-slate-500 uppercase">Photo</th>
-                    <th className="p-4 text-[10px] font-bold text-slate-500 uppercase">Part Name</th>
-                    <th className="p-4 text-[10px] font-bold text-slate-500 uppercase">Qty</th>
-                    <th className="p-4 text-[10px] font-bold text-slate-500 uppercase">Availability</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {data.missingParts.map((p, i) => (
-                    <tr key={i}>
-                      <td className="p-4">
-                        <div className="flex gap-1 flex-wrap">
-                          {Array.isArray(p.photo) ? p.photo.map((imgUrl, pi) => (
-                            <img key={pi} src={getImageUrl(imgUrl)} className="w-8 h-8 object-cover rounded border border-slate-200 cursor-pointer hover:opacity-80 transition-all hover:scale-105" onClick={() => setPreviewPhoto(imgUrl)} />
-                          )) : (p.photo && <img src={getImageUrl(p.photo)} className="w-8 h-8 object-cover rounded border border-slate-200 cursor-pointer hover:opacity-80 transition-all hover:scale-105" onClick={() => setPreviewPhoto(p.photo)} />)}
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <div className="text-xs font-bold text-slate-700">{p.partName}</div>
-                        {p.remarks && <div className="text-[10px] text-slate-400 mt-1 italic">Remarks: {p.remarks}</div>}
-                        {p.aiSummary && <div className="text-[10px] text-blue-600 mt-0.5 font-medium flex gap-1 items-start"><span className="text-[10px]">🤖</span>{p.aiSummary}</div>}
-                      </td>
-                      <td className="p-4 text-xs font-black text-slate-900">{p.quantity}</td>
-                      <td className="p-4">
-                        <span className={`px-2 py-1 rounded text-[10px] font-black uppercase tracking-widest ${
-                          p.status === 'Available' ? 'bg-green-100 text-green-700' : 
-                          p.status === 'Missing' ? 'bg-red-100 text-red-700' : 
-                          'bg-amber-100 text-amber-700'
-                        }`}>
-                          {p.status || 'Not Checked'}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <div className="p-10 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200 text-slate-400 text-xs italic">All standard components verified present.</div>
-          )}
-        </section>
-
-        <section>
-          <div className="flex items-center gap-2 mb-4">
-            <div className="w-1.5 h-6 bg-blue-500 rounded-full"></div>
-            <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest">Insulation Resistance Baseline</h3>
-          </div>
-          {data.initialIrTests?.length > 0 ? (
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-              <table className="w-full text-left border-collapse">
-                <thead className="bg-slate-50 border-b border-slate-200">
-                  <tr>
-                    <th className="p-4 text-[10px] font-bold text-slate-500 uppercase">Photo</th>
-                    <th className="p-4 text-[10px] font-bold text-slate-500 uppercase">Terminal</th>
-                    <th className="p-4 text-[10px] font-bold text-slate-500 uppercase">Applied Voltage</th>
-                    <th className="p-4 text-[10px] font-bold text-slate-500 uppercase">Baseline Value</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {data.initialIrTests.map((t, i) => (
-                    <tr key={i}>
-                      <td className="p-4">
-                        <div className="flex gap-1 flex-wrap">
-                          {Array.isArray(t.photo) ? t.photo.map((imgUrl, pi) => (
-                            <img key={pi} src={getImageUrl(imgUrl)} className="w-8 h-8 object-cover rounded border border-slate-200 cursor-pointer hover:opacity-80 transition-all hover:scale-105" onClick={() => setPreviewPhoto(imgUrl)} />
-                          )) : (t.photo && <img src={getImageUrl(t.photo)} className="w-8 h-8 object-cover rounded border border-slate-200 cursor-pointer hover:opacity-80 transition-all hover:scale-105" onClick={() => setPreviewPhoto(t.photo)} />)}
-                        </div>
-                      </td>
-                      <td className="p-4 text-xs font-bold text-slate-700 font-mono">{t.terminal}</td>
-                      <td className="p-4 text-xs font-black text-slate-900">{t.voltage}V</td>
-                      <td className="p-4">
-                        <span className="text-sm font-black text-blue-600">{t.irValue}</span>
-                        <span className="text-[10px] font-bold text-slate-400 ml-1">{t.unit}</span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <div className="p-10 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200 text-slate-400 text-xs italic">No IR baseline tests performed yet.</div>
-          )}
-        </section>
-      </div>
-
-      <section className="mt-8">
-        <div className="flex items-center gap-2 mb-4">
-          <div className="w-1.5 h-6 bg-purple-500 rounded-full"></div>
-          <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest">Surge Test Results</h3>
-        </div>
-        {data.surgeTests?.length > 0 ? (
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            
             <table className="w-full text-left border-collapse">
-              <thead className="bg-slate-50 border-b border-slate-200">
+              <thead className="bg-white border-b border-slate-100">
                 <tr>
-                  <th className="p-4 text-[10px] font-bold text-slate-500 uppercase">Photo</th>
-                  <th className="p-4 text-[10px] font-bold text-slate-500 uppercase">Terminal Pair</th>
-                  <th className="p-4 text-[10px] font-bold text-slate-500 uppercase">Voltage</th>
-                  <th className="p-4 text-[10px] font-bold text-slate-500 uppercase">Result</th>
-                  <th className="p-4 text-[10px] font-bold text-slate-500 uppercase">Observations</th>
+                  <th className={`p-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest ${stage.stageName === 'Visual Inspection' ? 'w-1/2' : 'w-1/4'}`}>Parameter</th>
+                  {stage.stageName !== 'Visual Inspection' && stage.stageName !== 'Dismantling Operations' && <th className="p-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest w-1/6">OEM Standard</th>}
+                  <th className={`p-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest ${stage.stageName === 'Visual Inspection' || stage.stageName === 'Dismantling Operations' ? 'w-1/2' : 'w-1/4'}`}>
+                    {stage.stageName === 'Visual Inspection' || stage.stageName === 'Dismantling Operations' ? (cat.categoryName === 'Incoming Photo Gallery' ? 'Evidence' : 'Status') : 'Actual Value'}
+                  </th>
+                  {stage.stageName !== 'Visual Inspection' && stage.stageName !== 'Dismantling Operations' && <th className="p-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center w-32">Eval</th>}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
-                {data.surgeTests.map((t, i) => (
-                  <tr key={i}>
-                    <td className="p-4">
-                      <div className="flex gap-1 flex-wrap">
-                        {Array.isArray(t.photo) ? t.photo.map((imgUrl, pi) => (
-                          <img key={pi} src={getImageUrl(imgUrl)} className="w-8 h-8 object-cover rounded border border-slate-200 cursor-pointer hover:opacity-80 transition-all hover:scale-105" onClick={() => setPreviewPhoto(imgUrl)} />
-                        )) : (t.photo && <img src={getImageUrl(t.photo)} className="w-8 h-8 object-cover rounded border border-slate-200 cursor-pointer hover:opacity-80 transition-all hover:scale-105" onClick={() => setPreviewPhoto(t.photo)} />)}
-                      </div>
-                    </td>
-                    <td className="p-4 text-xs font-bold text-slate-700">{t.terminal}</td>
-                    <td className="p-4 text-xs font-black text-slate-900">{t.voltage}V</td>
-                    <td className="p-4">
-                      <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${t.result === 'Pass' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                        {t.result}
-                      </span>
-                    </td>
-                    <td className="p-4 text-xs text-slate-600 italic">{t.remarks}</td>
-                  </tr>
-                ))}
+              <tbody className="divide-y divide-slate-50">
+                {(cat.parameters || []).map(p => {
+                  const m = measurements[p._id] || {};
+                  const isFail = m.status === 'FAIL' || m.status === 'CRITICAL';
+                  const isDefect = isFail || p.remarksRequired;
+
+                  return (
+                    <React.Fragment key={p._id}>
+                      <tr className={`hover:bg-slate-50 transition-colors ${isFail ? 'bg-red-50/30' : ''}`}>
+                        <td className="p-4 relative">
+                          {isFail && <div className="absolute left-0 top-0 bottom-0 w-1 bg-red-500"></div>}
+                          <div className="text-xs font-black text-slate-800 flex items-center gap-2">
+                            {p.name}
+                            {(p.oemProcedure || p.drawingReference) && (
+                              <button onClick={() => setActiveModal(p)} className="text-blue-500 hover:text-blue-700 bg-blue-50 p-1 rounded"><FiBookOpen size={12}/></button>
+                            )}
+                          </div>
+                          {p.severity === 'CRITICAL' && <span className="inline-block mt-1 bg-red-100 text-red-700 text-[9px] font-bold px-2 py-0.5 rounded uppercase tracking-widest">Critical Item</span>}
+                        </td>
+
+                        {stage.stageName !== 'Visual Inspection' && stage.stageName !== 'Dismantling Operations' && (
+                          <td className="p-4">
+                            {p.parameterType === 'NUMERIC' && (
+                              <div className="text-xs text-slate-600 font-medium">
+                                {p.standardValue} {p.unit}
+                                {p.toleranceType !== 'NONE' && <span className="block text-[10px] text-slate-400">({p.toleranceType})</span>}
+                              </div>
+                            )}
+                            {p.parameterType === 'BOOLEAN' && <div className="text-xs text-slate-600">{p.passingValue}</div>}
+                          </td>
+                        )}
+
+                        <td className="p-4">
+                          {cat.categoryName === 'Incoming Photo Gallery' ? (
+                            <div className="flex gap-2 flex-wrap">
+                              {m.photos && m.photos.map((url, i) => (
+                                <img key={i} src={getImageUrl(url)} onClick={() => setPreviewPhoto(url)} className="w-16 h-16 object-cover rounded-lg border-2 border-slate-200 cursor-pointer hover:border-blue-500" alt="Evidence" />
+                              ))}
+                              {!isLocked && (
+                                <label className="w-16 h-16 flex items-center justify-center bg-slate-50 border-2 border-dashed border-slate-300 rounded-lg cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition-colors">
+                                  <input type="file" className="hidden" accept="image/*" onChange={(e) => handleOemPhotoUpload(e, p._id, p)} />
+                                  <span className="text-xl text-slate-400">+</span>
+                                </label>
+                              )}
+                            </div>
+                          ) : (
+                            <div className="flex flex-col gap-2">
+                              {p.parameterType === 'BOOLEAN' ? (
+                                <select className={`text-xs font-bold p-2 rounded-lg border ${isFail ? 'border-red-300 bg-red-50 text-red-900' : 'border-slate-200 bg-white'} outline-none focus:ring-2 focus:ring-blue-100`} value={m.actualValue || ''} onChange={e => handleMeasurementChange(p._id, 'actualValue', e.target.value, p)} disabled={isLocked}>
+                                  <option value="">Select...</option>
+                                  <option value="Yes">Yes</option>
+                                  <option value="No">No</option>
+                                </select>
+                              ) : p.parameterType === 'DROPDOWN' ? (
+                                <div className="flex gap-2 items-center">
+                                  <select className={`flex-1 text-xs font-bold p-2 rounded-lg border ${isFail ? 'border-red-300 bg-red-50 text-red-900' : 'border-slate-200 bg-white'} outline-none focus:ring-2 focus:ring-blue-100`} value={m.actualValue || ''} onChange={e => handleMeasurementChange(p._id, 'actualValue', e.target.value, p)} disabled={isLocked}>
+                                    <option value="">Select Status...</option>
+                                    {p.options?.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                                  </select>
+                                  {(stage.stageName === 'Dismantling Operations' || stage.stageName === 'Assembly') && (
+                                    <input 
+                                      type="date" 
+                                      className="w-32 text-xs font-bold p-2 rounded-lg border border-slate-200 bg-white outline-none focus:ring-2 focus:ring-blue-100" 
+                                      value={m.actualDate || ''} 
+                                      onChange={e => handleMeasurementChange(p._id, 'actualDate', e.target.value, p)} 
+                                      disabled={isLocked} 
+                                      title="Completion Date"
+                                    />
+                                  )}
+                                </div>
+                              ) : p.parameterType === 'PHOTO_REQUIRED' ? null : (
+                                <div className="flex w-full items-center gap-1">
+                                  <input 
+                                    type={p.parameterType === 'NUMERIC' ? 'number' : 'text'}
+                                    className={`w-full text-xs p-2 border ${isFail ? 'border-red-300 bg-red-50 text-red-900' : 'border-slate-200'} rounded-lg focus:ring-2 focus:ring-blue-100 outline-none font-black`}
+                                    value={m.actualValue || ''} onChange={e => handleMeasurementChange(p._id, 'actualValue', e.target.value, p)} placeholder="Enter..." disabled={isLocked}
+                                  />
+                                  {p.unitOptions && p.unitOptions.length > 0 ? (
+                                    <select className="text-[10px] font-bold text-slate-500 bg-slate-50 border border-slate-200 rounded p-2 outline-none" value={m.actualUnit || p.unitOptions[0]} onChange={e => handleMeasurementChange(p._id, 'actualUnit', e.target.value, p)} disabled={isLocked}>
+                                      {p.unitOptions.map(u => <option key={u} value={u}>{u}</option>)}
+                                    </select>
+                                  ) : p.unit ? (
+                                    <span className="text-[10px] font-bold text-slate-400 bg-slate-50 px-2 py-2 rounded border border-slate-200">{p.unit}</span>
+                                  ) : null}
+                                </div>
+                              )}
+                              
+                              {(isDefect || (p.photoRequired && cat.categoryName !== 'Incoming Photo Gallery')) && (
+                                <div className="flex gap-2 animate-in slide-in-from-top-2 duration-300">
+                                  <input type="text" placeholder="Defect remarks required..." className="flex-1 text-xs p-2 border border-slate-200 rounded-lg outline-none focus:border-red-400 bg-white" value={m.remarks || ''} onChange={e => handleMeasurementChange(p._id, 'remarks', e.target.value, p)} disabled={isLocked} />
+                                  <div className="flex items-center gap-1">
+                                    {m.photos && m.photos.map((url, i) => (
+                                      <img key={i} src={getImageUrl(url)} onClick={() => setPreviewPhoto(url)} className="w-8 h-8 object-cover rounded border border-slate-200 cursor-pointer" alt="Ev" />
+                                    ))}
+                                    {!isLocked && (
+                                      <label className="w-8 h-8 flex items-center justify-center bg-slate-100 rounded border border-slate-300 cursor-pointer hover:bg-slate-200 transition-colors" title="Upload Evidence">
+                                        <input type="file" className="hidden" accept="image/*" onChange={(e) => handleOemPhotoUpload(e, p._id, p)} />
+                                        📸
+                                      </label>
+                                    )}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </td>
+
+                        {stage.stageName !== 'Visual Inspection' && stage.stageName !== 'Dismantling Operations' && (
+                          <td className="p-4 text-center">
+                            {m.status === 'PASS' && <span className="bg-emerald-100 text-emerald-700 font-black text-[10px] px-3 py-1 rounded-full tracking-widest">PASS</span>}
+                            {m.status === 'FAIL' && <span className="bg-amber-100 text-amber-700 font-black text-[10px] px-3 py-1 rounded-full tracking-widest">FAIL</span>}
+                            {m.status === 'CRITICAL' && <span className="bg-red-600 text-white font-black text-[10px] px-3 py-1 rounded-full tracking-widest shadow-md shadow-red-500/20">CRITICAL</span>}
+                            {(!m.status || m.status === 'PENDING') && <span className="text-slate-300 font-bold text-[10px] tracking-widest">---</span>}
+                          </td>
+                        )}
+                      </tr>
+                    </React.Fragment>
+                  );
+                })}
               </tbody>
             </table>
           </div>
-        ) : (
-          <div className="p-10 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200 text-slate-400 text-xs italic">No surge tests recorded during initial inspection.</div>
-        )}
-      </section>
-    </div>
-  );
+        ))}
+      </div>
+        ))}
+      </div>
+    );
+  };
 
   return (
-    <div className="p-6 max-w-[1200px] mx-auto">
+    <div className="p-6 max-w-[1200px] mx-auto animate-in fade-in duration-500">
       <div className="flex justify-between items-center mb-10 border-b border-slate-200 pb-6">
         <div>
           <div className="flex items-center gap-3 mb-2">
             <div className="bg-amber-500 text-white w-10 h-10 rounded-xl flex items-center justify-center font-black shadow-lg shadow-amber-200">I</div>
-            <h2 className="text-2xl font-black text-slate-900 tracking-tight uppercase">Initial Inspection</h2>
+            <h2 className="text-2xl font-black text-slate-900 tracking-tight uppercase">
+              {Array.isArray(stageNameFilter) ? stageNameFilter.join(' & ') : (stageNameFilter || 'Inspection Protocol')}
+            </h2>
           </div>
-          <p className="text-xs text-slate-500 font-bold uppercase tracking-widest ml-14">Receiving Protocol & Component Verification</p>
+          <p className="text-xs text-slate-500 font-bold uppercase tracking-widest ml-14">Job: {job?.jobNo} | S/N: {job?.serialNumber}</p>
         </div>
         
         {!isReadOnly && (
           <div className="flex gap-3">
             {!isEditing ? (
-              <button 
-                onClick={() => setIsEditing(true)}
-                className="px-6 py-2.5 bg-slate-900 text-white rounded-lg font-bold text-xs uppercase tracking-widest hover:bg-slate-800 transition-all shadow-md flex items-center gap-2"
-              >
-                ✏️ Edit Details
+              <button onClick={() => setIsEditing(true)} className="px-6 py-2.5 bg-slate-900 text-white rounded-lg font-bold text-xs uppercase tracking-widest hover:bg-slate-800 transition-all shadow-md flex items-center gap-2">
+                📝 Edit Details
               </button>
             ) : (
               <>
-                <button 
-                  onClick={() => setIsEditing(false)}
-                  className="px-6 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-lg font-bold text-xs uppercase tracking-widest hover:bg-slate-50 transition-all"
-                >
-                  Cancel
-                </button>
-                <button 
-                  className="px-8 py-2.5 bg-blue-600 text-white rounded-lg font-black text-xs uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 flex items-center gap-2 disabled:opacity-50" 
-                  onClick={handleSave} 
-                  disabled={saving}
-                >
+                <button onClick={() => setIsEditing(false)} className="px-6 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-lg font-bold text-xs uppercase tracking-widest hover:bg-slate-50 transition-all">Cancel</button>
+                <button className="px-8 py-2.5 bg-blue-600 text-white rounded-lg font-black text-xs uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 flex items-center gap-2 disabled:opacity-50" onClick={handleSave} disabled={saving}>
                   {saving ? <span className="loading loading-spinner loading-xs"></span> : '💾 Save Draft'}
                 </button>
               </>
@@ -511,138 +442,17 @@ const InspectionTab = forwardRef(({ jobId, job, isReadOnly }, ref) => {
         )}
       </div>
 
-      {!isEditing ? (
-        <SummaryView />
-      ) : (
-        <div className="space-y-12 pb-20 animate-in fade-in duration-500">
-          <section className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
-            <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest mb-6 flex items-center gap-3">
-              <span className="text-lg">📸</span> 1. Received Condition Documentation
-            </h3>
-            <CameraUploader 
-              photos={data.receivedPhotos || []} 
-              onChange={photos => setData({...data, receivedPhotos: photos})} 
-              label="Capture Condition"
-              isReadOnly={isReadOnly}
-            />
-          </section>
-
-          <div className="space-y-6">
-          <ExpandableSection 
-            title="1. Visual Inspection & AI Analysis" 
-            subtitle="Analyze photos and document physical state"
-            icon={<FiEye size={18} />}
-            defaultExpanded={true}
-          >
-            <div className="flex justify-between items-center mb-6 pt-4">
-              <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest flex items-center gap-3">
-                <span className="text-lg">📝</span> Status Overview
-              </h3>
-              {!isReadOnly && (
-                <button 
-                  onClick={() => setShowAIModal(true)}
-                  disabled={analyzing || !data.receivedPhotos?.length}
-                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg shadow-blue-100 disabled:opacity-50 disabled:grayscale"
-                >
-                  {analyzing ? (
-                    <span className="loading loading-spinner loading-xs"></span>
-                  ) : (
-                    <span className="text-sm">✨</span>
-                  )}
-                  AI Auto-Fill
-                </button>
-              )}
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              <div className="form-control w-full">
-                <label className="label-text text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">External State Description</label>
-                <textarea 
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-4 focus:ring-blue-100 transition-all outline-none font-bold text-slate-700 min-h-[80px]" 
-                  value={data.externalCondition || ''} 
-                  onChange={e => setData({...data, externalCondition: e.target.value})}
-                  placeholder={isReadOnly ? '' : "e.g. Intact, Heavy Dust, Corroded..."}
-                  readOnly={isReadOnly}
-                />
-              </div>
-              <div className="form-control w-full">
-                <label className="label-text text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">Physical Damage Observations</label>
-                <textarea 
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-4 focus:ring-blue-100 transition-all outline-none font-bold text-slate-700 min-h-[80px]" 
-                  value={data.damageNotes || ''} 
-                  onChange={e => setData({...data, damageNotes: e.target.value})}
-                  placeholder={isReadOnly ? '' : "e.g. Cracked terminal box, Bent shaft..."}
-                  readOnly={isReadOnly}
-                />
-              </div>
-            </div>
-            <div>
-              <label className="label-text text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">Detailed Engineering Findings</label>
-              <textarea 
-                className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 text-slate-700 text-sm focus:ring-4 focus:ring-blue-100 outline-none min-h-[250px] transition-all font-medium whitespace-pre-wrap leading-relaxed" 
-                value={data.initialFindings || ''} 
-                onChange={e => setData({...data, initialFindings: e.target.value})}
-                placeholder={isReadOnly ? '' : "Document all initial leaks, smells, and obvious technical issues..."}
-                readOnly={isReadOnly}
-              />
-            </div>
-          </ExpandableSection>
-
-          <ExpandableSection 
-            title="2. Incoming Parts Checklist" 
-            subtitle="Verify inventory of received components"
-            icon={<FiBox size={18} />}
-            badge={data.missingParts?.length || 0}
-          >
-            <div className="pt-4">
-              <DynamicTable 
-                columns={partsChecklistColumns} 
-                data={data.missingParts || []} 
-                onChange={v => setData({...data, missingParts: v})} 
-                onAI={handleAIMissingPartsAnalysis}
-                isReadOnly={isReadOnly}
-              />
-            </div>
-          </ExpandableSection>
-
-          <ExpandableSection 
-            title="3. Electrical Integrity Tests" 
-            subtitle="IR Baseline and Surge Test results"
-            icon={<FiZap size={18} />}
-          >
-            <div className="space-y-10 pt-4">
-              <section>
-                <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Insulation Resistance (IR)</h4>
-                <DynamicTable 
-                  columns={irTestColumns} 
-                  data={data.initialIrTests || []} 
-                  onChange={v => setData({...data, initialIrTests: v})} 
-                  isReadOnly={isReadOnly}
-                />
-              </section>
-
-              <section>
-                <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Surge Test Comparison</h4>
-                <DynamicTable 
-                  columns={surgeTestColumns} 
-                  data={data.surgeTests || []} 
-                  onChange={v => setData({...data, surgeTests: v})} 
-                  isReadOnly={isReadOnly}
-                />
-              </section>
-            </div>
-          </ExpandableSection>
-        </div>
+      <div className="space-y-10">
+        {renderOemStageEngine()}
       </div>
-    )}
 
-      {/* AI Context Modal */}
       {showAIModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden border border-slate-200 animate-in zoom-in-95 duration-300">
             <div className="p-8 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
               <div>
                 <h3 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-                  <span className="text-2xl">🤖</span> AI Analysis Context
+                  <span className="text-2xl">✨</span> AI Analysis Context
                 </h3>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Help Gemini focus on the right details</p>
               </div>
@@ -652,11 +462,7 @@ const InspectionTab = forwardRef(({ jobId, job, isReadOnly }, ref) => {
             <div className="p-8 space-y-6">
               <div className="form-control w-full">
                 <label className="label-text text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3 block">Type of Component</label>
-                <select 
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-4 focus:ring-blue-100 transition-all outline-none font-bold text-slate-800"
-                  value={aiMotorType}
-                  onChange={e => setAiMotorType(e.target.value)}
-                >
+                <select className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-4 focus:ring-blue-100 transition-all outline-none font-bold text-slate-800" value={aiMotorType} onChange={e => setAiMotorType(e.target.value)}>
                   <option value="Wheel Motor">Wheel Motor</option>
                   <option value="Main Blower Motor">Main Blower Motor</option>
                   <option value="Grid Blower Motor">Grid Blower Motor</option>
@@ -668,26 +474,13 @@ const InspectionTab = forwardRef(({ jobId, job, isReadOnly }, ref) => {
 
               <div className="form-control w-full">
                 <label className="label-text text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3 block">Additional Technical Context (Optional)</label>
-                <textarea 
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-4 focus:ring-blue-100 transition-all outline-none font-bold text-slate-700 min-h-[120px] text-sm" 
-                  value={aiCustomDetails} 
-                  onChange={e => setAiCustomDetails(e.target.value)}
-                  placeholder="e.g. History of overheating, suspecting bearing failure, customer reported unusual noise..."
-                />
+                <textarea className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-4 focus:ring-blue-100 transition-all outline-none font-bold text-slate-700 min-h-[120px] text-sm" value={aiCustomDetails} onChange={e => setAiCustomDetails(e.target.value)} placeholder="e.g. History of overheating, suspecting bearing failure..." />
               </div>
             </div>
 
             <div className="p-8 bg-slate-50 flex gap-4">
-              <button 
-                onClick={() => setShowAIModal(false)}
-                className="flex-1 px-6 py-3 bg-white border border-slate-200 text-slate-600 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-slate-100 transition-all"
-              >
-                Cancel
-              </button>
-              <button 
-                onClick={() => handleAIAnalyze()}
-                className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-100 flex items-center justify-center gap-2"
-              >
+              <button onClick={() => setShowAIModal(false)} className="flex-1 px-6 py-3 bg-white border border-slate-200 text-slate-600 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-slate-100 transition-all">Cancel</button>
+              <button onClick={() => handleAIAnalyze()} className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-100 flex items-center justify-center gap-2">
                 🚀 Run Analysis
               </button>
             </div>
@@ -695,24 +488,11 @@ const InspectionTab = forwardRef(({ jobId, job, isReadOnly }, ref) => {
         </div>
       )}
 
-      {/* Photo Preview Modal */}
       {previewPhoto && (
-        <div 
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-sm animate-in fade-in duration-300 cursor-pointer"
-          onClick={() => setPreviewPhoto(null)}
-        >
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-sm animate-in fade-in duration-300 cursor-pointer" onClick={() => setPreviewPhoto(null)}>
           <div className="relative max-w-4xl max-h-[90vh] overflow-hidden rounded-2xl bg-black border border-slate-800 shadow-2xl flex items-center justify-center animate-in zoom-in-95 duration-300" onClick={e => e.stopPropagation()}>
-            <button 
-              className="absolute top-4 right-4 z-10 w-10 h-10 bg-slate-800/80 hover:bg-slate-700/80 text-white rounded-full flex items-center justify-center font-bold text-lg transition-colors border border-slate-700/50"
-              onClick={() => setPreviewPhoto(null)}
-            >
-              ✕
-            </button>
-            <img 
-              src={getImageUrl(previewPhoto)} 
-              alt="Preview" 
-              className="max-h-[85vh] max-w-full object-contain"
-            />
+            <button className="absolute top-4 right-4 z-10 w-10 h-10 bg-slate-800/80 hover:bg-slate-700/80 text-white rounded-full flex items-center justify-center font-bold text-lg transition-colors border border-slate-700/50" onClick={() => setPreviewPhoto(null)}>✕</button>
+            <img src={getImageUrl(previewPhoto)} alt="Preview" className="max-h-[85vh] max-w-full object-contain" />
           </div>
         </div>
       )}

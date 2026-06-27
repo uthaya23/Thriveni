@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const inventoryController = require('../controllers/inventoryController');
-const { protect } = require('../middleware/authMiddleware');
+const { protect, notTechnician } = require('../middleware/authMiddleware');
 
 // All inventory routes require authentication
 router.use(protect);
+router.use(notTechnician);
 
 // Items
 router.route('/')

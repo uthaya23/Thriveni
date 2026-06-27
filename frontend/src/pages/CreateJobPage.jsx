@@ -16,7 +16,7 @@ export default function CreateJobPage() {
     receivedFrom: '',
     dateReceived: '',
     priority: 'Medium',
-    stage: 'Inspection',
+    stage: 'Visual Inspection & Incoming Assessment',
     siteComplaints: '',
     scopeOfWork: '',
     failureDescription: '',
@@ -24,7 +24,14 @@ export default function CreateJobPage() {
     remarks: '',
     status: 'Draft',
     failureReportUrl: '',
-    failureReportName: ''
+    failureReportName: '',
+    finalDriveNo: '',
+    finalDriveModel: '',
+    installedHour: '',
+    installedDate: '',
+    removalHour: '',
+    removalDate: '',
+    lifeHour: ''
   });
   const [isOtherSelected, setIsOtherSelected] = useState(false);
 
@@ -35,7 +42,7 @@ export default function CreateJobPage() {
   const saveAsDraft = async () => {
     setDraftSaving(true);
     try {
-      const draftForm = { ...form, status: 'Draft' };
+      const draftForm = { ...form, componentType: form.description, status: 'Draft' };
       console.log('--- SAVING DRAFT DATA ---');
       console.log(draftForm);
       const res = await api.post('/jobs', draftForm);
@@ -50,21 +57,22 @@ export default function CreateJobPage() {
 
   const createJob = async () => {
     // Basic validation
-    if (!form.jobNo || !form.description || !form.equipmentModel || !form.serialNumber || !form.receivedFrom || !form.dateReceived || !form.inspectionAssignedTo) {
-      toast.error('Please fill in required fields: Job Number, Equipment Model, Component Name, Serial Number, Receiving Site, Date Received, and Inspection Assigned To');
+    if (!form.jobNo || !form.description || !form.equipmentModel || !form.serialNumber) {
+      toast.error('Please fill in required fields: Job Number, Equipment Model, Component Name, and Serial Number');
       return;
     }
 
     setSaving(true);
     try {
-      const finalForm = { ...form, status: 'Active' };
+      const finalForm = { ...form, componentType: form.description, status: 'Active' };
       console.log('--- SUBMITTING JOB DATA ---');
       console.log(finalForm);
       const res = await api.post('/jobs', finalForm);
       toast.success('Job created successfully');
       navigate(`/jobs/${res.data._id}`);
     } catch (err) {
-      toast.error('Failed to create job');
+      console.error(err);
+      toast.error(err.response?.data?.message || 'Failed to create job');
     } finally {
       setSaving(false);
     }
@@ -220,7 +228,7 @@ export default function CreateJobPage() {
           <div className="panel-body" style={{ padding: '1rem' }}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
               <div className="form-group">
-                <label>Receiving Site *</label>
+                <label>Receiving Site</label>
                 <input
                   type="text"
                   placeholder="Mine site or plant"
@@ -229,7 +237,7 @@ export default function CreateJobPage() {
                 />
               </div>
               <div className="form-group">
-                <label>Date Received *</label>
+                <label>Date Received</label>
                 <input
                   type="date"
                   value={form.dateReceived}
@@ -248,6 +256,91 @@ export default function CreateJobPage() {
             </div>
           </div>
         </div>
+
+        {/* SECTION 2.5 — Component Hour & Installation Details (Common for all components) */}
+        <div className="panel" style={{ marginBottom: '1.5rem' }}>
+          <div className="panel-header">
+            <span>Component Hour & Installation Details</span>
+          </div>
+          <div className="panel-body" style={{ padding: '1.5rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.5rem' }}>
+              <div className="form-group">
+                <label>Installed Hour</label>
+                <input
+                  type="text"
+                  placeholder="Hours when installed"
+                  value={form.installedHour || ''}
+                  onChange={e => handleInputChange('installedHour', e.target.value)}
+                />
+              </div>
+              <div className="form-group">
+                <label>Installed Date</label>
+                <input
+                  type="date"
+                  value={form.installedDate || ''}
+                  onChange={e => handleInputChange('installedDate', e.target.value)}
+                />
+              </div>
+              <div className="form-group">
+                <label>Removal Hour</label>
+                <input
+                  type="text"
+                  placeholder="Hours when removed"
+                  value={form.removalHour || ''}
+                  onChange={e => handleInputChange('removalHour', e.target.value)}
+                />
+              </div>
+              <div className="form-group">
+                <label>Removal Date</label>
+                <input
+                  type="date"
+                  value={form.removalDate || ''}
+                  onChange={e => handleInputChange('removalDate', e.target.value)}
+                />
+              </div>
+              <div className="form-group">
+                <label>Life Hour</label>
+                <input
+                  type="text"
+                  placeholder="Life running hours"
+                  value={form.lifeHour || ''}
+                  onChange={e => handleInputChange('lifeHour', e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* SECTION 2.6 — Wheel Motor Specific Details (Conditional) */}
+        {form.description && form.description.toUpperCase().includes('WHEEL MOTOR') && (
+          <div className="panel" style={{ marginBottom: '1.5rem' }}>
+            <div className="panel-header">
+              <span>Wheel Motor Specific Details</span>
+            </div>
+            <div className="panel-body" style={{ padding: '1.5rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.5rem' }}>
+                <div className="form-group">
+                  <label>Final Drive Number</label>
+                  <input
+                    type="text"
+                    placeholder="Final drive serial / number"
+                    value={form.finalDriveNo || ''}
+                    onChange={e => handleInputChange('finalDriveNo', e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Final Drive Model</label>
+                  <input
+                    type="text"
+                    placeholder="Final drive model"
+                    value={form.finalDriveModel || ''}
+                    onChange={e => handleInputChange('finalDriveModel', e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* SECTION 3 — Operational Details */}
         <div className="panel" style={{ marginBottom: '1.5rem' }}>
@@ -324,7 +417,7 @@ export default function CreateJobPage() {
           <div className="panel-body" style={{ padding: '1rem' }}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
               <div className="form-group">
-                <label>Inspection Assigned To *</label>
+                <label>Inspection Assigned To</label>
                 <input
                   type="text"
                   placeholder="Inspection engineer"

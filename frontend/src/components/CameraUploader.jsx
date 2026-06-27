@@ -114,7 +114,7 @@ export default function CameraUploader({ photos = [], onChange, label = "Upload 
       )}
 
       {/* Hidden Inputs */}
-      <input type="file" accept="image/*" capture="environment" ref={cameraInputRef} onChange={handleUpload} style={{ display: 'none' }} />
+      <input type="file" accept="image/*" ref={cameraInputRef} onChange={handleUpload} style={{ display: 'none' }} />
       <input type="file" accept="image/*" multiple ref={fileInputRef} onChange={handleUpload} style={{ display: 'none' }} />
 
       {/* Photo Gallery */}

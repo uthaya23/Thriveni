@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Layout from './components/Layout';
+import ForceChangePassword from './components/ForceChangePassword';
 import LoginPage from './pages/LoginPage';
 import Dashboard from './pages/Dashboard';
 import JobTracker from './pages/JobTracker';
@@ -17,10 +18,12 @@ import ProductionPlanningHub from './pages/ProductionPlanningHub';
 import InventoryDashboard from './pages/Inventory/InventoryDashboard';
 import ConsumptionReport from './pages/Inventory/ConsumptionReport';
 
-const PrivateRoute = ({ children, adminOnly }) => {
+const PrivateRoute = ({ children, adminOnly, notTechnician }) => {
   const { user } = useAuth();
   if (!user) return <Navigate to="/login" replace />;
+  if (user.username !== 'admin' && (user.needsPasswordChange || user.needsPasswordChange === undefined)) return <ForceChangePassword />;
   if (adminOnly && user.role !== 'admin') return <Navigate to="/" replace />;
+  if (notTechnician && user.role === 'technician') return <Navigate to="/" replace />;
   return children;
 };
 
@@ -44,10 +47,10 @@ export default function App() {
             <Route path="jobs/new" element={<CreateJobPage />} />
             <Route path="jobs/:id" element={<JobDetailPage />} />
             <Route path="equipment" element={<EquipmentOverview />} />
-            <Route path="inventory" element={<InventoryDashboard />} />
-            <Route path="inventory/report" element={<ConsumptionReport />} />
+            <Route path="inventory" element={<PrivateRoute notTechnician><InventoryDashboard /></PrivateRoute>} />
+            <Route path="inventory/report" element={<PrivateRoute notTechnician><ConsumptionReport /></PrivateRoute>} />
             <Route path="reports" element={<ReportsPage />} />
-            <Route path="production-planning" element={<ProductionPlanningHub />} />
+            <Route path="production-planning" element={<PrivateRoute notTechnician><ProductionPlanningHub /></PrivateRoute>} />
             <Route path="users" element={<PrivateRoute adminOnly><UserManagement /></PrivateRoute>} />
             <Route path="admin" element={<PrivateRoute adminOnly><AdminPage /></PrivateRoute>} />
             <Route path="admin/technicians" element={<PrivateRoute adminOnly><TechnicianManagement /></PrivateRoute>} />

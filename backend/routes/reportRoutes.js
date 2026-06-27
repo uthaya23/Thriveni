@@ -1,280 +1,63 @@
+/**
+ * Report Routes
+ * Thin router — all business logic lives in ReportService
+ */
+
 const express = require('express');
 const router = express.Router();
-const { GoogleGenerativeAI } = require('@google/generative-ai');
 const path = require('path');
 const fs = require('fs');
-const PdfService = require('../services/pdfService');
-
-const Job = require('../models/Job');
-const Inspection = require('../models/Inspection');
-const Materials = require('../models/Materials');
-const Assembly = require('../models/Assembly');
-const Testing = require('../models/Testing');
-const Dispatch = require('../models/Dispatch');
-const Report = require('../models/Report');
-const { protect } = require('../middleware/authMiddleware');
 const asyncHandler = require('express-async-handler');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
+const Handlebars = require('handlebars');
+const handlebars = require('handlebars');
+
+const { protect, notTechnician } = require('../middleware/authMiddleware');
+const ApiResponse = require('../utils/apiResponse');
+const Logger = require('../utils/logger');
+const Job = require('../models/Job');
+const Report = require('../models/Report');
 const reportController = require('../controllers/reportController');
 
-const cleanCaption = (caption, defaultVal) => {
-  if (!caption) return defaultVal;
-  let clean = caption.replace(/photo|image|img/gi, '').replace(/\s+/g, ' ').trim();
-  if (clean) {
-    clean = clean.charAt(0).toUpperCase() + clean.slice(1);
-  }
-  if (clean.length > 28) {
-    clean = clean.slice(0, 25) + '...';
-  }
-  return clean || defaultVal;
-};
-
-function getImageDimensions(filePath) {
-  try {
-    const buffer = fs.readFileSync(filePath);
-    if (buffer.toString('ascii', 1, 4) === 'PNG') {
-      const width = buffer.readUInt32BE(16);
-      const height = buffer.readUInt32BE(20);
-      return { width, height, type: 'png' };
-    }
-    if (buffer[0] === 0xFF && buffer[1] === 0xD8) {
-      let offset = 2;
-      while (offset < buffer.length) {
-        const marker = buffer.readUInt16BE(offset);
-        offset += 2;
-        if (marker === 0xFFE0 || (marker >= 0xFFE1 && marker <= 0xFFEF) || marker === 0xFFDB || marker === 0xFFC4 || marker === 0xFFDD) {
-          const length = buffer.readUInt16BE(offset);
-          offset += length;
-        } else if (marker === 0xFFC0 || marker === 0xFFC1 || marker === 0xFFC2 || marker === 0xFFC3) {
-          const length = buffer.readUInt16BE(offset);
-          const height = buffer.readUInt16BE(offset + 3);
-          const width = buffer.readUInt16BE(offset + 5);
-          return { width, height, type: 'jpg' };
-        } else if (buffer[offset - 2] === 0xFF) {
-          offset--;
-        } else {
-          break;
-        }
-      }
-    }
-  } catch (e) {
-    console.error('Error reading image dimensions:', e);
-  }
-  return { width: 800, height: 600, type: 'unknown' };
-}
-
-function getFailureAnalysisFallback(job, inspection, dismantling) {
-  const rootCause = "Thermal degradation of winding insulation coupled with mechanical wear on bearing journals, caused by prolonged high-load operation and inadequate heat dissipation.";
-  const evidence = "Observed thermal discoloration on winding coils, microscopic pitting/scoring on bearing inner rings, and clearance deviation on shaft fits exceeding OEM specification limits.";
-  const impact = "Increased vibration levels, accelerated mechanical wear on adjacent gearing, eventual electrical shorting, and potential catastrophic drive-train failure if not rectified.";
-  const recommendedAction = "Execute precision re-machining of shaft journals to OEM standard clearances, install premium grade insulated bearings, and establish quarterly vibration and insulation resistance (IR) monitoring.";
-  
-  return {
-    rootCause: (job && job.siteComplaints) 
-      ? `Failure analysis initiated based on site complaints of: '${job.siteComplaints}'. ${rootCause}`
-      : rootCause,
-    evidence: (inspection && inspection.observations)
-      ? `Visual findings indicate: '${inspection.observations}'. ${evidence}`
-      : evidence,
-    impact: impact,
-    recommendedAction: recommendedAction
-  };
-}
+const {
+  ReportService,
+  getImageDimensions,
+  getFailureAnalysisFallback,
+  extractJsonFromAi,
+  ensureStringFields,
+  normalizeFailureAnalysis,
+  generateFallbackDraft
+} = require('../services/ReportService');
 
 router.use(protect);
+router.use(notTechnician);
 
-// GET /api/reports/summary   (dashboard stats)
+// ─────────────────────────────────────────────
+// GET /api/reports/summary
 // ─────────────────────────────────────────────
 router.get('/summary', asyncHandler(async (req, res) => {
-  const total = await Job.countDocuments();
-  const byStatus    = await Job.aggregate([{ $group: { _id: '$status',    count: { $sum: 1 } } }]);
-  const byEquipment = await Job.aggregate([{ $group: { _id: '$equipment', count: { $sum: 1 } } }]);
-  const byStage     = await Job.aggregate([{ $group: { _id: '$stage',     count: { $sum: 1 } } }]);
-  const bySite      = await Job.aggregate([{ $group: { _id: '$recSite',   count: { $sum: 1 } } }]);
-  const recent      = await Job.find().sort({ createdAt: -1 }).limit(5)
-    .select('jobNo equipment status recDate eqName description componentType stage updatedAt');
-  
-  const result = { total, byStatus, byEquipment, byStage, bySite, recent };
-  const ApiResponse = require('../utils/apiResponse');
-  res.json(ApiResponse.success('Summary retrieved', result));
+  const result = await ReportService.getSummary();
+  res.status(result.statusCode).json(result);
 }));
 
 // ─────────────────────────────────────────────
-// GET /api/reports/job/:jobId  (list saved reports for a job)
+// GET /api/reports/job/:jobId
 // ─────────────────────────────────────────────
 router.get('/job/:jobId', asyncHandler(async (req, res) => {
-  const reports = await Report.find({ job: req.params.jobId })
-    .sort({ createdAt: -1 })
-    .populate('generatedBy', 'name');
-  res.json(reports);
+  const result = await ReportService.getReportsByJob(req.params.jobId);
+  res.status(result.statusCode).json(result);
 }));
 
 // ─────────────────────────────────────────────
-// POST /api/reports/initiate-workflow & /generate-ai
+// POST /api/reports/initiate-workflow
+// POST /api/reports/generate-ai
 // ─────────────────────────────────────────────
 const initiateWorkflow = asyncHandler(async (req, res) => {
   const { jobId, additionalInstructions } = req.body;
-  if (!jobId) return res.status(400).json({ message: 'jobId is required' });
+  if (!jobId) return res.status(400).json(ApiResponse.badRequest('jobId is required'));
 
-  // 1. Fetch all job data and photos
-  const Photo = require('../models/Photo');
-  const [job, inspection, materials, assembly, testing, dispatch, dismantling, photos] = await Promise.all([
-    Job.findById(jobId).populate('createdBy', 'name'),
-    Inspection.findOne({ job: jobId }),
-    Materials.findOne({ job: jobId }),
-    Assembly.findOne({ job: jobId }),
-    Testing.findOne({ job: jobId }),
-    Dispatch.findOne({ job: jobId }),
-    require('../models/Dismantling').findOne({ job: jobId }),
-    Photo.find({ job: jobId })
-  ]);
-
-  if (!job) return res.status(404).json({ message: 'Job not found' });
-
-  // 2. Prepare flat details for prompt
-  const jobDetails = {
-    jobNo: job.jobNo,
-    equipmentModel: job.equipmentModel || job.equipment,
-    description: job.description || job.desc,
-    partNumber: job.partNumber,
-    serialNumber: job.serialNumber || job.motorSerial,
-    subAssemblyMake: job.subAssemblyMake || job.subAssy,
-    receivedFrom: job.receivedFrom || job.recSite,
-    siteComplaints: job.siteComplaints || job.failureDesc,
-    scopeOfWork: job.scopeOfWork,
-    previousRunningHours: job.previousRunningHours || job.lifeHrs
-  };
-
-  const inspectionData = inspection ? {
-    physicalCondition: inspection.physicalCondition,
-    mechanicalCondition: inspection.mechanicalCondition,
-    observations: inspection.observations,
-    missingParts: inspection.missingParts?.map(p => `${p.partName} (Qty: ${p.quantity}) - ${p.remarks || ''}`),
-    irTests: inspection.initialIrTests?.map(t => `${t.terminal}: ${t.irValue} ${t.unit} (${t.remarks || 'OK'})`),
-    windingTests: inspection.initialResistanceTests?.map(t => `${t.terminals}: ${t.value} ${t.unit} (${t.remarks || 'OK'})`),
-  } : 'No initial inspection data recorded.';
-
-  const dismantlingData = dismantling ? {
-    partConditions: dismantling.partConditions?.map(p => `${p.partName}: ${p.condition} (Repairable: ${p.repairable}) - ${p.remarks || ''}`),
-    workLogs: dismantling.workLogs?.map(l => `${l.workDone} by ${l.technician} (${l.hours}h)`),
-  } : 'No dismantling data recorded.';
-
-  const assemblyData = assembly ? {
-    team: assembly.team?.join(', '),
-    workLogs: assembly.workLogs?.map(l => `${l.workDone} by ${l.technician} (${l.hours}h)`),
-    materialsUsed: assembly.materialsUsed?.map(m => `${m.itemName} (Qty: ${m.quantity}) - ${m.remarks || ''}`),
-    startDate: assembly.startDate,
-    completionDate: assembly.completionDate,
-  } : 'No assembly data recorded.';
-
-  const testingData = testing ? {
-    irTests: testing.finalIrTests?.map(t => `${t.terminal}: ${t.irValue} ${t.unit} (${t.remarks || 'OK'})`),
-    result: testing.result,
-    testingRemarks: testing.testingRemarks,
-  } : 'No testing data recorded.';
-
-  // 3. Build AI prompt
-  const prompt = `You are a Senior Technical Workshop Engineer. Generate a professional Industrial Rebuild Report.
-
-Job Context: ${JSON.stringify(jobDetails, null, 2)}
-Stage Data: 
-- Inspection: ${JSON.stringify(inspectionData, null, 2)}
-- Dismantling: ${JSON.stringify(dismantlingData, null, 2)}
-- Assembly: ${JSON.stringify(assemblyData, null, 2)}
-- Testing: ${JSON.stringify(testingData, null, 2)}
-
-${additionalInstructions ? `Special Focus: ${additionalInstructions}` : ''}
-
-Return ONLY valid JSON:
-{
-  "executiveSummary": "Concise overview of overhaul scope and result",
-  "visualInspectionSummary": "Technical description of received condition",
-  "electricalInspectionSummary": "Synthesis of initial electrical tests",
-  "partsConditionAnalysis": "Component-by-component analysis",
-  "failureAnalysis": {
-    "rootCause": "Detailed description of the root cause of failure...",
-    "evidence": "Observed evidence supporting this root cause...",
-    "impact": "Operational or safety impact of this issue...",
-    "recommendedAction": "Immediate recommended corrective and preventive actions..."
-  },
-  "workPerformed": "Detailed summary of all repairs/cleaning",
-  "assemblyDescription": "Technical summary of the rebuild process",
-  "testingSummary": "Verification of final QC performance",
-  "finalConclusion": "Official engineering statement on readiness",
-  "recommendations": "Maintenance advice for the customer"
-}`;
-
-  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-  const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
-  const result = await model.generateContent(prompt);
-  const parsed = JSON.parse(result.response.text().replace(/```json|```/g, '').trim());
-
-  // 5. COMPREHENSIVE PHOTO COLLECTION
-  const allPhotoPaths = new Set();
-  const categorizedPhotos = [];
-
-  const addPhotos = (items, category, captionPrefix = '') => {
-    if (!items) return;
-    const array = Array.isArray(items) ? items : [items];
-    array.forEach((p, idx) => {
-      if (!p) return;
-      const path = typeof p === 'string' ? p : (p.url || p.filename);
-      if (path && !allPhotoPaths.has(path)) {
-        allPhotoPaths.add(path);
-        const rawCaption = typeof p === 'object' && p.caption ? p.caption : `${captionPrefix} ${idx + 1}`.trim();
-        categorizedPhotos.push({
-          category,
-          url: path.startsWith('http') ? path : `/uploads/photos/${path}`,
-          caption: cleanCaption(rawCaption, `${category} View`),
-          order: categorizedPhotos.length
-        });
-      }
-    });
-  };
-
-  if (inspection) {
-    addPhotos(inspection.receivedPhotos, 'Received Condition', 'Initial View');
-  }
-  if (dismantling) {
-    dismantling.partConditions?.forEach(pc => addPhotos(pc.photos, 'Dismantling', pc.partName));
-  }
-  if (assembly) {
-    addPhotos(assembly.progressPhotos, 'Assembly', 'Progress');
-  }
-  if (testing) {
-    testing.finalIrTests?.forEach(ir => addPhotos(ir.photo, 'Testing', `Final IR: ${ir.terminal}`));
-  }
-
-  photos.forEach(p => {
-    const path = p.url || `/uploads/photos/${p.filename}`;
-    if (!allPhotoPaths.has(path)) {
-      allPhotoPaths.add(path);
-      let category = 'Overview';
-      const stage = p.stage?.toLowerCase() || '';
-      if (stage.includes('receive') || stage.includes('inspection')) category = 'Received Condition';
-      else if (stage.includes('dismantl')) category = 'Dismantling';
-      else if (stage.includes('assembl')) category = 'Assembly';
-      else if (stage.includes('test')) category = 'Testing';
-
-      categorizedPhotos.push({
-        category,
-        url: path,
-        caption: cleanCaption(p.caption, `${category} View`),
-        order: categorizedPhotos.length
-      });
-    }
-  });
-
-  // 6. Save report to DB
-  const report = await Report.create({
-    job: jobId,
-    ...parsed,
-    promptUsed: prompt.slice(0, 2000),
-    generatedBy: req.user._id,
-    status: 'Draft',
-    categorizedPhotos,
-  });
-
-  res.json({ report, parsed });
+  const result = await ReportService.initiateWorkflow(jobId, additionalInstructions, req.user._id);
+  res.status(result.statusCode).json(result);
 });
 
 router.post('/initiate-workflow', initiateWorkflow);
@@ -284,114 +67,99 @@ router.post('/generate-ai', initiateWorkflow);
 // PATCH /api/reports/:reportId
 // ─────────────────────────────────────────────
 router.patch('/:reportId', asyncHandler(async (req, res) => {
-  const { 
-    status, isQaApproved, isEngineerReviewed, 
-    categorizedPhotos, 
-    executiveSummary, visualInspectionSummary, electricalInspectionSummary,
-    partsConditionAnalysis, failureAnalysis, workPerformed,
-    assemblyDescription, testingSummary, finalConclusion, recommendations
-  } = req.body;
-
-  const updateData = {};
-  
-  if (status) updateData.status = status;
-  if (typeof isQaApproved === 'boolean') updateData.isQaApproved = isQaApproved;
-  if (typeof isEngineerReviewed === 'boolean') updateData.isEngineerReviewed = isEngineerReviewed;
-  if (categorizedPhotos) updateData.categorizedPhotos = categorizedPhotos;
-
-  // AI text updates
-  if (executiveSummary !== undefined) updateData.executiveSummary = executiveSummary;
-  if (visualInspectionSummary !== undefined) updateData.visualInspectionSummary = visualInspectionSummary;
-  if (electricalInspectionSummary !== undefined) updateData.electricalInspectionSummary = electricalInspectionSummary;
-  if (partsConditionAnalysis !== undefined) updateData.partsConditionAnalysis = partsConditionAnalysis;
-  if (failureAnalysis !== undefined) updateData.failureAnalysis = failureAnalysis;
-  if (workPerformed !== undefined) updateData.workPerformed = workPerformed;
-  if (assemblyDescription !== undefined) updateData.assemblyDescription = assemblyDescription;
-  if (testingSummary !== undefined) updateData.testingSummary = testingSummary;
-  if (finalConclusion !== undefined) updateData.finalConclusion = finalConclusion;
-  if (recommendations !== undefined) updateData.recommendations = recommendations;
-
-  const report = await Report.findByIdAndUpdate(
+  const result = await ReportService.updateReport(
     req.params.reportId,
-    { $set: updateData },
-    { new: true, runValidators: true }
+    req.body,
+    null,
+    req
   );
+  // Invalidate cache after update
+  if (result.data?.reportNo) {
+    invalidateCachedPdf(result.data.reportNo, req);
+  }
+  res.status(result.statusCode).json(result);
+}));
 
-  if (!report) return res.status(404).json({ message: 'Report not found' });
+// ─────────────────────────────────────────────
+// POST /api/reports/:reportId/submit-review
+// ─────────────────────────────────────────────
+router.post('/:reportId/submit-review', asyncHandler(async (req, res) => {
+  const result = await ReportService.submitForReview(
+    req.params.reportId,
+    req.user._id,
+    req.user.role,
+    req.body.comment
+  );
+  if (result.data?.reportNo) invalidateCachedPdf(result.data.reportNo);
+  res.status(result.statusCode).json(result);
+}));
 
-  res.json(report);
+// ─────────────────────────────────────────────
+// POST /api/reports/:reportId/qa-verify
+// ─────────────────────────────────────────────
+router.post('/:reportId/qa-verify', asyncHandler(async (req, res) => {
+  const result = await ReportService.qaVerify(
+    req.params.reportId,
+    req.user._id,
+    req.user.role,
+    req.body.comment
+  );
+  if (result.data?.reportNo) invalidateCachedPdf(result.data.reportNo);
+  res.status(result.statusCode).json(result);
+}));
+
+// ─────────────────────────────────────────────
+// POST /api/reports/:reportId/final-approve
+// ─────────────────────────────────────────────
+router.post('/:reportId/final-approve', asyncHandler(async (req, res) => {
+  const result = await ReportService.finalApprove(
+    req.params.reportId,
+    req.user._id,
+    req.user.role,
+    req.body.comment
+  );
+  if (result.data?.reportNo) invalidateCachedPdf(result.data.reportNo);
+  res.status(result.statusCode).json(result);
+}));
+
+// ─────────────────────────────────────────────
+// GET /api/reports/:reportId/review-history
+// ─────────────────────────────────────────────
+router.get('/:reportId/review-history', asyncHandler(async (req, res) => {
+  const result = await ReportService.getReviewHistory(req.params.reportId);
+  res.status(result.statusCode).json(result);
 }));
 
 // ─────────────────────────────────────────────
 // DELETE /api/reports/:reportId
 // ─────────────────────────────────────────────
 router.delete('/:reportId', asyncHandler(async (req, res) => {
-  const report = await Report.findById(req.params.reportId);
-  if (!report) return res.status(404).json({ message: 'Report not found' });
-  
-  await report.deleteOne();
-  res.json({ message: 'Report deleted successfully' });
+  const result = await ReportService.deleteReport(req.params.reportId);
+  res.status(result.statusCode).json(result);
 }));
 
 // ─────────────────────────────────────────────
 // POST /api/reports/sync-photos/:reportId
 // ─────────────────────────────────────────────
 router.post('/sync-photos/:reportId', asyncHandler(async (req, res) => {
-  const Photo = require('../models/Photo');
-  const report = await Report.findById(req.params.reportId);
-  if (!report) return res.status(404).json({ message: 'Report not found' });
-
-  const jobId = report.job;
-  const [inspection, assembly, testing, dismantling, photos] = await Promise.all([
-    Inspection.findOne({ job: jobId }),
-    Assembly.findOne({ job: jobId }),
-    Testing.findOne({ job: jobId }),
-    require('../models/Dismantling').findOne({ job: jobId }),
-    Photo.find({ job: jobId })
-  ]);
-  
-  const allPhotoPaths = new Set();
-  const categorizedPhotos = [];
-
-  const addPhotos = (items, category, captionPrefix = '') => {
-    if (!items) return;
-    const array = Array.isArray(items) ? items : [items];
-    array.forEach((p, idx) => {
-      if (!p) return;
-      const path = typeof p === 'string' ? p : (p.url || p.filename);
-      if (path && !allPhotoPaths.has(path)) {
-        allPhotoPaths.add(path);
-        let finalUrl = path;
-        if (!path.startsWith('http') && !path.startsWith('/uploads') && !path.startsWith('data:image')) {
-          finalUrl = `/uploads/photos/${path}`;
-        }
-
-        categorizedPhotos.push({
-          category,
-          url: finalUrl,
-          caption: typeof p === 'object' && p.caption ? p.caption : `${captionPrefix} ${idx + 1}`.trim(),
-          order: categorizedPhotos.length
-        });
-      }
-    });
-  };
 
   if (inspection) {
-    addPhotos(inspection.receivedPhotos, 'Received Condition', 'Initial View');
-    inspection.missingParts?.forEach(mp => addPhotos(mp.photo, 'Received Condition', mp.partName));
-    inspection.initialIrTests?.forEach(ir => addPhotos(ir.photo, 'Received Condition', `IR: ${ir.terminal}`));
+    addPhotos(inspection.photos, 'Received Condition', 'Initial View');
+    Object.entries(inspection.partsChecklist || {}).forEach(([partName, data]) => {
+      addPhotos(data.photos, 'Received Condition', partName);
+    });
   }
   if (dismantling) {
-    dismantling.workLogs?.forEach(log => addPhotos(log.photo, 'Dismantling', log.workDone));
-    dismantling.partConditions?.forEach(pc => addPhotos(pc.photos, 'Dismantling', pc.partName));
+    addPhotos(dismantling.photos, 'Dismantling', 'Progress');
+    Object.entries(dismantling.componentConditionAssessment || {}).forEach(([compName, data]) => {
+      addPhotos(data.photos, 'Dismantling', compName);
+    });
   }
   if (assembly) {
-    addPhotos(assembly.progressPhotos, 'Assembly', 'Progress');
-    assembly.workLogs?.forEach(log => addPhotos(log.photo, 'Assembly', log.workDone));
+    addPhotos(assembly.photos, 'Assembly', 'Progress');
   }
   if (testing) {
-    testing.finalIrTests?.forEach(ir => addPhotos(ir.photo, 'Testing', `Final IR: ${ir.terminal}`));
-    testing.surgeTests?.forEach(st => addPhotos(st.photo, 'Testing', `Surge: ${st.testName}`));
+    addPhotos(testing.photos, 'Testing', `Testing view`);
   }
 
   photos.forEach(p => {
@@ -417,7 +185,7 @@ router.post('/sync-photos/:reportId', asyncHandler(async (req, res) => {
   report.categorizedPhotos = categorizedPhotos;
   await report.save();
 
-  res.json(report);
+  res.json(ApiResponse.success('Report photos synchronized successfully', report));
 }));
 
 // ─────────────────────────────────────────────
@@ -431,18 +199,28 @@ router.get('/pdf/:reportId', asyncHandler(async (req, res) => {
     .populate('generatedBy', 'name')
     .lean();
 
-  if (!report) return res.status(404).json({ message: 'Report not found' });
+  if (!report) return res.status(404).json(ApiResponse.notFound('Report not found'));
+  if (!report.isEngineerReviewed) {
+    return res.status(403).json(ApiResponse.error('Report must be reviewed by an engineer before PDF export', 403));
+  }
+  if (!report.isQaApproved || !['Final Approved', 'Exported'].includes(report.status)) {
+    return res.status(403).json(ApiResponse.error('Report must be QA verified and final approved before PDF export', 403));
+  }
 
   const job = report.job;
-  const [inspection, testing, dismantling, assembly, photos, dispatch, workDetails] = await Promise.all([
-    Inspection.findOne({ job: job._id }).lean(),
-    Testing.findOne({ job: job._id }).lean(),
-    require('../models/Dismantling').findOne({ job: job._id }).lean(),
-    Assembly.findOne({ job: job._id }).lean(),
+  const JobData = require('../models/JobData');
+  const [jobDataDoc, photos, workDetails] = await Promise.all([
+    JobData.findOne({ job: job._id }).lean(),
     Photo.find({ job: job._id }).lean(),
-    Dispatch.findOne({ job: job._id }).lean(),
     WorkDetail.find({ jobNo: job.jobNo }).lean()
   ]);
+  
+  const jd = jobDataDoc || {};
+  const inspection = jd.stage1;
+  const dismantling = jd.stage2;
+  const assembly = jd.stage3;
+  const testing = jd.stage4;
+  const dispatch = jd.stage4;
 
   // Helper to convert photo to base64 for PDF embedding
   const toBase64 = (filename, isAsset = false) => {
@@ -597,11 +375,11 @@ router.get('/pdf/:reportId', asyncHandler(async (req, res) => {
   const today = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
   const dates = {
     receivedDate: job.dateReceived || 'N/A',
-    inspectionDate: inspection ? (inspection.createdAt ? new Date(inspection.createdAt).toLocaleDateString('en-IN') : 'N/A') : 'N/A',
-    dismantlingDate: dismantling ? (dismantling.createdAt ? new Date(dismantling.createdAt).toLocaleDateString('en-IN') : 'N/A') : 'N/A',
-    assemblyDate: assembly ? (assembly.completionDate || (assembly.createdAt ? new Date(assembly.createdAt).toLocaleDateString('en-IN') : 'N/A')) : 'N/A',
-    testingDate: testing ? (testing.createdAt ? new Date(testing.createdAt).toLocaleDateString('en-IN') : 'N/A') : 'N/A',
-    dispatchDate: dispatch ? (dispatch.createdAt ? new Date(dispatch.createdAt).toLocaleDateString('en-IN') : 'N/A') : 'N/A'
+    inspectionDate: inspection ? (inspection.startDate || 'N/A') : 'N/A',
+    dismantlingDate: dismantling ? (dismantling.completionDate || 'N/A') : 'N/A',
+    assemblyDate: assembly ? (assembly.assemblyCompletionDate || assembly.completionDate || 'N/A') : 'N/A',
+    testingDate: testing ? (testing.completionDate || 'N/A') : 'N/A',
+    dispatchDate: dispatch && dispatch.dispatchChecklist ? (testing.completionDate || 'N/A') : 'N/A'
   };
 
   // Rebuild Duration in Days
@@ -636,9 +414,9 @@ router.get('/pdf/:reportId', asyncHandler(async (req, res) => {
   // Components Repaired vs Replaced
   let componentsRepaired = 0;
   let componentsReplaced = 0;
-  if (dismantling && dismantling.partConditions) {
-    dismantling.partConditions.forEach(p => {
-      if (p.repairable === 'Yes' || p.repairable === 'Yes/Repair') {
+  if (dismantling && dismantling.componentConditionAssessment) {
+    Object.values(dismantling.componentConditionAssessment).forEach(p => {
+      if (p.reuseStatus === 'Reuse' || p.reuseStatus === 'Repair') {
         componentsRepaired++;
       } else {
         componentsReplaced++;
@@ -656,72 +434,241 @@ router.get('/pdf/:reportId', asyncHandler(async (req, res) => {
   const savingsAchieved = newReplacementCost - repairCost;
   const hasCostData = true;
 
-  // Missing components summary
-  let totalMissing = 0;
-  let criticalMissing = 0;
-  let electricalMissing = 0;
-  let mechanicalMissing = 0;
+  // All parts checklist (with status for each part)
+  let totalMissing = 0, criticalMissing = 0, electricalMissing = 0, mechanicalMissing = 0;
+  const allPartsList = [];
 
-  if (inspection && inspection.missingParts) {
-    inspection.missingParts.forEach(p => {
-      const name = (p.partName || '').toLowerCase();
-      const qty = p.quantity || 1;
-      totalMissing += qty;
-      
-      const isCritical = name.includes('bearing') || name.includes('shaft') || name.includes('gear') || name.includes('rotor') || name.includes('stator') || name.includes('armature');
-      const isElectrical = name.includes('winding') || name.includes('wire') || name.includes('terminal') || name.includes('insulat') || name.includes('cable') || name.includes('sensor') || name.includes('carbon') || name.includes('brush');
+  if (inspection && inspection.partsChecklist) {
+    Object.entries(inspection.partsChecklist).forEach(([name, data]) => {
+      const status = typeof data === 'object' ? (data.status || 'Present') : (data || 'Present');
+      const qty = (status === 'Missing' || status === 'Not Available') ? 1 : 1;
 
-      if (isCritical) criticalMissing += qty;
-      if (isElectrical) {
-        electricalMissing += qty;
-      } else {
-        mechanicalMissing += qty;
+      allPartsList.push({
+        partName: name,
+        quantity: qty,
+        status,
+        remarks: typeof data === 'object' ? (data.remarks || '—') : '—'
+      });
+
+      // Also track missing counts for any downstream usage
+      if (status === 'Missing' || status === 'Not Available') {
+        totalMissing += 1;
+        const lcName = name.toLowerCase();
+        const isElectrical = lcName.includes('winding') || lcName.includes('wire') || lcName.includes('terminal') || lcName.includes('insulat') || lcName.includes('cable') || lcName.includes('sensor') || lcName.includes('carbon') || lcName.includes('brush');
+        const isCritical = lcName.includes('bearing') || lcName.includes('shaft') || lcName.includes('gear') || lcName.includes('rotor') || lcName.includes('stator') || lcName.includes('armature');
+        if (isCritical) criticalMissing += 1;
+        if (isElectrical) electricalMissing += 1; else mechanicalMissing += 1;
       }
     });
+
+    // Attach ALL parts so the template can render the full checklist
+    inspection.allParts = allPartsList;
+    // Keep missingParts for backward compatibility with any other template refs
+    inspection.missingParts = allPartsList.filter(p => p.status === 'Missing' || p.status === 'Not Available');
+  }
+
+
+  // ── Build dismantling.processSteps from dismantling checklist ──
+  if (dismantling && dismantling.dismantlingChecklist) {
+    const steps = [];
+    Object.entries(dismantling.dismantlingChecklist).forEach(([stepName, val]) => {
+      if ((typeof val === 'object' && val?.checked) || val === true) {
+        steps.push(stepName);
+      }
+    });
+    if (steps.length > 0) {
+      dismantling.processSteps = steps;
+    }
+    
+    // Also attach overallRemarks if it exists
+    if (dismantling.overallRemarks) {
+      dismantling.processSummaryHeader = dismantling.overallRemarks;
+    }
+  }
+
+  // ── Convert stage1.electricalTests (Mixed obj) → arrays for template ──
+
+  // Template expects: inspection.initialIrTests  → [{ terminal, irValue, unit, remarks }]
+  // Template expects: inspection.initialResistanceTests → [{ terminals, value, unit, remarks }]
+  if (inspection && inspection.electricalTests) {
+    const irTests = [];
+    const resistanceTests = [];
+
+    Object.entries(inspection.electricalTests).forEach(([testName, data]) => {
+      if (!data || typeof data !== 'object') return;
+      const nameLC = testName.toLowerCase();
+      const isIR = nameLC.includes('ir ') || nameLC.includes('insulation') || nameLC.startsWith('ir');
+      const isResistance = nameLC.includes('resistance') || nameLC.includes('winding') || nameLC.includes('wr ') || nameLC.startsWith('wr');
+
+      if (isIR || (!isResistance)) {
+        irTests.push({
+          terminal: testName.replace(/^(ir|insulation resistance)\s+/i, ''),
+          irValue: data.value ?? data.actual ?? data.irValue ?? 'N/A',
+          unit: data.unit || 'MΩ',
+          appliedVoltage: data.appliedVoltage || '—',
+          standardValue: data.standardValue || (data.minValue && data.maxValue ? `${data.minValue}-${data.maxValue}` : '—'),
+          remarks: data.status || data.remarks || 'Recorded'
+        });
+      } else {
+        resistanceTests.push({
+          terminals: testName.replace(/^(wr|winding resistance|resistance)\s+/i, ''),
+          value: data.value ?? data.actual ?? 'N/A',
+          unit: data.unit || 'Ω',
+          appliedVoltage: data.appliedVoltage || '—',
+          standardValue: data.standardValue || (data.minValue && data.maxValue ? `${data.minValue}-${data.maxValue}` : '—'),
+          remarks: data.status || data.remarks || 'Recorded'
+        });
+      }
+    });
+    const groupElectricalTests = (tests, nameField) => {
+      let lastGroup = '';
+      return tests.map(test => {
+        const nameStr = test[nameField];
+        const parts = nameStr.split(' ');
+        let group = nameStr;
+        let suffix = nameStr;
+        
+        if (parts.length > 1) {
+          suffix = parts.pop();
+          group = parts.join(' ');
+        }
+        
+        const result = { ...test };
+        if (group !== lastGroup) {
+          result.groupHeader = group;
+          lastGroup = group;
+        }
+        result.terminalDisplay = suffix;
+        return result;
+      });
+    };
+
+    if (irTests.length > 0) inspection.initialIrTests = groupElectricalTests(irTests, 'terminal');
+    if (resistanceTests.length > 0) inspection.initialResistanceTests = groupElectricalTests(resistanceTests, 'terminals');
+  }
+
+  // ── Convert stage4.electricalTests (Mixed obj) → arrays for template ──
+  // Template expects: testing.finalIrTests  → [{ terminal, irValue, unit, remarks }]
+  // Template expects: testing.finalResistanceTests → [{ terminals, value, unit, remarks }]
+  if (testing && testing.electricalTests) {
+    const irTests = [];
+    const resistanceTests = [];
+
+    Object.entries(testing.electricalTests).forEach(([testName, data]) => {
+      if (!data || typeof data !== 'object') return;
+      const nameLC = testName.toLowerCase();
+      const isIR = nameLC.includes('ir ') || nameLC.includes('insulation') || nameLC.startsWith('ir');
+      const isResistance = nameLC.includes('resistance') || nameLC.includes('winding') || nameLC.includes('wr ') || nameLC.startsWith('wr');
+
+      if (isIR || (!isResistance)) {
+        irTests.push({
+          terminal: testName.replace(/^(ir|insulation resistance)\s+/i, ''),
+          irValue: data.value ?? data.actual ?? data.irValue ?? 'N/A',
+          unit: data.unit || 'MΩ',
+          appliedVoltage: data.appliedVoltage || '—',
+          standardValue: data.standardValue || (data.minValue && data.maxValue ? `${data.minValue}-${data.maxValue}` : '—'),
+          remarks: data.status || data.remarks || 'Recorded'
+        });
+      } else {
+        resistanceTests.push({
+          terminals: testName.replace(/^(wr|winding resistance|resistance)\s+/i, ''),
+          value: data.value ?? data.actual ?? 'N/A',
+          unit: data.unit || 'Ω',
+          appliedVoltage: data.appliedVoltage || '—',
+          standardValue: data.standardValue || (data.minValue && data.maxValue ? `${data.minValue}-${data.maxValue}` : '—'),
+          remarks: data.status || data.remarks || 'Recorded'
+        });
+      }
+    });
+
+    const groupElectricalTests = (tests, nameField) => {
+      let lastGroup = '';
+      return tests.map(test => {
+        const nameStr = test[nameField];
+        const parts = nameStr.split(' ');
+        let group = nameStr;
+        let suffix = nameStr;
+        if (parts.length > 1) {
+          suffix = parts.pop();
+          group = parts.join(' ');
+        }
+        const result = { ...test };
+        if (group !== lastGroup) {
+          result.groupHeader = group;
+          lastGroup = group;
+        }
+        result.terminalDisplay = suffix;
+        return result;
+      });
+    };
+
+    if (irTests.length > 0) testing.finalIrTests = groupElectricalTests(irTests, 'terminal');
+    if (resistanceTests.length > 0) testing.finalResistanceTests = groupElectricalTests(resistanceTests, 'terminals');
+  }
+
+  // ── Convert testing surge / functional / sensor tests → flat arrays for template ──
+  if (testing) {
+    // Surge tests: { "Main Winding Phase R": { appliedVoltage, waveform }, ... }
+    if (testing.surgeTests && typeof testing.surgeTests === 'object') {
+      const surgeList = Object.entries(testing.surgeTests).map(([winding, data]) => ({
+        winding,
+        appliedVoltage: data.appliedVoltage || 'N/A',
+        waveform: data.waveform || 'Balanced',
+        remarks: data.remarks || ''
+      }));
+      if (surgeList.length > 0) testing.surgeTestsList = surgeList;
+    }
+
+    // Functional tests: { "No Load Run Test": { status }, ... }
+    if (testing.functionalTests && typeof testing.functionalTests === 'object') {
+      const functList = Object.entries(testing.functionalTests).map(([name, data]) => ({
+        name,
+        status: typeof data === 'object' ? (data.status || 'N/A') : (data || 'N/A'),
+        remarks: typeof data === 'object' ? (data.remarks || '') : ''
+      }));
+      if (functList.length > 0) testing.functionalTestsList = functList;
+    }
+
+    // Sensor tests: { "RPM Sensor": { resistanceValue, status }, ... }
+    if (testing.sensorTests && typeof testing.sensorTests === 'object') {
+      const sensorList = Object.entries(testing.sensorTests).map(([name, data]) => ({
+        name,
+        resistanceValue: typeof data === 'object' ? (data.resistanceValue || '—') : (data || '—'),
+        status: typeof data === 'object' ? (data.status || 'N/A') : 'N/A'
+      }));
+      if (sensorList.length > 0) testing.sensorTestsList = sensorList;
+    }
   }
 
   // Dynamic Timeline
   const timelineLogs = [];
-  if (dismantling && dismantling.workLogs) {
-    dismantling.workLogs.forEach(log => {
-      timelineLogs.push({
-        title: log.workDone,
-        desc: `Technician: ${log.technician || 'TRC Specialist'} | Date: ${log.date ? new Date(log.date).toLocaleDateString('en-IN') : today}`,
-        completed: true
-      });
-    });
+  if (inspection) {
+    timelineLogs.push({ title: 'Incoming Inspection', desc: `Technician: ${inspection.technician || 'TRC Specialist'} | Date: ${inspection.startDate || today}`, completed: true });
   }
-  if (assembly && assembly.workLogs) {
-    assembly.workLogs.forEach(log => {
-      timelineLogs.push({
-        title: log.workDone,
-        desc: `Technician: ${log.technician || 'TRC Specialist'} | Date: ${log.date ? new Date(log.date).toLocaleDateString('en-IN') : today}`,
-        completed: true
-      });
-    });
+  if (dismantling) {
+    timelineLogs.push({ title: 'Dismantling & Assessment', desc: `Technician: ${dismantling.technician || 'TRC Specialist'} | Date: ${dismantling.completionDate || dismantling.startDate || today}`, completed: true });
   }
-  if (testing && testing.finalIrTests) {
-    timelineLogs.push({
-      title: "Electrical IR Test Passed",
-      desc: `Status: PASSED | Verified by QA Inspector`,
-      completed: true
-    });
+  if (assembly) {
+    timelineLogs.push({ title: 'Pre-Assembly Operations', desc: `Technician: ${assembly.technician || 'TRC Specialist'} | Start: ${assembly.preAssemblyStartDate || 'N/A'} to End: ${assembly.preAssemblyCompletionDate || 'N/A'}`, completed: true });
+    timelineLogs.push({ title: 'Main Assembly & Verification', desc: `Technician: ${assembly.technician || 'TRC Specialist'} | Start: ${assembly.assemblyStartDate || 'N/A'} to End: ${assembly.assemblyCompletionDate || 'N/A'}`, completed: true });
+  }
+  if (testing) {
+    timelineLogs.push({ title: 'Final Testing & QA', desc: `Technician: ${testing.technician || 'QA Inspector'} | Date: ${testing.completionDate || today}`, completed: true });
   }
 
   if (timelineLogs.length === 0) {
-    const techName = (assembly && assembly.technicianName) || 'TRC Lead Technician';
     const datesFallback = {
-      dismantle: dismantling ? new Date(dismantling.createdAt).toLocaleDateString('en-IN') : today,
-      assemble: assembly ? new Date(assembly.createdAt).toLocaleDateString('en-IN') : today,
-      test: testing ? new Date(testing.createdAt).toLocaleDateString('en-IN') : today
+      dismantle: dismantling ? (dismantling.completionDate || today) : today,
+      assemble: assembly ? (assembly.assemblyCompletionDate || assembly.completionDate || today) : today,
+      test: testing ? (testing.completionDate || today) : today
     };
 
     timelineLogs.push(
       { title: 'Incoming Inspection Completed', desc: `Verified physical condition and missing parts check. Date: ${job.dateReceived || today}`, completed: true },
-      { title: 'Bearing Disassembly & Shaft Inspection', desc: `Technician: ${techName} | Dismantled casings and measured fits. Date: ${datesFallback.dismantle}`, completed: true },
-      { title: 'Coil Cleaning & Varnishing Completed', desc: `Technician: ${techName} | Stator and rotor baked and varnished. Date: ${datesFallback.assemble}`, completed: true },
-      { title: 'New OEM Bearings & Seals Installed', desc: `Technician: ${techName} | Installed using precision induction heating. Date: ${datesFallback.assemble}`, completed: true },
-      { title: 'Final Mechanical Rebuild Completed', desc: `Technician: ${techName} | Torqued casing bolts and verified air gaps. Date: ${datesFallback.assemble}`, completed: true },
+      { title: 'Bearing Disassembly & Shaft Inspection', desc: `Technician: TRC Specialist | Dismantled casings and measured fits. Date: ${datesFallback.dismantle}`, completed: true },
+      { title: 'Coil Cleaning & Varnishing Completed', desc: `Technician: TRC Specialist | Stator and rotor baked and varnished. Date: ${datesFallback.assemble}`, completed: true },
+      { title: 'New OEM Bearings & Seals Installed', desc: `Technician: TRC Specialist | Installed using precision induction heating. Date: ${datesFallback.assemble}`, completed: true },
+      { title: 'Final Mechanical Rebuild Completed', desc: `Technician: TRC Specialist | Torqued casing bolts and verified air gaps. Date: ${datesFallback.assemble}`, completed: true },
       { title: 'Electrical Quality Testing (IR & Surge) Passed', desc: `QA Inspector: Verified resistance and balance. Date: ${datesFallback.test}`, completed: true }
     );
   }
@@ -748,8 +695,17 @@ router.get('/pdf/:reportId', asyncHandler(async (req, res) => {
       receivedFrom: job.receivedFrom || job.recSite,
       dateReceived: job.dateReceived || job.recDate,
       siteComplaints: job.siteComplaints || job.failureDesc,
-      totalRepairCost: job.totalRepairCost || '0'
+      totalRepairCost: job.totalRepairCost || '0',
+      finalDriveNo: job.finalDriveNo || '—',
+      finalDriveModel: job.finalDriveModel || '—',
+      installedHour: job.installedHour || '—',
+      installedDate: job.installedDate || '—',
+      removalHour: job.removalHour || '—',
+      removalDate: job.removalDate || '—',
+      lifeHour: job.lifeHour || '—'
     },
+    isWheelMotor: !!((job.description && job.description.toLowerCase().includes('wheel motor')) || 
+                    (job.componentType && job.componentType.toLowerCase().includes('wheel motor'))),
     report,
     failureAnalysis: failureObj,
     beforePhoto,
@@ -760,6 +716,7 @@ router.get('/pdf/:reportId', asyncHandler(async (req, res) => {
     dismantling,
     assembly: assembly ? { ...assembly, timeline: timelineLogs } : { timeline: timelineLogs },
     testing,
+    dispatch,
     photos: categorizedPhotos,
     photoPages: mappedPhotoPages,
     conclusionPageNum,
@@ -797,11 +754,60 @@ router.get('/pdf/:reportId', asyncHandler(async (req, res) => {
   const templatePath = path.join(__dirname, '../templates/reportTemplate.html');
 
   try {
-    await PdfService.generateFromTemplate(templatePath, templateData, pdfPath);
+    if (req.query.format === 'html') {
+      const handlebars = require('handlebars');
+      handlebars.registerHelper('eq', function (a, b) { return a === b; });
+      handlebars.registerHelper('or', function (a, b) { return a || b; });
+      handlebars.registerHelper('fallback', function (value, defaultValue) {
+        if (value === undefined || value === null || value === '') return defaultValue || 'N/A';
+        return value;
+      });
+      handlebars.registerHelper('ifEquals', function(arg1, arg2, options) {
+        return (arg1 == arg2) ? options.fn(this) : options.inverse(this);
+      });
+      handlebars.registerHelper('editable', function (fieldPath, value, defaultVal, options) {
+        const val = value || defaultVal;
+        return new handlebars.SafeString(`<div contenteditable="true" data-field="${fieldPath}" class="editable-field" style="border: 1.5px dashed #3b82f6; padding: 6px; min-height: 20px; transition: all 0.2s; border-radius: 4px; outline: none; background: rgba(59, 130, 246, 0.05);" onfocus="this.style.backgroundColor='#ffffff'; this.style.boxShadow='0 0 0 2px #bfdbfe';" onblur="this.style.backgroundColor='rgba(59, 130, 246, 0.05)'; this.style.boxShadow='none'; window.parent.postMessage({ type: 'UPDATE_FIELD', field: '${fieldPath}', value: this.innerText }, '*');">${val}</div>`);
+      });
+      handlebars.registerHelper('renderTestingComparisonTable', function() { return new handlebars.SafeString('<tr><td colspan="4" style="text-align: center; color: #999; padding: 10px;">No insulation resistance comparison data available.</td></tr>'); });
+
+      const templateHtml = fs.readFileSync(templatePath, 'utf8');
+      const template = handlebars.compile(templateHtml);
+      const html = template(templateData, { allowProtoPropertiesByDefault: true });
+      
+      const injectedHtml = html.replace('</body>', `<script>
+        window.onload = () => {
+          setTimeout(() => {
+            window.parent.postMessage({ type: 'RESIZE_IFRAME', height: document.body.scrollHeight }, '*');
+          }, 500);
+        };
+        const observer = new MutationObserver(() => {
+          window.parent.postMessage({ type: 'RESIZE_IFRAME', height: document.body.scrollHeight }, '*');
+        });
+        observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+      </script></body>`);
+
+      return res.send(injectedHtml);
+    }
+
+    let shouldGenerate = true;
+    
+    // Check if PDF exists. If it does, we use it!
+    // (If the report is updated, the cache invalidation logic will delete this file, forcing a regeneration)
+    if (fs.existsSync(pdfPath)) {
+      shouldGenerate = false;
+      Logger.info('Cache hit - serving cached PDF', { reportNo: report.reportNo });
+    }
+
+    if (shouldGenerate) {
+      Logger.info('Generating new PDF', { reportNo: report.reportNo });
+      await PdfService.generateFromTemplate(templatePath, templateData, pdfPath);
+    }
+    
     res.download(pdfPath, pdfFilename);
   } catch (err) {
     console.error('PDF Generation Error:', err);
-    res.status(500).json({ message: 'High-fidelity PDF generation failed', error: err.message });
+    res.status(500).json(ApiResponse.error('High-fidelity PDF generation failed', 500, { error: err.message }));
   }
 }));
 

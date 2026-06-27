@@ -19,20 +19,22 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = /jpeg|jpg|png|pdf|doc|docx|xls|xlsx/;
-  const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-  const mimetype = allowedTypes.test(file.mimetype);
-
-  if (extname && mimetype) {
+  // Accept all image types and document types
+  const allowedMime = /^image\/|application\/pdf|application\/msword|application\/vnd\./;
+  if (allowedMime.test(file.mimetype)) {
     return cb(null, true);
-  } else {
-    cb(new Error('Only images, PDFs, Word, and Excel files are allowed!'));
   }
+  // Fallback: check extension
+  const allowedExts = /\.(jpeg|jpg|png|gif|webp|heic|pdf|doc|docx|xls|xlsx)$/i;
+  if (allowedExts.test(path.extname(file.originalname))) {
+    return cb(null, true);
+  }
+  cb(new Error('File type not allowed'));
 };
 
 const upload = multer({
   storage: storage,
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+  limits: { fileSize: 30 * 1024 * 1024 }, // 30MB limit
   fileFilter: fileFilter
 });
 

@@ -1,6 +1,7 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const fs = require('fs');
 const path = require('path');
+const Logger = require('../utils/logger');
 
 /**
  * AI Summary Service
@@ -45,7 +46,7 @@ Focus on actionable observations.
       return await this._callGemini(prompt);
     } catch (error) {
       console.error('Error generating inspection findings:', error);
-      return `Equipment ${inspectionData.equipmentModel} inspected on ${inspectionData.inspectionDate}. Physical and operational inspection completed.`;
+      return `Inspection of ${inspectionData.equipmentModel || 'equipment'} (Serial: ${inspectionData.serialNumber || 'not recorded'}) completed on ${inspectionData.inspectionDate || 'not recorded'}. Customer complaint: ${inspectionData.customerComplaint || 'not recorded'}. [AI unavailable — engineer review required.]`;
     }
   }
 
@@ -72,7 +73,7 @@ Include what was found and condition of removed parts.
       return await this._callGemini(prompt);
     } catch (error) {
       console.error('Error generating dismantling summary:', error);
-      return `Equipment was systematically dismantled. Components inspected and condition documented.`;
+      return `Dismantling of ${dismantlingData.equipmentType || 'equipment'} completed on ${dismantlingData.date || 'not recorded'}. Condition findings recorded in stage data. [AI unavailable — engineer review required.]`;
     }
   }
 
@@ -99,7 +100,7 @@ Include all major components assembled and any calibration performed.
       return await this._callGemini(prompt);
     } catch (error) {
       console.error('Error generating assembly summary:', error);
-      return `Equipment was reassembled following engineering standards. All components properly aligned and secured.`;
+      return `Assembly of ${assemblyData.equipmentType || 'equipment'} completed on ${assemblyData.date || 'not recorded'}. Components installed as per job requirements. [AI unavailable — engineer review required.]`;
     }
   }
 
@@ -127,7 +128,7 @@ Write a professional testing summary (2-3 sentences) including test methodology 
       return await this._callGemini(prompt);
     } catch (error) {
       console.error('Error generating testing summary:', error);
-      return `Testing completed according to engineering standards. Equipment performance documented and evaluated.`;
+      return `Final testing of ${testingData.equipmentModel || 'equipment'} completed on ${testingData.date || 'not recorded'}. Test status: ${testingData.status || 'not recorded'}. [AI unavailable — engineer review required.]`;
     }
   }
 
@@ -164,12 +165,7 @@ RECOMMENDATIONS:
       return await this._callGemini(prompt);
     } catch (error) {
       console.error('Error generating conclusions:', error);
-      return `CONCLUSION: Work completed successfully. Equipment operational and ready for deployment.
-
-RECOMMENDATIONS:
-- Continue regular maintenance schedule
-- Monitor equipment performance during operation
-- Schedule follow-up inspection as needed`;
+      return `CONCLUSION: Rebuild work for job ${jobSummary.jobNo || 'not recorded'} on ${jobSummary.equipmentModel || 'equipment'} has been completed through all workshop stages. Current status: ${jobSummary.currentStatus || 'not recorded'}. [AI unavailable — engineer must complete this section.]\n\nRECOMMENDATIONS:\n- Engineer to review all stage findings before report finalisation\n- Verify test results against OEM specifications\n- Confirm QA sign-off before customer dispatch`;
     }
   }
 
@@ -179,24 +175,18 @@ RECOMMENDATIONS:
   async checkModels() {
     if (!this.client) return;
     try {
-      // In @google/generative-ai, listModels is not on the genAI instance directly in all versions
-      // We might need to check if it's supported or use a different approach
-      console.log('--- AI MODEL DIAGNOSTIC START ---');
-      console.log('API Key:', this.apiKey ? 'PRESENT (First 5 chars: ' + this.apiKey.substring(0, 5) + '...)' : 'MISSING');
+      Logger.debug('AI service initialised', {
+        apiKeyPresent: !!this.apiKey
+      });
 
-      // Attempting to list models if supported
       if (typeof this.client.listModels === 'function') {
         const result = await this.client.listModels();
-        console.log('AVAILABLE MODELS:');
-        result.models.forEach(m => console.log(`- ${m.name} (${m.supportedGenerationMethods.join(', ')})`));
-      } else {
-        console.log('Note: listModels() is not directly available on this SDK version instance. Testing connection with gemini-1.5-flash...');
+        Logger.debug('Gemini models available', {
+          count: result.models.length
+        });
       }
-      console.log('--- AI MODEL DIAGNOSTIC END ---');
     } catch (err) {
-      console.error('--- AI DIAGNOSTIC FAILED ---');
-      console.error('Error:', err.message);
-      console.log('---------------------------');
+      Logger.warn('AI model diagnostic failed', { error: err.message });
     }
   }
 
@@ -209,7 +199,7 @@ RECOMMENDATIONS:
     if (!this.client) throw new Error('Gemini API key is not configured.');
     if (!imagePaths || imagePaths.length === 0) throw new Error('No images provided for analysis.');
 
-    const modelNames = ['gemini-flash-latest', 'gemini-2.5-flash'];
+    const modelNames = ['gemini-2.5-flash', 'gemini-flash-latest'];
     const apiVersions = ['v1beta', 'v1'];
     let lastError;
 
@@ -406,7 +396,7 @@ STRICT RULES:
 - Output only the summary text.
 `;
 
-    const modelNames = ['gemini-flash-latest', 'gemini-2.5-flash'];
+    const modelNames = ['gemini-2.5-flash', 'gemini-flash-latest'];
     const apiVersions = ['v1beta', 'v1'];
     let lastError;
 
@@ -445,7 +435,7 @@ STRICT RULES:
     }
 
     try {
-      const modelNames = ['gemini-flash-latest', 'gemini-1.1', 'gemini-flash-lite-latest'];
+      const modelNames = ['gemini-2.5-flash', 'gemini-flash-latest', 'gemini-flash-lite-latest'];
       let lastError;
 
       for (const modelName of modelNames) {
@@ -464,6 +454,129 @@ STRICT RULES:
     } catch (error) {
       throw new Error(`Gemini API error: ${error.message}`);
     }
+  }
+
+  /**
+   * Generate fallback summaries using real job data
+   * Called when Gemini API is unavailable
+   * Never invents findings - only uses actual recorded data
+   */
+  _generateFallbackSummaries(jobData) {
+    const job = jobData.job || jobData;
+    const stage1 = jobData.stage1 || {};
+    const stage2 = jobData.stage2 || {};
+    const stage3 = jobData.stage3 || {};
+    const stage4 = jobData.stage4 || {};
+
+    // Build inspection findings from real stage1 data
+    const inspectionTechnician = stage1.technician || 'Assigned technician';
+    const inspectionDecision = stage1.inspectionDecision || 'Pending';
+    const inspectionDecisionReason = stage1.inspectionDecisionReason || '';
+    const inspectionRemarks = stage1.overallRemarks || '';
+
+    const electricalTestKeys = Object.keys(stage1.electricalTests || {});
+    const electricalSummary = electricalTestKeys.length > 0
+      ? `${electricalTestKeys.length} electrical test(s) recorded including ${electricalTestKeys.slice(0, 3).join(', ')}.`
+      : 'Electrical tests recorded.';
+
+    const inspectionFindings =
+      `Visual and electrical inspection performed by ${inspectionTechnician}. ` +
+      `${electricalSummary} ` +
+      `Inspection decision: ${inspectionDecision}. ` +
+      `${inspectionDecisionReason ? 'Reason: ' + inspectionDecisionReason + '.' : ''} ` +
+      `${inspectionRemarks ? 'Remarks: ' + inspectionRemarks : ''} ` +
+      `[AI unavailable — engineer review required for this section.]`.trim();
+
+    // Build dismantling summary from real stage2 data
+    const dismantlingTechnician = stage2.technician || 'Assigned technician';
+    const dismantlingRemarks = stage2.overallRemarks || '';
+
+    const measurementKeys = Object.keys(stage2.dimensionalMeasurements || {});
+    const measurementSummary = measurementKeys.length > 0
+      ? `${measurementKeys.length} dimensional measurement(s) recorded including ${measurementKeys.slice(0, 3).join(', ')}.`
+      : 'Dimensional measurements recorded.';
+
+    const componentKeys = Object.keys(stage2.componentConditionAssessment || {});
+    const componentSummary = componentKeys.length > 0
+      ? `Component condition assessed for: ${componentKeys.slice(0, 4).join(', ')}.`
+      : 'Component conditions assessed.';
+
+    const dismantlingSummary =
+      `Dismantling performed by ${dismantlingTechnician}. ` +
+      `${measurementSummary} ` +
+      `${componentSummary} ` +
+      `${dismantlingRemarks ? 'Remarks: ' + dismantlingRemarks : ''} ` +
+      `[AI unavailable — engineer review required for this section.]`.trim();
+
+    // Build assembly summary from real stage3 data
+    const assemblyTechnician = stage3.technician || 'Assigned technician';
+    const assemblyRemarks = stage3.overallRemarks || '';
+
+    const materialsUsed = stage3.materialsUsed || [];
+    const materialSummary = materialsUsed.length > 0
+      ? `${materialsUsed.length} material(s) used including ${materialsUsed.slice(0, 3).map(m => m.name).filter(Boolean).join(', ')}.`
+      : 'Materials used as per job requirement.';
+
+    const torqueKeys = Object.keys(stage3.torqueVerifications || {});
+    const torqueSummary = torqueKeys.length > 0
+      ? `Torque verified for ${torqueKeys.length} point(s) including ${torqueKeys.slice(0, 3).join(', ')}.`
+      : 'Torque verifications completed.';
+
+    const assemblySummary =
+      `Assembly performed by ${assemblyTechnician}. ` +
+      `${materialSummary} ` +
+      `${torqueSummary} ` +
+      `${assemblyRemarks ? 'Remarks: ' + assemblyRemarks : ''} ` +
+      `[AI unavailable — engineer review required for this section.]`.trim();
+
+    // Build testing summary from real stage4 data
+    const testingTechnician = stage4.technician || 'Assigned technician';
+    const testingRemarks = stage4.overallRemarks || '';
+    const qaApprovedBy = stage4.qaApprovedBy || '';
+    const qaApprovedDate = stage4.qaApprovedDate || '';
+
+    const finalElectricalKeys = Object.keys(stage4.electricalTests || {});
+    const finalElectricalSummary = finalElectricalKeys.length > 0
+      ? `${finalElectricalKeys.length} final electrical test(s) performed including ${finalElectricalKeys.slice(0, 3).join(', ')}.`
+      : 'Final electrical tests performed.';
+
+    const functionalKeys = Object.keys(stage4.functionalTests || {});
+    const functionalSummary = functionalKeys.length > 0
+      ? `${functionalKeys.length} functional test(s) completed including ${functionalKeys.slice(0, 3).join(', ')}.`
+      : 'Functional tests completed.';
+
+    const testingSummary =
+      `Final testing performed by ${testingTechnician}. ` +
+      `${finalElectricalSummary} ` +
+      `${functionalSummary} ` +
+      `${qaApprovedBy ? 'QA approved by ' + qaApprovedBy + (qaApprovedDate ? ' on ' + qaApprovedDate : '') + '.' : 'QA approval pending.'} ` +
+      `${testingRemarks ? 'Remarks: ' + testingRemarks : ''} ` +
+      `[AI unavailable — engineer review required for this section.]`.trim();
+
+    // Build conclusions from real job data
+    const jobNo = job.jobNo || 'Not recorded';
+    const equipmentModel = job.equipmentModel || 'Not recorded';
+    const serialNumber = job.serialNumber || 'Not recorded';
+    const description = job.description || 'Not recorded';
+
+    const conclusions =
+      `CONCLUSION: Rebuild job ${jobNo} for ${equipmentModel} ` +
+      `(Serial: ${serialNumber}) has been processed through all workshop stages. ` +
+      `Work scope: ${description}. ` +
+      `All stage data has been recorded in the system. ` +
+      `AI-generated conclusion unavailable — engineer must review and complete this section before report finalisation.\n\n` +
+      `RECOMMENDATIONS:\n` +
+      `- Engineer to review all stage findings and complete AI sections manually\n` +
+      `- Verify all electrical test values against OEM specifications before dispatch\n` +
+      `- Confirm QA approval is recorded before releasing to customer`;
+
+    return {
+      inspectionFindings,
+      dismantlingSummary,
+      assemblySummary,
+      testingSummary,
+      conclusions
+    };
   }
 
   /**
@@ -496,13 +609,7 @@ STRICT RULES:
       };
     } catch (error) {
       console.error('AI summary generation failed, using fallback text:', error.message);
-      return {
-        inspectionFindings: 'Inspection assessment completed. Condition noted and documented.',
-        dismantlingSummary: 'Dismantling work executed and findings documented.',
-        assemblySummary: 'Reassembly completed following standard procedures.',
-        testingSummary: 'Final testing performed and results recorded.',
-        conclusions: 'Work completed successfully. Equipment condition verified and documented.',
-      };
+      return this._generateFallbackSummaries(jobData);
     }
   }
 }

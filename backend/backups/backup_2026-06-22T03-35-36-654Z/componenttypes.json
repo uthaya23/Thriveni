@@ -1,0 +1,28 @@
+[
+  {
+    "_id": "6a3613ca88317a33e518bc76",
+    "department": "6a3613c588317a33e518bc4d",
+    "code": "WM",
+    "name": "Wheel Motor",
+    "status": "ACTIVE",
+    "version": 1,
+    "tags": [],
+    "effectiveDate": "2026-06-20T04:15:06.235Z",
+    "createdAt": "2026-06-20T04:15:06.236Z",
+    "updatedAt": "2026-06-20T04:15:06.236Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a3613ca88317a33e518bc79",
+    "department": "6a3613c688317a33e518bc50",
+    "code": "FD",
+    "name": "Final Drive",
+    "status": "ACTIVE",
+    "version": 1,
+    "tags": [],
+    "effectiveDate": "2026-06-20T04:15:06.503Z",
+    "createdAt": "2026-06-20T04:15:06.504Z",
+    "updatedAt": "2026-06-20T04:15:06.504Z",
+    "__v": 0
+  }
+]

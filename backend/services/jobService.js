@@ -125,9 +125,9 @@ class JobService {
 
       // Date range filter
       if (dateFrom || dateTo) {
-        filter.receivedDate = {};
-        if (dateFrom) filter.receivedDate.$gte = new Date(dateFrom);
-        if (dateTo) filter.receivedDate.$lte = new Date(dateTo);
+        filter.dateReceived = {};
+        if (dateFrom) filter.dateReceived.$gte = new Date(dateFrom);
+        if (dateTo) filter.dateReceived.$lte = new Date(dateTo);
       }
 
       // Search across multiple fields
@@ -252,18 +252,24 @@ class JobService {
   /**
    * Delete job by ID
    */
-  static async deleteJob(jobId) {
+  static async deleteJob(jobId, deletedBy = null) {
     try {
       Logger.info('Deleting job', { jobId });
 
-      const job = await Job.findByIdAndDelete(jobId);
+      const job = await Job.findById(jobId);
 
       if (!job) {
         return ApiResponse.notFound('Job not found');
       }
 
-      Logger.info('Job deleted successfully', { jobId, jobNo: job.jobNo });
-      return ApiResponse.success('Job deleted successfully', job);
+      // Soft delete - never permanently destroy job data
+      job.isDeleted = true;
+      job.deletedAt = new Date();
+      job.deletedBy = deletedBy;
+      await job.save();
+
+      Logger.info('Job soft deleted', { jobId, jobNo: job.jobNo, deletedBy });
+      return ApiResponse.success('Job deleted successfully', { jobNo: job.jobNo });
     } catch (error) {
       Logger.error('Error deleting job', error, { jobId });
       throw error;
@@ -370,6 +376,38 @@ class JobService {
       Logger.error('Error in bulk update', error);
       throw error;
     }
+  }
+  /**
+   * Get all soft deleted jobs - admin only
+   */
+  static async getDeletedJobs() {
+    // Bypass the soft delete query filter by explicitly setting isDeleted: true
+    const jobs = await Job.find({ isDeleted: true })
+      .select('jobNo description serialNumber componentType deletedAt deletedBy')
+      .populate('deletedBy', 'name email')
+      .sort({ deletedAt: -1 });
+
+    return ApiResponse.success('Deleted jobs retrieved', jobs);
+  }
+
+  /**
+   * Restore a soft deleted job - admin only
+   */
+  static async restoreJob(jobId, restoredBy = null) {
+    // Bypass soft delete filter to find deleted job
+    const job = await Job.findOne({ _id: jobId, isDeleted: true });
+
+    if (!job) {
+      return ApiResponse.notFound('Deleted job not found');
+    }
+
+    job.isDeleted = false;
+    job.deletedAt = null;
+    job.deletedBy = null;
+    await job.save();
+
+    Logger.info('Job restored', { jobId, jobNo: job.jobNo, restoredBy });
+    return ApiResponse.success('Job restored successfully', { jobNo: job.jobNo });
   }
 }
 

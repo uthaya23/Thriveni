@@ -71,18 +71,46 @@ export default function JobOverviewSection({ job, setViewStage }) {
   const daysOpen = Math.floor((new Date() - new Date(job.createdAt)) / (1000 * 60 * 60 * 24));
 
   // Determine stage completion % roughly
-  const STAGES = ['Received', 'Inspection', 'Dismantling', 'Assembly', 'Testing', 'Dispatch', 'Completed'];
-  const stageIndex = STAGES.indexOf(job.stage);
-  const completionPercentage = Math.round((stageIndex / (STAGES.length - 1)) * 100);
+  const STAGES = [
+    'Visual Inspection & Incoming Assessment',
+    'Dismantling & Analysis',
+    'Pre-Assembly & Assembly',
+    'Testing & Dispatch',
+    'Report Generation',
+    'Completed'
+  ];
+
+  const normalizeStage = (stage) => {
+    if (!stage) return 'Visual Inspection & Incoming Assessment';
+    const legacyMap = {
+      'Received': 'Visual Inspection & Incoming Assessment',
+      'Overview': 'Visual Inspection & Incoming Assessment',
+      'Visual Inspection': 'Visual Inspection & Incoming Assessment',
+      'Dismantling': 'Dismantling & Analysis',
+      'Inspection & Analysis': 'Dismantling & Analysis',
+      'Repair / Reclamation': 'Pre-Assembly & Assembly',
+      'Pre-Assembly': 'Pre-Assembly & Assembly',
+      'Assembly': 'Pre-Assembly & Assembly',
+      'Testing': 'Testing & Dispatch',
+      'Dispatch': 'Testing & Dispatch',
+      'Report': 'Report Generation',
+      'Report Generation': 'Report Generation',
+    };
+    return legacyMap[stage] || stage;
+  };
+
+  const effectiveStage = normalizeStage(job.stage);
+  const stageIndex = STAGES.indexOf(effectiveStage);
+  const completionPercentage = Math.round((Math.max(0, stageIndex) / (STAGES.length - 1)) * 100);
 
   // Generate Workshop Alerts
   const alerts = [];
   if (job.priority === 'High' || job.priority === 'Critical') alerts.push({ type: 'error', msg: `${job.priority} Priority Job - Expedite` });
   if (inspection && inspection.missingParts?.length > 0) alerts.push({ type: 'warning', msg: `${inspection.missingParts.length} Missing parts reported during inspection` });
   if (dismantling && dismantling.findings?.length > 0) alerts.push({ type: 'warning', msg: `Critical dismantling findings recorded` });
-  if (job.stage === 'Testing' && (!testing || testing.finalIrTests?.length === 0)) alerts.push({ type: 'error', msg: `Final IR tests missing before dispatch` });
-  if (job.stage === 'Dispatch' && (!dispatch || dispatch.dispatchPhotos?.length === 0)) alerts.push({ type: 'warning', msg: `Dispatch photos missing` });
-  if (daysOpen > 30 && job.stage !== 'Completed') alerts.push({ type: 'error', msg: `Job delayed - Open for > 30 days` });
+  if (effectiveStage === 'Testing & Dispatch' && (!testing || testing.finalIrTests?.length === 0)) alerts.push({ type: 'error', msg: `Final IR tests missing before dispatch` });
+  if (effectiveStage === 'Testing & Dispatch' && (!dispatch || dispatch.dispatchPhotos?.length === 0)) alerts.push({ type: 'warning', msg: `Dispatch photos missing` });
+  if (daysOpen > 30 && effectiveStage !== 'Completed') alerts.push({ type: 'error', msg: `Job delayed - Open for > 30 days` });
 
   // Generate Activity Timeline (Mocking based on presence of data)
   const activities = [];
@@ -171,7 +199,7 @@ export default function JobOverviewSection({ job, setViewStage }) {
             <span className="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded uppercase">{job.stage}</span>
           </div>
           <div className="p-4 flex-1">
-            {job.stage === 'Received' || job.stage === 'Inspection' ? (
+            {job.stage === 'Received' || job.stage === 'Visual Inspection' ? (
               <div className="space-y-3">
                 <div className="flex justify-between items-center"><span className="text-xs font-bold text-slate-500">Missing Parts Logged:</span><span className="font-bold text-sm">{inspection?.missingParts?.length || 0}</span></div>
                 <div className="flex justify-between items-center"><span className="text-xs font-bold text-slate-500">Initial IR Tests:</span><span className="font-bold text-sm">{inspection?.initialIrTests?.length || 0}</span></div>

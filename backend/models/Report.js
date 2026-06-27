@@ -44,17 +44,40 @@ const reportSchema = new mongoose.Schema({
     default: 'Draft' 
   },
 
-  // Checklists
+  // Review workflow metadata
   isEngineerReviewed: { type: Boolean, default: false },
   isQaApproved: { type: Boolean, default: false },
+  reviewNotes: { type: String },
+  approvalNotes: { type: String },
+  reviewHistory: [{
+    action: { type: String, enum: ['DraftCreated', 'SubmittedForReview', 'EngineerReviewed', 'QAVerified', 'FinalApproved', 'Exported'], required: true },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    role: { type: String },
+    comment: { type: String },
+    date: { type: Date, default: Date.now }
+  }],
 
   version: { type: Number, default: 1 },
+
+  // Soft Delete
+  isDeleted:  { type: Boolean, default: false },
+  deletedAt:  { type: Date, default: null },
+  deletedBy:  { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
 }, { timestamps: true });
 
 // Performance Indexes
 reportSchema.index({ job: 1 });
 // reportSchema.index({ reportNo: 1 }); // Removed to fix duplicate index warning
 reportSchema.index({ createdAt: -1 });
+reportSchema.index({ isDeleted: 1 });
+
+// Automatically exclude soft-deleted reports from ALL queries
+reportSchema.pre(/^find/, function(next) {
+  if (this.getFilter().isDeleted === undefined) {
+    this.where({ isDeleted: { $ne: true } });
+  }
+  next();
+});
 
 // Auto-generate report number
 reportSchema.pre('validate', async function(next) {

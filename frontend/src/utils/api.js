@@ -1,11 +1,12 @@
 import axios from 'axios';
 
-const BACKEND_URL = 'https://cufflink-creme-equipment.ngrok-free.dev';
-const api = axios.create({ baseURL: `${BACKEND_URL}/api` });
+const BACKEND_URL = process.env.REACT_APP_API_URL?.replace(/\/$/, '') || '';
+const api = axios.create({ baseURL: BACKEND_URL ? `${BACKEND_URL}/api` : '/api' });
 
 api.interceptors.request.use((config) => {
   const user = JSON.parse(localStorage.getItem('trc-user') || 'null');
   if (user?.token) config.headers.Authorization = `Bearer ${user.token}`;
+  config.headers['ngrok-skip-browser-warning'] = 'true';
   return config;
 });
 
@@ -37,7 +38,7 @@ export const getImageUrl = (url) => {
   if (typeof targetUrl !== 'string') return '';
   const normalized = targetUrl.trim();
   if (/^(https?:|data:|blob:)/i.test(normalized)) return normalized;
-  return `${BACKEND_URL}${normalized}`;
+  return BACKEND_URL ? `${BACKEND_URL}${normalized}` : normalized;
 };
 
 export default api;

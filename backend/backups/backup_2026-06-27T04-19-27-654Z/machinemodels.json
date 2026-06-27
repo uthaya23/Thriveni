@@ -1,0 +1,68 @@
+[
+  {
+    "_id": "6a3f3d211702bfd4d41ac179",
+    "name": "EH5000",
+    "__v": 0,
+    "active": true,
+    "category": "Dumper",
+    "createdAt": "2026-06-27T03:01:47.442Z",
+    "description": "Hitachi EH5000 AC Drive 300T Dumper",
+    "make": "HITACHI",
+    "updatedAt": "2026-06-27T03:01:47.442Z"
+  },
+  {
+    "_id": "6a3f3d221702bfd4d41ac17a",
+    "name": "EH4500",
+    "__v": 0,
+    "active": true,
+    "category": "Dumper",
+    "createdAt": "2026-06-27T03:01:53.811Z",
+    "description": "Hitachi EH4500 AC Drive 220T Dumper",
+    "make": "HITACHI",
+    "updatedAt": "2026-06-27T03:01:53.811Z"
+  },
+  {
+    "_id": "6a3f3d221702bfd4d41ac17b",
+    "name": "830E AC",
+    "__v": 0,
+    "active": true,
+    "category": "Dumper",
+    "createdAt": "2026-06-27T03:01:54.512Z",
+    "description": "Komatsu 830E AC Drive Dumper",
+    "make": "KOMATSU",
+    "updatedAt": "2026-06-27T03:01:54.512Z"
+  },
+  {
+    "_id": "6a3f3d221702bfd4d41ac17c",
+    "name": "830E DC",
+    "__v": 0,
+    "active": true,
+    "category": "Dumper",
+    "createdAt": "2026-06-27T03:01:54.836Z",
+    "description": "Komatsu 830E DC Drive Dumper",
+    "make": "KOMATSU",
+    "updatedAt": "2026-06-27T03:01:54.836Z"
+  },
+  {
+    "_id": "6a3f3d241702bfd4d41ac17d",
+    "name": "BELAZ",
+    "__v": 0,
+    "active": true,
+    "category": "Dumper",
+    "createdAt": "2026-06-27T03:01:56.337Z",
+    "description": "BELAZ 75131 220T Mining Dumper",
+    "make": "BELAZ",
+    "updatedAt": "2026-06-27T03:01:56.337Z"
+  },
+  {
+    "_id": "6a3f3d241702bfd4d41ac17e",
+    "name": "PC5500",
+    "__v": 0,
+    "active": true,
+    "category": "Excavator",
+    "createdAt": "2026-06-27T03:01:56.723Z",
+    "description": "Komatsu PC5500 Mining Excavator",
+    "make": "KOMATSU",
+    "updatedAt": "2026-06-27T03:01:56.723Z"
+  }
+]

@@ -24,6 +24,36 @@ class ReportGenerationService {
     }
   }
 
+  _mapPhotoArray(photoArray) {
+    if (!Array.isArray(photoArray)) return [];
+    return photoArray
+      .filter((photo) => photo && (photo.image || photo.url || photo.path))
+      .map((photo) => ({
+        image: photo.image || photo.url || photo.path,
+        caption: photo.caption || ''
+      }));
+  }
+
+  _buildPartsTable(parts = []) {
+    if (!Array.isArray(parts)) return [];
+    return parts.map((part, index) => ({
+      sNo: index + 1,
+      description: part.itemName || part.partName || part || 'Not specified',
+      quantity: part.quantity || 1,
+      remarks: part.remark || part.remarks || 'Replaced or inspected'
+    }));
+  }
+
+  _formatTimeline(events = []) {
+    if (!Array.isArray(events)) return [];
+    return events.map((entry, index) => ({
+      sNo: index + 1,
+      event: entry.title || entry.phase || `Step ${index + 1}`,
+      description: entry.desc || entry.details || '',
+      completed: entry.completed ? 'Yes' : 'No'
+    }));
+  }
+
   /**
    * Generate complete report from job data
    * @param {Object} jobData - Complete job data including job document and photos
@@ -92,6 +122,8 @@ class ReportGenerationService {
       customerName: job.customerName || '',
       customerContact: job.customerContact || '',
       siteLocation: job.siteLocation || '',
+      scopeOfWork: job.scopeOfWork || '',
+      siteComplaints: job.customerComplaints || '',
 
       // Equipment Information
       equipmentModel: equipment.model || '',
@@ -101,45 +133,51 @@ class ReportGenerationService {
       equipmentYearOfManufacture: equipment.yearOfManufacture || '',
       equipmentRunningHours: equipment.runningHours || '',
 
-      // Scope and Complaints
-      scopeOfWork: job.scopeOfWork || '',
-      siteComplaints: job.customerComplaints || '',
-
       // Inspection Details
       inspectionDate: inspection.date || new Date().toISOString().split('T')[0],
       inspectionFindings: summaries.inspectionFindings || 'Inspection completed.',
       inspectionObservations: inspection.observations || '',
-      
+      inspectionCondition: inspection.physicalCondition || '',
+      inspectionElectrical: inspection.electricalCondition || '',
+      inspectionMechanical: inspection.mechanicalCondition || '',
+      inspectionPhotoGallery: this._mapPhotoArray(jobData.inspectionPhotos),
+      receivedPhotoGallery: this._mapPhotoArray(jobData.receivedPhotos),
+
       // Dismantling Details
       dismantlingDate: dismantling.date || '',
-      dismantlingSummary: summaries.dismantlingSummary || 'Dismantling work completed.',
-      
-      // Loops
-      inspectionItems: (assembly.newPartsInstalled || []).map((item, index) => ({
-        sNo: index + 1,
-        description: item || 'Part',
-        qty: 1,
-        remark: 'Replaced'
-      })),
+      dismantlingSummary: summaries.partsConditionAnalysis || 'Dismantling work completed.',
+      dismantlingPhotoGallery: this._mapPhotoArray(jobData.dismantlingPhotos),
+      damagedPartsPhotoGallery: this._mapPhotoArray(jobData.damagedPartsPhotos),
+      componentConditionTable: this._buildPartsTable(dismantling.componentConditionAssessment || []),
 
       // Assembly Details
       assemblyDate: assembly.date || '',
-      assemblySummary: summaries.assemblySummary || 'Assembly work completed.',
+      assemblySummary: summaries.assemblyDescription || 'Assembly work completed.',
       repairedParts: assembly.repairedParts || '',
-      workPerformed: job.workPerformed || '',
+      workPerformed: summaries.workPerformed || job.workPerformed || '',
       changedParts: assembly.changedParts || '',
+      assemblyPhotoGallery: this._mapPhotoArray(jobData.assemblyPhotos),
+      installedPartsTable: this._buildPartsTable(assembly.newPartsInstalled || assembly.materialsUsed || []),
 
-      // Testing Details (Specific IR values)
+      // Testing Details
       testingDate: testing.date || '',
       testingSummary: summaries.testingSummary || 'Testing completed.',
       testResults: testing.results || '',
-      ir_r: (testing.irReadings && testing.irReadings['R to G']) || 'N/A',
-      ir_y: (testing.irReadings && testing.irReadings['Y to G']) || 'N/A',
-      ir_b: (testing.irReadings && testing.irReadings['B to G']) || 'N/A',
+      irReadingsFormatted: this._formatIrValues(testing.irReadings),
+      testingPhotoGallery: this._mapPhotoArray(jobData.testingPhotos),
+
+      // Final / Dispatch Photos
+      finalPhotoGallery: this._mapPhotoArray(jobData.finalPhotos),
+
+      // Failure Analysis
+      failureRootCause: summaries.failureAnalysis?.rootCause || '',
+      failureEvidence: summaries.failureAnalysis?.evidence || '',
+      failureImpact: summaries.failureAnalysis?.impact || '',
+      failureRecommendedAction: summaries.failureAnalysis?.recommendedAction || '',
 
       // Conclusions and Recommendations
-      conclusions: summaries.conclusions || 'Work completed successfully.',
-      recommendations: job.recommendations || '',
+      conclusions: summaries.finalConclusion || 'Work completed successfully.',
+      recommendations: summaries.recommendations || job.recommendations || '',
 
       // Technician Information
       technicianName: job.technicianName || '',
@@ -150,6 +188,10 @@ class ReportGenerationService {
       // Report Metadata
       reportDate: new Date().toISOString().split('T')[0],
       reportGeneratedBy: 'Thriveni Report System',
+      reportVersion: summaries.version || '1.0',
+      reportStatus: summaries.status || 'Final Approved',
+      reviewNotes: summaries.reviewNotes || '',
+      approvalNotes: summaries.approvalNotes || ''
     };
   }
 

@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat:wght@400;500;600;700;800;900&display=swap');
 
 /* ══════════════════════════════════════════════════
    WORKSHOP DESIGN SYSTEM — LIGHT THEME, RESPONSIVE
@@ -116,7 +116,7 @@ input, select, textarea {
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   font-family: 'Inter', sans-serif;
-  font-size: 0.9rem;
+  font-size: 16px; /* CRITICAL: prevents iOS Safari auto-zoom on focus */
   font-weight: 500;
   color: var(--text-primary);
   background: var(--bg-input);
@@ -701,6 +701,111 @@ tbody tr:hover { background: var(--bg-surface-elevated); }
   }
   .flex.gap-3 button {
     width: 100% !important;
+  }
+}
+
+/* ══════════════════════════════════════════════════
+   NARROW MOBILE OVERRIDES (< 480px)
+   ══════════════════════════════════════════════════ */
+@media (max-width: 479px) {
+
+  /* ── 1. FORCE ANY auto-fill GRID TO 1 COLUMN ── */
+  [style*="auto-fill"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ── 2. PREVENT HORIZONTAL PAGE OVERFLOW ── */
+  body, #root {
+    overflow-x: hidden;
+    width: 100%;
+  }
+
+  /* ── 3. FULL WIDTH CONTAINERS ── */
+  [style*="maxWidth: 1200"],
+  [style*="maxWidth: 1280"],
+  [style*="max-width: 1200"],
+  [style*="max-width: 1280"] {
+    max-width: 100% !important;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+
+  /* ── 4. TABLES: horizontal scroll wrapper ── */
+  table {
+    min-width: 100%;
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+  }
+  /* Keep thead/tbody/tr/td as table elements inside the scrollable block */
+  thead, tbody, tfoot, tr { display: table; width: 100%; }
+  th, td { white-space: nowrap; }
+
+  /* ── 5. BOTTOM NAV ── */
+  .bottom-nav-item span {
+    font-size: 0.5rem !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 50px;
+  }
+
+  /* ── 6. FILTER CHIPS / HORIZONTAL SCROLL BARS ── */
+  .filter-chips-row,
+  [style*="overflowX: auto"],
+  [style*="overflow-x: auto"] {
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+    padding-bottom: 4px;
+  }
+
+  /* ── 7. APP HEADER ── */
+  .app-header {
+    padding: 0 10px !important;
+  }
+  .header-title { display: none !important; }
+
+  /* ── 8. FORM GROUPS: ensure full width ── */
+  .form-group,
+  [class*="grid-cols-2"] .form-group {
+    grid-column: span 1 !important;
+  }
+
+  /* ── 9. CARDS: remove unnecessary horizontal padding ── */
+  .i-card-body {
+    padding: 10px !important;
+  }
+  .i-card-header {
+    padding: 10px 12px !important;
+  }
+
+  /* ── 10. PHOTO THUMBNAILS ── */
+  .min-w-\[140px\] {
+    min-width: 90px !important;
+    width: 90px !important;
+  }
+
+  /* ── 11. BUTTONS: full width in form actions ── */
+  .sticky-footer .btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  /* ── 12. PAGE PADDING: account for app header + bottom nav ── */
+  .main-content-area {
+    padding: 8px !important;
+  }
+
+  /* ── 13. TEXT OVERFLOW: prevent long words from breaking layout ── */
+  p, span, div, td, th, label {
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+  /* EXCEPT: chips, badges and nowrap elements */
+  .stage-badge, .status, button {
+    word-break: normal;
+    overflow-wrap: normal;
   }
 }
 

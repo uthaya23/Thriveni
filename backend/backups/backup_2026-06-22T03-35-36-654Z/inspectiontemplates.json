@@ -1,0 +1,3909 @@
+[
+  {
+    "_id": "6a2b25716286e43b737ba94e",
+    "equipmentFamily": "6a2b25716286e43b737ba940",
+    "equipmentModel": "EH5000 Wheel Motor",
+    "templateVersion": "2.0",
+    "oemDocumentReference": "HITACHI-EH5000-VOL2",
+    "isActive": true,
+    "stages": [
+      {
+        "stageName": "Visual Inspection",
+        "categories": [
+          {
+            "categoryName": "Incoming Photo Gallery",
+            "parameters": [
+              {
+                "name": "Overall Front View",
+                "parameterType": "PHOTO_REQUIRED",
+                "severity": "INFO",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [],
+                "measurementRequired": false,
+                "photoRequired": true,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2b25716286e43b737ba951"
+              },
+              {
+                "name": "Overall Rear View",
+                "parameterType": "PHOTO_REQUIRED",
+                "severity": "INFO",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [],
+                "measurementRequired": false,
+                "photoRequired": true,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2b25716286e43b737ba952"
+              },
+              {
+                "name": "Nameplate",
+                "parameterType": "PHOTO_REQUIRED",
+                "severity": "INFO",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [],
+                "measurementRequired": false,
+                "photoRequired": true,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2b25716286e43b737ba953"
+              },
+              {
+                "name": "Drive End",
+                "parameterType": "PHOTO_REQUIRED",
+                "severity": "INFO",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [],
+                "measurementRequired": false,
+                "photoRequired": true,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2b25716286e43b737ba954"
+              },
+              {
+                "name": "Non Drive End",
+                "parameterType": "PHOTO_REQUIRED",
+                "severity": "INFO",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [],
+                "measurementRequired": false,
+                "photoRequired": true,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2b25716286e43b737ba955"
+              },
+              {
+                "name": "Terminal Box",
+                "parameterType": "PHOTO_REQUIRED",
+                "severity": "INFO",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [],
+                "measurementRequired": false,
+                "photoRequired": true,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2b25716286e43b737ba956"
+              }
+            ],
+            "_id": "6a2b25716286e43b737ba950"
+          },
+          {
+            "categoryName": "External Condition Inspection",
+            "parameters": [
+              {
+                "name": "Paint Intact",
+                "parameterType": "BOOLEAN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Yes",
+                  "No"
+                ],
+                "passingValue": "Yes",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2b25716286e43b737ba958"
+              },
+              {
+                "name": "Corrosion Present",
+                "parameterType": "BOOLEAN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "No",
+                  "Yes"
+                ],
+                "passingValue": "No",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2b25716286e43b737ba959"
+              },
+              {
+                "name": "Physical Damage",
+                "parameterType": "BOOLEAN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "No",
+                  "Yes"
+                ],
+                "passingValue": "No",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2b25716286e43b737ba95a"
+              },
+              {
+                "name": "Impact Marks",
+                "parameterType": "BOOLEAN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "No",
+                  "Yes"
+                ],
+                "passingValue": "No",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2b25716286e43b737ba95b"
+              },
+              {
+                "name": "Oil Contamination",
+                "parameterType": "BOOLEAN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "No",
+                  "Yes"
+                ],
+                "passingValue": "No",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2b25716286e43b737ba95c"
+              },
+              {
+                "name": "Grease Leakage",
+                "parameterType": "BOOLEAN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "No",
+                  "Yes"
+                ],
+                "passingValue": "No",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2b25716286e43b737ba95d"
+              },
+              {
+                "name": "Dirt Accumulation",
+                "parameterType": "BOOLEAN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "No",
+                  "Yes"
+                ],
+                "passingValue": "No",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2b25716286e43b737ba95e"
+              },
+              {
+                "name": "Water Ingress Evidence",
+                "parameterType": "BOOLEAN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "No",
+                  "Yes"
+                ],
+                "passingValue": "No",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2b25716286e43b737ba95f"
+              }
+            ],
+            "_id": "6a2b25716286e43b737ba957"
+          },
+          {
+            "categoryName": "Cable & Terminal Box Inspection",
+            "parameters": [
+              {
+                "name": "Terminal Box Intact",
+                "parameterType": "BOOLEAN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Yes",
+                  "No"
+                ],
+                "passingValue": "Yes",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2b25716286e43b737ba961"
+              },
+              {
+                "name": "Cable Glands Intact",
+                "parameterType": "BOOLEAN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Yes",
+                  "No"
+                ],
+                "passingValue": "Yes",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2b25716286e43b737ba962"
+              },
+              {
+                "name": "Terminal Studs Intact",
+                "parameterType": "BOOLEAN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Yes",
+                  "No"
+                ],
+                "passingValue": "Yes",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2b25716286e43b737ba963"
+              }
+            ],
+            "_id": "6a2b25716286e43b737ba960"
+          },
+          {
+            "categoryName": "Sensor Inspection",
+            "parameters": [
+              {
+                "name": "Speed Sensor Available",
+                "parameterType": "BOOLEAN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Yes",
+                  "No"
+                ],
+                "passingValue": "Yes",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2b25716286e43b737ba965"
+              },
+              {
+                "name": "Speed Sensor Condition Good",
+                "parameterType": "BOOLEAN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Yes",
+                  "No"
+                ],
+                "passingValue": "Yes",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2b25716286e43b737ba966"
+              },
+              {
+                "name": "RTD 1 Available",
+                "parameterType": "BOOLEAN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Yes",
+                  "No"
+                ],
+                "passingValue": "Yes",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2b25716286e43b737ba967"
+              },
+              {
+                "name": "RTD 1 Condition Good",
+                "parameterType": "BOOLEAN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Yes",
+                  "No"
+                ],
+                "passingValue": "Yes",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2b25716286e43b737ba968"
+              },
+              {
+                "name": "RTD 2 Available",
+                "parameterType": "BOOLEAN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Yes",
+                  "No"
+                ],
+                "passingValue": "Yes",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2b25716286e43b737ba969"
+              },
+              {
+                "name": "RTD 2 Condition Good",
+                "parameterType": "BOOLEAN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Yes",
+                  "No"
+                ],
+                "passingValue": "Yes",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2b25716286e43b737ba96a"
+              },
+              {
+                "name": "BTD 1 Available",
+                "parameterType": "BOOLEAN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Yes",
+                  "No"
+                ],
+                "passingValue": "Yes",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2b25716286e43b737ba96b"
+              },
+              {
+                "name": "BTD 1 Condition Good",
+                "parameterType": "BOOLEAN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Yes",
+                  "No"
+                ],
+                "passingValue": "Yes",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2b25716286e43b737ba96c"
+              }
+            ],
+            "_id": "6a2b25716286e43b737ba964"
+          }
+        ],
+        "_id": "6a2b25716286e43b737ba94f"
+      },
+      {
+        "stageName": "Electrical Testing",
+        "categories": [
+          {
+            "categoryName": "Insulation Resistance Test",
+            "parameters": [
+              {
+                "name": "Applied Voltage",
+                "parameterType": "NUMERIC",
+                "severity": "INFO",
+                "toleranceType": "NONE",
+                "unit": "V",
+                "unitOptions": [],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": true,
+                "remarksRequired": false,
+                "aiReportSection": "Electrical Assessment",
+                "_id": "6a2b25716286e43b737ba96f"
+              },
+              {
+                "name": "U to G IR",
+                "parameterType": "NUMERIC",
+                "severity": "CRITICAL",
+                "standardValue": 10,
+                "toleranceType": "MINIMUM",
+                "unitOptions": [
+                  "MΩ",
+                  "GΩ",
+                  "kΩ",
+                  "mΩ",
+                  "Ω",
+                  "TΩ"
+                ],
+                "options": [],
+                "repairMethod": "6a2b25716286e43b737ba944",
+                "measurementRequired": true,
+                "photoRequired": true,
+                "remarksRequired": false,
+                "aiReportSection": "Electrical Assessment",
+                "_id": "6a2b25716286e43b737ba970"
+              },
+              {
+                "name": "V to G IR",
+                "parameterType": "NUMERIC",
+                "severity": "CRITICAL",
+                "standardValue": 10,
+                "toleranceType": "MINIMUM",
+                "unitOptions": [
+                  "MΩ",
+                  "GΩ",
+                  "kΩ",
+                  "mΩ",
+                  "Ω",
+                  "TΩ"
+                ],
+                "options": [],
+                "repairMethod": "6a2b25716286e43b737ba944",
+                "measurementRequired": true,
+                "photoRequired": true,
+                "remarksRequired": false,
+                "aiReportSection": "Electrical Assessment",
+                "_id": "6a2b25716286e43b737ba971"
+              },
+              {
+                "name": "W to G IR",
+                "parameterType": "NUMERIC",
+                "severity": "CRITICAL",
+                "standardValue": 10,
+                "toleranceType": "MINIMUM",
+                "unitOptions": [
+                  "MΩ",
+                  "GΩ",
+                  "kΩ",
+                  "mΩ",
+                  "Ω",
+                  "TΩ"
+                ],
+                "options": [],
+                "repairMethod": "6a2b25716286e43b737ba944",
+                "measurementRequired": true,
+                "photoRequired": true,
+                "remarksRequired": false,
+                "aiReportSection": "Electrical Assessment",
+                "_id": "6a2b25716286e43b737ba972"
+              },
+              {
+                "name": "Voltage Drop Observed",
+                "parameterType": "BOOLEAN",
+                "severity": "CRITICAL",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "No",
+                  "Yes"
+                ],
+                "passingValue": "No",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2b25716286e43b737ba973"
+              }
+            ],
+            "_id": "6a2b25716286e43b737ba96e"
+          },
+          {
+            "categoryName": "Polarization Index (PI) Test",
+            "parameters": [
+              {
+                "name": "1 Minute Reading",
+                "parameterType": "NUMERIC",
+                "severity": "INFO",
+                "toleranceType": "NONE",
+                "unit": "MΩ",
+                "unitOptions": [],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Electrical Assessment",
+                "_id": "6a2b25716286e43b737ba975"
+              },
+              {
+                "name": "10 Minute Reading",
+                "parameterType": "NUMERIC",
+                "severity": "INFO",
+                "toleranceType": "NONE",
+                "unit": "MΩ",
+                "unitOptions": [],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Electrical Assessment",
+                "_id": "6a2b25716286e43b737ba976"
+              },
+              {
+                "name": "PI Ratio",
+                "parameterType": "NUMERIC",
+                "severity": "CRITICAL",
+                "standardValue": 2,
+                "toleranceType": "MINIMUM",
+                "unitOptions": [],
+                "options": [],
+                "repairMethod": "6a2b25716286e43b737ba944",
+                "measurementRequired": true,
+                "photoRequired": true,
+                "remarksRequired": false,
+                "aiReportSection": "Electrical Assessment",
+                "_id": "6a2b25716286e43b737ba977"
+              }
+            ],
+            "_id": "6a2b25716286e43b737ba974"
+          },
+          {
+            "categoryName": "Winding Resistance Test",
+            "parameters": [
+              {
+                "name": "U-V Resistance",
+                "parameterType": "NUMERIC",
+                "severity": "MAJOR",
+                "toleranceType": "BALANCE",
+                "toleranceMax": 5,
+                "unitOptions": [
+                  "mΩ",
+                  "Ω",
+                  "kΩ",
+                  "MΩ"
+                ],
+                "options": [],
+                "repairMethod": "6a2b25716286e43b737ba949",
+                "measurementRequired": true,
+                "photoRequired": true,
+                "remarksRequired": false,
+                "aiReportSection": "Electrical Assessment",
+                "_id": "6a2b25716286e43b737ba979"
+              },
+              {
+                "name": "V-W Resistance",
+                "parameterType": "NUMERIC",
+                "severity": "MAJOR",
+                "toleranceType": "BALANCE",
+                "toleranceMax": 5,
+                "unitOptions": [
+                  "mΩ",
+                  "Ω",
+                  "kΩ",
+                  "MΩ"
+                ],
+                "options": [],
+                "repairMethod": "6a2b25716286e43b737ba949",
+                "measurementRequired": true,
+                "photoRequired": true,
+                "remarksRequired": false,
+                "aiReportSection": "Electrical Assessment",
+                "_id": "6a2b25716286e43b737ba97a"
+              },
+              {
+                "name": "W-U Resistance",
+                "parameterType": "NUMERIC",
+                "severity": "MAJOR",
+                "toleranceType": "BALANCE",
+                "toleranceMax": 5,
+                "unitOptions": [
+                  "mΩ",
+                  "Ω",
+                  "kΩ",
+                  "MΩ"
+                ],
+                "options": [],
+                "repairMethod": "6a2b25716286e43b737ba949",
+                "measurementRequired": true,
+                "photoRequired": true,
+                "remarksRequired": false,
+                "aiReportSection": "Electrical Assessment",
+                "_id": "6a2b25716286e43b737ba97b"
+              }
+            ],
+            "_id": "6a2b25716286e43b737ba978"
+          },
+          {
+            "categoryName": "RTD Sensor Testing",
+            "parameters": [
+              {
+                "name": "RTD 1 Resistance",
+                "parameterType": "NUMERIC",
+                "severity": "MINOR",
+                "standardValue": 100,
+                "toleranceType": "RANGE",
+                "toleranceMin": 98,
+                "toleranceMax": 120,
+                "unit": "Ω",
+                "unitOptions": [],
+                "options": [],
+                "repairMethod": "6a2b25716286e43b737ba94b",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Electrical Assessment",
+                "_id": "6a2b25716286e43b737ba97d"
+              },
+              {
+                "name": "RTD 2 Resistance",
+                "parameterType": "NUMERIC",
+                "severity": "MINOR",
+                "standardValue": 100,
+                "toleranceType": "RANGE",
+                "toleranceMin": 98,
+                "toleranceMax": 120,
+                "unit": "Ω",
+                "unitOptions": [],
+                "options": [],
+                "repairMethod": "6a2b25716286e43b737ba94b",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Electrical Assessment",
+                "_id": "6a2b25716286e43b737ba97e"
+              },
+              {
+                "name": "RTD 3 Resistance",
+                "parameterType": "NUMERIC",
+                "severity": "MINOR",
+                "standardValue": 100,
+                "toleranceType": "RANGE",
+                "toleranceMin": 98,
+                "toleranceMax": 120,
+                "unit": "Ω",
+                "unitOptions": [],
+                "options": [],
+                "repairMethod": "6a2b25716286e43b737ba94b",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Electrical Assessment",
+                "_id": "6a2b25716286e43b737ba97f"
+              }
+            ],
+            "_id": "6a2b25716286e43b737ba97c"
+          },
+          {
+            "categoryName": "Encoder / Speed Sensor Check",
+            "parameters": [
+              {
+                "name": "Continuity Check",
+                "parameterType": "BOOLEAN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Pass",
+                  "Fail"
+                ],
+                "passingValue": "Pass",
+                "repairMethod": "6a2b25716286e43b737ba94b",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Electrical Assessment",
+                "_id": "6a2b25716286e43b737ba981"
+              },
+              {
+                "name": "Sensor Visual Inspection",
+                "parameterType": "BOOLEAN",
+                "severity": "MINOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Intact",
+                  "Damaged"
+                ],
+                "passingValue": "Intact",
+                "repairMethod": "6a2b25716286e43b737ba94b",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Electrical Assessment",
+                "_id": "6a2b25716286e43b737ba982"
+              }
+            ],
+            "_id": "6a2b25716286e43b737ba980"
+          }
+        ],
+        "_id": "6a2b25716286e43b737ba96d"
+      },
+      {
+        "stageName": "Dimensional Inspection",
+        "categories": [
+          {
+            "categoryName": "Critical Fits (Bearing Seats)",
+            "parameters": [
+              {
+                "name": "DE Bearing Seat Diameter",
+                "parameterType": "NUMERIC",
+                "severity": "CRITICAL",
+                "oemProcedure": "EH-DIM-01",
+                "standardValue": 150,
+                "toleranceType": "NONE",
+                "toleranceMin": 149.95,
+                "toleranceMax": 150.05,
+                "unit": "mm",
+                "unitOptions": [
+                  "mm",
+                  "in"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2b25716286e43b737ba985"
+              },
+              {
+                "name": "NDE Bearing Seat Diameter",
+                "parameterType": "NUMERIC",
+                "severity": "CRITICAL",
+                "oemProcedure": "EH-DIM-02",
+                "standardValue": 120,
+                "toleranceType": "NONE",
+                "toleranceMin": 119.95,
+                "toleranceMax": 120.05,
+                "unit": "mm",
+                "unitOptions": [
+                  "mm",
+                  "in"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2b25716286e43b737ba986"
+              },
+              {
+                "name": "Housing Bore DE",
+                "parameterType": "NUMERIC",
+                "severity": "CRITICAL",
+                "oemProcedure": "EH-DIM-03",
+                "standardValue": 250,
+                "toleranceType": "NONE",
+                "toleranceMin": 249.9,
+                "toleranceMax": 250.1,
+                "unit": "mm",
+                "unitOptions": [
+                  "mm",
+                  "in"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2b25716286e43b737ba987"
+              },
+              {
+                "name": "Housing Bore NDE",
+                "parameterType": "NUMERIC",
+                "severity": "CRITICAL",
+                "oemProcedure": "EH-DIM-04",
+                "standardValue": 200,
+                "toleranceType": "NONE",
+                "toleranceMin": 199.9,
+                "toleranceMax": 200.1,
+                "unit": "mm",
+                "unitOptions": [
+                  "mm",
+                  "in"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2b25716286e43b737ba988"
+              }
+            ],
+            "_id": "6a2b25716286e43b737ba984"
+          },
+          {
+            "categoryName": "Runouts & Clearances",
+            "parameters": [
+              {
+                "name": "Rotor Runout TIR",
+                "parameterType": "NUMERIC",
+                "severity": "MAJOR",
+                "oemProcedure": "EH-DIM-05",
+                "standardValue": 0.05,
+                "toleranceType": "MAXIMUM",
+                "toleranceMin": 0,
+                "toleranceMax": 0.05,
+                "unit": "mm",
+                "unitOptions": [
+                  "mm",
+                  "in"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2b25716286e43b737ba98a"
+              },
+              {
+                "name": "Shaft Runout TIR",
+                "parameterType": "NUMERIC",
+                "severity": "MAJOR",
+                "oemProcedure": "EH-DIM-06",
+                "standardValue": 0.03,
+                "toleranceType": "MAXIMUM",
+                "toleranceMin": 0,
+                "toleranceMax": 0.03,
+                "unit": "mm",
+                "unitOptions": [
+                  "mm",
+                  "in"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2b25716286e43b737ba98b"
+              },
+              {
+                "name": "Air Gap Clearance DE",
+                "parameterType": "NUMERIC",
+                "severity": "CRITICAL",
+                "oemProcedure": "EH-DIM-07",
+                "standardValue": 2.5,
+                "toleranceType": "NONE",
+                "toleranceMin": 2.3,
+                "toleranceMax": 2.7,
+                "unit": "mm",
+                "unitOptions": [
+                  "mm",
+                  "in"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2b25716286e43b737ba98c"
+              },
+              {
+                "name": "Air Gap Clearance NDE",
+                "parameterType": "NUMERIC",
+                "severity": "CRITICAL",
+                "oemProcedure": "EH-DIM-08",
+                "standardValue": 2.5,
+                "toleranceType": "NONE",
+                "toleranceMin": 2.3,
+                "toleranceMax": 2.7,
+                "unit": "mm",
+                "unitOptions": [
+                  "mm",
+                  "in"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2b25716286e43b737ba98d"
+              }
+            ],
+            "_id": "6a2b25716286e43b737ba989"
+          },
+          {
+            "categoryName": "Brake Disc Geometry",
+            "parameters": [
+              {
+                "name": "Disc Thickness",
+                "parameterType": "NUMERIC",
+                "severity": "MAJOR",
+                "oemProcedure": "EH-DIM-09",
+                "standardValue": 30,
+                "toleranceType": "NONE",
+                "toleranceMin": 28,
+                "toleranceMax": 30.5,
+                "unit": "mm",
+                "unitOptions": [
+                  "mm",
+                  "in"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2b25716286e43b737ba98f"
+              },
+              {
+                "name": "Disc Runout",
+                "parameterType": "NUMERIC",
+                "severity": "MAJOR",
+                "oemProcedure": "EH-DIM-10",
+                "standardValue": 0.15,
+                "toleranceType": "MAXIMUM",
+                "toleranceMin": 0,
+                "toleranceMax": 0.15,
+                "unit": "mm",
+                "unitOptions": [
+                  "mm",
+                  "in"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2b25716286e43b737ba990"
+              }
+            ],
+            "_id": "6a2b25716286e43b737ba98e"
+          },
+          {
+            "categoryName": "Insulation Resistance (IR)",
+            "parameters": [
+              {
+                "name": "U Phase to Ground (1000V)",
+                "parameterType": "NUMERIC",
+                "severity": "CRITICAL",
+                "oemProcedure": "EH-ELEC-01",
+                "standardValue": 500,
+                "toleranceType": "MINIMUM",
+                "toleranceMin": 100,
+                "toleranceMax": null,
+                "unit": "MΩ",
+                "unitOptions": [
+                  "MΩ",
+                  "GΩ",
+                  "TΩ",
+                  "kΩ",
+                  "Ω",
+                  "mΩ"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2b25716286e43b737ba992"
+              },
+              {
+                "name": "V Phase to Ground (1000V)",
+                "parameterType": "NUMERIC",
+                "severity": "CRITICAL",
+                "oemProcedure": "EH-ELEC-01",
+                "standardValue": 500,
+                "toleranceType": "MINIMUM",
+                "toleranceMin": 100,
+                "toleranceMax": null,
+                "unit": "MΩ",
+                "unitOptions": [
+                  "MΩ",
+                  "GΩ",
+                  "TΩ",
+                  "kΩ",
+                  "Ω",
+                  "mΩ"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2b25716286e43b737ba993"
+              },
+              {
+                "name": "W Phase to Ground (1000V)",
+                "parameterType": "NUMERIC",
+                "severity": "CRITICAL",
+                "oemProcedure": "EH-ELEC-01",
+                "standardValue": 500,
+                "toleranceType": "MINIMUM",
+                "toleranceMin": 100,
+                "toleranceMax": null,
+                "unit": "MΩ",
+                "unitOptions": [
+                  "MΩ",
+                  "GΩ",
+                  "TΩ",
+                  "kΩ",
+                  "Ω",
+                  "mΩ"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2b25716286e43b737ba994"
+              }
+            ],
+            "_id": "6a2b25716286e43b737ba991"
+          },
+          {
+            "categoryName": "Winding Resistance (MilliOhm)",
+            "parameters": [
+              {
+                "name": "U-V Phase Resistance",
+                "parameterType": "NUMERIC",
+                "severity": "MAJOR",
+                "oemProcedure": "EH-ELEC-02",
+                "standardValue": 15,
+                "toleranceType": "NONE",
+                "toleranceMin": 14.5,
+                "toleranceMax": 15.5,
+                "unit": "mΩ",
+                "unitOptions": [
+                  "mΩ",
+                  "Ω",
+                  "kΩ"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2b25716286e43b737ba996"
+              },
+              {
+                "name": "V-W Phase Resistance",
+                "parameterType": "NUMERIC",
+                "severity": "MAJOR",
+                "oemProcedure": "EH-ELEC-02",
+                "standardValue": 15,
+                "toleranceType": "NONE",
+                "toleranceMin": 14.5,
+                "toleranceMax": 15.5,
+                "unit": "mΩ",
+                "unitOptions": [
+                  "mΩ",
+                  "Ω",
+                  "kΩ"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2b25716286e43b737ba997"
+              },
+              {
+                "name": "W-U Phase Resistance",
+                "parameterType": "NUMERIC",
+                "severity": "MAJOR",
+                "oemProcedure": "EH-ELEC-02",
+                "standardValue": 15,
+                "toleranceType": "NONE",
+                "toleranceMin": 14.5,
+                "toleranceMax": 15.5,
+                "unit": "mΩ",
+                "unitOptions": [
+                  "mΩ",
+                  "Ω",
+                  "kΩ"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2b25716286e43b737ba998"
+              }
+            ],
+            "_id": "6a2b25716286e43b737ba995"
+          }
+        ],
+        "_id": "6a2b25716286e43b737ba983"
+      },
+      {
+        "stageName": "Repair / Reclamation",
+        "categories": [
+          {
+            "categoryName": "Reclamation Works",
+            "parameters": [
+              {
+                "name": "Parts Repaired",
+                "parameterType": "TEXT",
+                "severity": "INFO",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": true,
+                "remarksRequired": false,
+                "aiReportSection": "Repair Details",
+                "_id": "6a2b25716286e43b737ba99b"
+              },
+              {
+                "name": "Machining Details",
+                "parameterType": "TEXT",
+                "severity": "INFO",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [],
+                "measurementRequired": false,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Repair Details",
+                "_id": "6a2b25716286e43b737ba99c"
+              },
+              {
+                "name": "Welding Details",
+                "parameterType": "TEXT",
+                "severity": "INFO",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [],
+                "measurementRequired": false,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Repair Details",
+                "_id": "6a2b25716286e43b737ba99d"
+              }
+            ],
+            "_id": "6a2b25716286e43b737ba99a"
+          }
+        ],
+        "_id": "6a2b25716286e43b737ba999"
+      },
+      {
+        "stageName": "Pre-Assembly",
+        "categories": [
+          {
+            "categoryName": "Stator Preparation",
+            "parameters": [
+              {
+                "name": "Stator Cleaned",
+                "parameterType": "BOOLEAN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "No",
+                  "Yes"
+                ],
+                "passingValue": "No",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2b25716286e43b737ba9a0"
+              },
+              {
+                "name": "Winding Repaired",
+                "parameterType": "BOOLEAN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "No",
+                  "Yes"
+                ],
+                "passingValue": "No",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2b25716286e43b737ba9a1"
+              },
+              {
+                "name": "RTD Installed",
+                "parameterType": "BOOLEAN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "No",
+                  "Yes"
+                ],
+                "passingValue": "No",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2b25716286e43b737ba9a2"
+              },
+              {
+                "name": "Lead Connections Repaired",
+                "parameterType": "BOOLEAN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "No",
+                  "Yes"
+                ],
+                "passingValue": "No",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2b25716286e43b737ba9a3"
+              },
+              {
+                "name": "Slot Wedges Checked",
+                "parameterType": "BOOLEAN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "No",
+                  "Yes"
+                ],
+                "passingValue": "No",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2b25716286e43b737ba9a4"
+              }
+            ],
+            "_id": "6a2b25716286e43b737ba99f"
+          },
+          {
+            "categoryName": "Varnish Activity",
+            "parameters": [
+              {
+                "name": "Varnish Applied",
+                "parameterType": "BOOLEAN",
+                "severity": "CRITICAL",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "No",
+                  "Yes"
+                ],
+                "passingValue": "No",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2b25716286e43b737ba9a6"
+              },
+              {
+                "name": "Varnish Type",
+                "parameterType": "TEXT",
+                "severity": "INFO",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Repair Details",
+                "_id": "6a2b25716286e43b737ba9a7"
+              },
+              {
+                "name": "Batch No",
+                "parameterType": "TEXT",
+                "severity": "INFO",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Repair Details",
+                "_id": "6a2b25716286e43b737ba9a8"
+              },
+              {
+                "name": "Date",
+                "parameterType": "TEXT",
+                "severity": "INFO",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Repair Details",
+                "_id": "6a2b25716286e43b737ba9a9"
+              },
+              {
+                "name": "Technician",
+                "parameterType": "TEXT",
+                "severity": "INFO",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Repair Details",
+                "_id": "6a2b25716286e43b737ba9aa"
+              }
+            ],
+            "_id": "6a2b25716286e43b737ba9a5"
+          },
+          {
+            "categoryName": "Baking",
+            "parameters": [
+              {
+                "name": "Baking Completed",
+                "parameterType": "BOOLEAN",
+                "severity": "CRITICAL",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "No",
+                  "Yes"
+                ],
+                "passingValue": "No",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2b25716286e43b737ba9ac"
+              },
+              {
+                "name": "Temperature (°C)",
+                "parameterType": "NUMERIC",
+                "severity": "MAJOR",
+                "standardValue": 150,
+                "toleranceType": "RANGE",
+                "unit": "°C",
+                "unitOptions": [
+                  "°C",
+                  "°F"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": true,
+                "remarksRequired": false,
+                "aiReportSection": "Repair Details",
+                "_id": "6a2b25716286e43b737ba9ad"
+              },
+              {
+                "name": "Duration (Hours)",
+                "parameterType": "NUMERIC",
+                "severity": "MAJOR",
+                "standardValue": 8,
+                "toleranceType": "RANGE",
+                "unit": "Hours",
+                "unitOptions": [
+                  "Hours"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": true,
+                "remarksRequired": false,
+                "aiReportSection": "Repair Details",
+                "_id": "6a2b25716286e43b737ba9ae"
+              },
+              {
+                "name": "Oven Number",
+                "parameterType": "TEXT",
+                "severity": "INFO",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Repair Details",
+                "_id": "6a2b25716286e43b737ba9af"
+              }
+            ],
+            "_id": "6a2b25716286e43b737ba9ab"
+          },
+          {
+            "categoryName": "Post-Varnish Electrical Verification",
+            "parameters": [
+              {
+                "name": "IR Value Before",
+                "parameterType": "NUMERIC",
+                "severity": "CRITICAL",
+                "oemProcedure": "EH-ELEC-03",
+                "standardValue": 500,
+                "toleranceType": "MINIMUM",
+                "toleranceMin": 100,
+                "toleranceMax": null,
+                "unit": "MΩ",
+                "unitOptions": [
+                  "MΩ",
+                  "GΩ"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2b25716286e43b737ba9b1"
+              },
+              {
+                "name": "IR Value After",
+                "parameterType": "NUMERIC",
+                "severity": "CRITICAL",
+                "oemProcedure": "EH-ELEC-04",
+                "standardValue": 1000,
+                "toleranceType": "MINIMUM",
+                "toleranceMin": 500,
+                "toleranceMax": null,
+                "unit": "MΩ",
+                "unitOptions": [
+                  "MΩ",
+                  "GΩ"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2b25716286e43b737ba9b2"
+              },
+              {
+                "name": "PI Value Before",
+                "parameterType": "NUMERIC",
+                "severity": "CRITICAL",
+                "oemProcedure": "EH-ELEC-05",
+                "standardValue": 2,
+                "toleranceType": "MINIMUM",
+                "toleranceMin": 1,
+                "toleranceMax": null,
+                "unit": "Ratio",
+                "unitOptions": [
+                  "Ratio"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2b25716286e43b737ba9b3"
+              },
+              {
+                "name": "PI Value After",
+                "parameterType": "NUMERIC",
+                "severity": "CRITICAL",
+                "oemProcedure": "EH-ELEC-06",
+                "standardValue": 2,
+                "toleranceType": "MINIMUM",
+                "toleranceMin": 1.5,
+                "toleranceMax": null,
+                "unit": "Ratio",
+                "unitOptions": [
+                  "Ratio"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2b25716286e43b737ba9b4"
+              }
+            ],
+            "_id": "6a2b25716286e43b737ba9b0"
+          },
+          {
+            "categoryName": "Pre-Assembly Readiness",
+            "parameters": [
+              {
+                "name": "Rotor Ready",
+                "parameterType": "BOOLEAN",
+                "severity": "CRITICAL",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "No",
+                  "Yes"
+                ],
+                "passingValue": "No",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2b25716286e43b737ba9b6"
+              },
+              {
+                "name": "Stator Ready",
+                "parameterType": "BOOLEAN",
+                "severity": "CRITICAL",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "No",
+                  "Yes"
+                ],
+                "passingValue": "No",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2b25716286e43b737ba9b7"
+              },
+              {
+                "name": "Bearings Available",
+                "parameterType": "BOOLEAN",
+                "severity": "CRITICAL",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "No",
+                  "Yes"
+                ],
+                "passingValue": "No",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2b25716286e43b737ba9b8"
+              },
+              {
+                "name": "Seals Available",
+                "parameterType": "BOOLEAN",
+                "severity": "CRITICAL",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "No",
+                  "Yes"
+                ],
+                "passingValue": "No",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2b25716286e43b737ba9b9"
+              },
+              {
+                "name": "Encoder Available",
+                "parameterType": "BOOLEAN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "No",
+                  "Yes"
+                ],
+                "passingValue": "No",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2b25716286e43b737ba9ba"
+              },
+              {
+                "name": "Brake Components Ready",
+                "parameterType": "BOOLEAN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "No",
+                  "Yes"
+                ],
+                "passingValue": "No",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2b25716286e43b737ba9bb"
+              },
+              {
+                "name": "Drive Ring Ready",
+                "parameterType": "BOOLEAN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "No",
+                  "Yes"
+                ],
+                "passingValue": "No",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2b25716286e43b737ba9bc"
+              }
+            ],
+            "_id": "6a2b25716286e43b737ba9b5"
+          }
+        ],
+        "_id": "6a2b25716286e43b737ba99e"
+      },
+      {
+        "stageName": "Engineering Assessment",
+        "categories": [
+          {
+            "categoryName": "Final Engineering Review",
+            "parameters": [
+              {
+                "name": "Visual Inspection Remarks",
+                "parameterType": "TEXT",
+                "severity": "INFO",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Failure Analysis",
+                "_id": "6a2b25716286e43b737ba9bf"
+              },
+              {
+                "name": "Electrical Test Remarks",
+                "parameterType": "TEXT",
+                "severity": "INFO",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Failure Analysis",
+                "_id": "6a2b25716286e43b737ba9c0"
+              },
+              {
+                "name": "Suspected Failure Cause",
+                "parameterType": "DROPDOWN",
+                "severity": "INFO",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Bearing Failure",
+                  "Insulation Failure",
+                  "Moisture Ingress",
+                  "Overheating",
+                  "Mechanical Damage",
+                  "Rotor Damage",
+                  "Sensor Failure",
+                  "Multiple Causes",
+                  "None (Routine Overhaul)"
+                ],
+                "passingValue": "None (Routine Overhaul)",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Failure Analysis",
+                "_id": "6a2b25716286e43b737ba9c1"
+              },
+              {
+                "name": "Recommended Repair Action",
+                "parameterType": "DROPDOWN",
+                "severity": "INFO",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Serviceable",
+                  "Minor Repair Required",
+                  "Major Overhaul Required",
+                  "Engineering Evaluation Required"
+                ],
+                "passingValue": "Serviceable",
+                "repairMethod": "6a2b25716286e43b737ba94c",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Failure Analysis",
+                "_id": "6a2b25716286e43b737ba9c2"
+              }
+            ],
+            "_id": "6a2b25716286e43b737ba9be"
+          }
+        ],
+        "_id": "6a2b25716286e43b737ba9bd"
+      }
+    ],
+    "revisionDate": "2026-06-11T21:15:29.508Z",
+    "createdAt": "2026-06-11T21:15:29.534Z",
+    "updatedAt": "2026-06-11T21:15:29.534Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a2ba19b93046eb8a17103cc",
+    "equipmentFamily": "6a2b25716286e43b737ba940",
+    "equipmentModel": "830E DC",
+    "templateVersion": "1.0",
+    "oemDocumentReference": "830E-DC-ASSY",
+    "isActive": true,
+    "stages": [
+      {
+        "stageName": "Visual Inspection",
+        "categories": [
+          {
+            "categoryName": "Overall Visual Inspection Photos",
+            "parameters": [
+              {
+                "name": "Visual Inspection Photos",
+                "parameterType": "PHOTO_REQUIRED",
+                "severity": "INFO",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [],
+                "measurementRequired": false,
+                "photoRequired": true,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2ba19b93046eb8a17103cf"
+              }
+            ],
+            "_id": "6a2ba19b93046eb8a17103ce"
+          },
+          {
+            "categoryName": "Visual Inspection Checklist",
+            "parameters": [
+              {
+                "name": "Paint Condition",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Pass",
+                  "Fail",
+                  "Attention"
+                ],
+                "passingValue": "Pass",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2ba19c93046eb8a17103d1"
+              },
+              {
+                "name": "Corrosion",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Pass",
+                  "Fail",
+                  "Attention"
+                ],
+                "passingValue": "Pass",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2ba19c93046eb8a17103d2"
+              },
+              {
+                "name": "Physical Damage",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Pass",
+                  "Fail",
+                  "Attention"
+                ],
+                "passingValue": "Pass",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2ba19c93046eb8a17103d3"
+              },
+              {
+                "name": "Impact Marks",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Pass",
+                  "Fail",
+                  "Attention"
+                ],
+                "passingValue": "Pass",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2ba19c93046eb8a17103d4"
+              },
+              {
+                "name": "Oil Contamination",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Pass",
+                  "Fail",
+                  "Attention"
+                ],
+                "passingValue": "Pass",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2ba19c93046eb8a17103d5"
+              },
+              {
+                "name": "Grease Leakage",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Pass",
+                  "Fail",
+                  "Attention"
+                ],
+                "passingValue": "Pass",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2ba19c93046eb8a17103d6"
+              },
+              {
+                "name": "Dirt Accumulation",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Pass",
+                  "Fail",
+                  "Attention"
+                ],
+                "passingValue": "Pass",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2ba19c93046eb8a17103d7"
+              },
+              {
+                "name": "Water Ingress",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Pass",
+                  "Fail",
+                  "Attention"
+                ],
+                "passingValue": "Pass",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2ba19c93046eb8a17103d8"
+              }
+            ],
+            "_id": "6a2ba19c93046eb8a17103d0"
+          }
+        ],
+        "_id": "6a2ba19b93046eb8a17103cd"
+      },
+      {
+        "stageName": "Inspection & Analysis",
+        "categories": [
+          {
+            "categoryName": "Electrical Inspection",
+            "parameters": [
+              {
+                "name": "Field Resistance S-SS",
+                "parameterType": "NUMERIC",
+                "severity": "CRITICAL",
+                "standardValue": 0.075,
+                "toleranceType": "NONE",
+                "toleranceMin": 0.072,
+                "toleranceMax": 0.0776,
+                "unit": "Ω",
+                "unitOptions": [
+                  "Ω"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2ba19c93046eb8a17103db"
+              },
+              {
+                "name": "Field Resistance SX-SSX",
+                "parameterType": "NUMERIC",
+                "severity": "CRITICAL",
+                "standardValue": 0.075,
+                "toleranceType": "NONE",
+                "toleranceMin": 0.072,
+                "toleranceMax": 0.0776,
+                "unit": "Ω",
+                "unitOptions": [
+                  "Ω"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2ba19c93046eb8a17103dc"
+              },
+              {
+                "name": "Field Resistance S-SSX",
+                "parameterType": "NUMERIC",
+                "severity": "CRITICAL",
+                "standardValue": 0.075,
+                "toleranceType": "NONE",
+                "toleranceMin": 0.072,
+                "toleranceMax": 0.0776,
+                "unit": "Ω",
+                "unitOptions": [
+                  "Ω"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2ba19c93046eb8a17103dd"
+              },
+              {
+                "name": "Armature Resistance A-AA",
+                "parameterType": "NUMERIC",
+                "severity": "CRITICAL",
+                "standardValue": 0.0052,
+                "toleranceType": "NONE",
+                "toleranceMin": 0.0051,
+                "toleranceMax": 0.0053,
+                "unit": "Ω",
+                "unitOptions": [
+                  "Ω"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2ba19c93046eb8a17103de"
+              },
+              {
+                "name": "Insulation Resistance S-G (Value)",
+                "parameterType": "NUMERIC",
+                "severity": "CRITICAL",
+                "standardValue": 5,
+                "toleranceType": "NONE",
+                "toleranceMin": 5,
+                "toleranceMax": 9999,
+                "unit": "MΩ",
+                "unitOptions": [
+                  "MΩ"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2ba19c93046eb8a17103df"
+              },
+              {
+                "name": "Insulation Resistance S-G (Applied Voltage)",
+                "parameterType": "NUMERIC",
+                "severity": "INFO",
+                "standardValue": null,
+                "toleranceType": "NONE",
+                "toleranceMin": null,
+                "toleranceMax": null,
+                "unit": "V",
+                "unitOptions": [
+                  "V"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2ba19c93046eb8a17103e0"
+              },
+              {
+                "name": "Insulation Resistance SS-G (Value)",
+                "parameterType": "NUMERIC",
+                "severity": "CRITICAL",
+                "standardValue": 5,
+                "toleranceType": "NONE",
+                "toleranceMin": 5,
+                "toleranceMax": 9999,
+                "unit": "MΩ",
+                "unitOptions": [
+                  "MΩ"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2ba19c93046eb8a17103e1"
+              },
+              {
+                "name": "Insulation Resistance SS-G (Applied Voltage)",
+                "parameterType": "NUMERIC",
+                "severity": "INFO",
+                "standardValue": null,
+                "toleranceType": "NONE",
+                "toleranceMin": null,
+                "toleranceMax": null,
+                "unit": "V",
+                "unitOptions": [
+                  "V"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2ba19c93046eb8a17103e2"
+              },
+              {
+                "name": "Insulation Resistance SX-G (Value)",
+                "parameterType": "NUMERIC",
+                "severity": "CRITICAL",
+                "standardValue": 5,
+                "toleranceType": "NONE",
+                "toleranceMin": 5,
+                "toleranceMax": 9999,
+                "unit": "MΩ",
+                "unitOptions": [
+                  "MΩ"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2ba19c93046eb8a17103e3"
+              },
+              {
+                "name": "Insulation Resistance SX-G (Applied Voltage)",
+                "parameterType": "NUMERIC",
+                "severity": "INFO",
+                "standardValue": null,
+                "toleranceType": "NONE",
+                "toleranceMin": null,
+                "toleranceMax": null,
+                "unit": "V",
+                "unitOptions": [
+                  "V"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2ba19c93046eb8a17103e4"
+              },
+              {
+                "name": "Insulation Resistance SSX-G (Value)",
+                "parameterType": "NUMERIC",
+                "severity": "CRITICAL",
+                "standardValue": 5,
+                "toleranceType": "NONE",
+                "toleranceMin": 5,
+                "toleranceMax": 9999,
+                "unit": "MΩ",
+                "unitOptions": [
+                  "MΩ"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2ba19c93046eb8a17103e5"
+              },
+              {
+                "name": "Insulation Resistance SSX-G (Applied Voltage)",
+                "parameterType": "NUMERIC",
+                "severity": "INFO",
+                "standardValue": null,
+                "toleranceType": "NONE",
+                "toleranceMin": null,
+                "toleranceMax": null,
+                "unit": "V",
+                "unitOptions": [
+                  "V"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2ba19c93046eb8a17103e6"
+              },
+              {
+                "name": "Insulation Resistance A-G (Value)",
+                "parameterType": "NUMERIC",
+                "severity": "CRITICAL",
+                "standardValue": 5,
+                "toleranceType": "NONE",
+                "toleranceMin": 5,
+                "toleranceMax": 9999,
+                "unit": "MΩ",
+                "unitOptions": [
+                  "MΩ"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2ba19c93046eb8a17103e7"
+              },
+              {
+                "name": "Insulation Resistance A-G (Applied Voltage)",
+                "parameterType": "NUMERIC",
+                "severity": "INFO",
+                "standardValue": null,
+                "toleranceType": "NONE",
+                "toleranceMin": null,
+                "toleranceMax": null,
+                "unit": "V",
+                "unitOptions": [
+                  "V"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2ba19c93046eb8a17103e8"
+              },
+              {
+                "name": "Insulation Resistance AA-G (Value)",
+                "parameterType": "NUMERIC",
+                "severity": "CRITICAL",
+                "standardValue": 5,
+                "toleranceType": "NONE",
+                "toleranceMin": 5,
+                "toleranceMax": 9999,
+                "unit": "MΩ",
+                "unitOptions": [
+                  "MΩ"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2ba19c93046eb8a17103e9"
+              },
+              {
+                "name": "Insulation Resistance AA-G (Applied Voltage)",
+                "parameterType": "NUMERIC",
+                "severity": "INFO",
+                "standardValue": null,
+                "toleranceType": "NONE",
+                "toleranceMin": null,
+                "toleranceMax": null,
+                "unit": "V",
+                "unitOptions": [
+                  "V"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2ba19c93046eb8a17103ea"
+              }
+            ],
+            "_id": "6a2ba19c93046eb8a17103da"
+          },
+          {
+            "categoryName": "Bearing Area Measurements",
+            "parameters": [
+              {
+                "name": "NDE Shaft Journal",
+                "parameterType": "NUMERIC",
+                "severity": "CRITICAL",
+                "standardValue": 130,
+                "toleranceType": "NONE",
+                "toleranceMin": 129.97,
+                "toleranceMax": 130.043,
+                "unit": "mm",
+                "unitOptions": [
+                  "mm"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2ba19c93046eb8a17103ec"
+              },
+              {
+                "name": "NDE Housing Bore",
+                "parameterType": "NUMERIC",
+                "severity": "CRITICAL",
+                "standardValue": 230,
+                "toleranceType": "NONE",
+                "toleranceMin": 230,
+                "toleranceMax": 230.035,
+                "unit": "mm",
+                "unitOptions": [
+                  "mm"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2ba19c93046eb8a17103ed"
+              },
+              {
+                "name": "DE Shaft Journal",
+                "parameterType": "NUMERIC",
+                "severity": "CRITICAL",
+                "standardValue": 150,
+                "toleranceType": "NONE",
+                "toleranceMin": 149.97,
+                "toleranceMax": 150.043,
+                "unit": "mm",
+                "unitOptions": [
+                  "mm"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2ba19c93046eb8a17103ee"
+              },
+              {
+                "name": "DE Housing Bore",
+                "parameterType": "NUMERIC",
+                "severity": "CRITICAL",
+                "standardValue": 225,
+                "toleranceType": "NONE",
+                "toleranceMin": 225,
+                "toleranceMax": 225.035,
+                "unit": "mm",
+                "unitOptions": [
+                  "mm"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2ba19c93046eb8a17103ef"
+              }
+            ],
+            "_id": "6a2ba19c93046eb8a17103eb"
+          },
+          {
+            "categoryName": "Armature Inspection",
+            "parameters": [
+              {
+                "name": "Commutator Diameter",
+                "parameterType": "NUMERIC",
+                "severity": "MAJOR",
+                "standardValue": 16,
+                "toleranceType": "NONE",
+                "toleranceMin": 15.675,
+                "toleranceMax": 16.675,
+                "unit": "in",
+                "unitOptions": [
+                  "in"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2ba19c93046eb8a17103f1"
+              },
+              {
+                "name": "Spiral Groove Depth",
+                "parameterType": "NUMERIC",
+                "severity": "MAJOR",
+                "standardValue": 0.03,
+                "toleranceType": "NONE",
+                "toleranceMin": 0.01,
+                "toleranceMax": 0.046,
+                "unit": "in",
+                "unitOptions": [
+                  "in"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2ba19c93046eb8a17103f2"
+              },
+              {
+                "name": "Spiral Groove Width",
+                "parameterType": "NUMERIC",
+                "severity": "MAJOR",
+                "standardValue": 0.094,
+                "toleranceType": "NONE",
+                "toleranceMin": 0.092,
+                "toleranceMax": 0.096,
+                "unit": "in",
+                "unitOptions": [
+                  "in"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2ba19c93046eb8a17103f3"
+              },
+              {
+                "name": "Dust Groove Width",
+                "parameterType": "NUMERIC",
+                "severity": "MAJOR",
+                "standardValue": 0.437,
+                "toleranceType": "NONE",
+                "toleranceMin": 0.42,
+                "toleranceMax": 0.45,
+                "unit": "in",
+                "unitOptions": [
+                  "in"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2ba19c93046eb8a17103f4"
+              },
+              {
+                "name": "Undercut Depth",
+                "parameterType": "NUMERIC",
+                "severity": "MAJOR",
+                "standardValue": 1,
+                "toleranceType": "NONE",
+                "toleranceMin": 0.8,
+                "toleranceMax": 1.2,
+                "unit": "mm",
+                "unitOptions": [
+                  "mm"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2ba19c93046eb8a17103f5"
+              },
+              {
+                "name": "Bar-to-Bar Voltage Drop Uniform",
+                "parameterType": "BOOLEAN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Pass",
+                  "Fail"
+                ],
+                "passingValue": "Pass",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2ba19c93046eb8a17103f6"
+              },
+              {
+                "name": "Surface Condition Smooth",
+                "parameterType": "BOOLEAN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Pass",
+                  "Fail"
+                ],
+                "passingValue": "Pass",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2ba19c93046eb8a17103f7"
+              }
+            ],
+            "_id": "6a2ba19c93046eb8a17103f0"
+          },
+          {
+            "categoryName": "Brush Holder Inspection",
+            "parameters": [
+              {
+                "name": "Brush Length (Min 1in)",
+                "parameterType": "NUMERIC",
+                "severity": "MAJOR",
+                "standardValue": 1.5,
+                "toleranceType": "NONE",
+                "toleranceMin": 1,
+                "toleranceMax": 3,
+                "unit": "in",
+                "unitOptions": [
+                  "in"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2ba19c93046eb8a17103f9"
+              },
+              {
+                "name": "Spring Pressure",
+                "parameterType": "NUMERIC",
+                "severity": "MAJOR",
+                "standardValue": 170,
+                "toleranceType": "NONE",
+                "toleranceMin": 160,
+                "toleranceMax": 192,
+                "unit": "oz",
+                "unitOptions": [
+                  "oz"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2ba19c93046eb8a17103fa"
+              },
+              {
+                "name": "Brush Clearance OK",
+                "parameterType": "BOOLEAN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Pass",
+                  "Fail"
+                ],
+                "passingValue": "Pass",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2ba19c93046eb8a17103fb"
+              }
+            ],
+            "_id": "6a2ba19c93046eb8a17103f8"
+          },
+          {
+            "categoryName": "Component Condition Assessment",
+            "parameters": [
+              {
+                "name": "Armature",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Reuse",
+                  "Repair",
+                  "Replace"
+                ],
+                "passingValue": "Reuse",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": true,
+                "aiReportSection": "Condition Assessment",
+                "_id": "6a2ba19c93046eb8a17103fd"
+              },
+              {
+                "name": "Shaft",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Reuse",
+                  "Repair",
+                  "Replace"
+                ],
+                "passingValue": "Reuse",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": true,
+                "aiReportSection": "Condition Assessment",
+                "_id": "6a2ba19c93046eb8a17103fe"
+              },
+              {
+                "name": "Bearings",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Reuse",
+                  "Repair",
+                  "Replace"
+                ],
+                "passingValue": "Reuse",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": true,
+                "aiReportSection": "Condition Assessment",
+                "_id": "6a2ba19c93046eb8a17103ff"
+              },
+              {
+                "name": "Housing",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Reuse",
+                  "Repair",
+                  "Replace"
+                ],
+                "passingValue": "Reuse",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": true,
+                "aiReportSection": "Condition Assessment",
+                "_id": "6a2ba19c93046eb8a1710400"
+              },
+              {
+                "name": "Brush Holder",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Reuse",
+                  "Repair",
+                  "Replace"
+                ],
+                "passingValue": "Reuse",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": true,
+                "aiReportSection": "Condition Assessment",
+                "_id": "6a2ba19c93046eb8a1710401"
+              },
+              {
+                "name": "Field Coils",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Reuse",
+                  "Repair",
+                  "Replace"
+                ],
+                "passingValue": "Reuse",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": true,
+                "aiReportSection": "Condition Assessment",
+                "_id": "6a2ba19c93046eb8a1710402"
+              },
+              {
+                "name": "Drive Ring",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Reuse",
+                  "Repair",
+                  "Replace"
+                ],
+                "passingValue": "Reuse",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": true,
+                "aiReportSection": "Condition Assessment",
+                "_id": "6a2ba19c93046eb8a1710403"
+              },
+              {
+                "name": "Brake Hub",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Reuse",
+                  "Repair",
+                  "Replace"
+                ],
+                "passingValue": "Reuse",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": true,
+                "aiReportSection": "Condition Assessment",
+                "_id": "6a2ba19c93046eb8a1710404"
+              },
+              {
+                "name": "Air Baffles",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Reuse",
+                  "Repair",
+                  "Replace"
+                ],
+                "passingValue": "Reuse",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": true,
+                "aiReportSection": "Condition Assessment",
+                "_id": "6a2ba19c93046eb8a1710405"
+              },
+              {
+                "name": "RTD",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Reuse",
+                  "Repair",
+                  "Replace"
+                ],
+                "passingValue": "Reuse",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": true,
+                "aiReportSection": "Condition Assessment",
+                "_id": "6a2ba19c93046eb8a1710406"
+              },
+              {
+                "name": "RPM Sensor",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Reuse",
+                  "Repair",
+                  "Replace"
+                ],
+                "passingValue": "Reuse",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": true,
+                "aiReportSection": "Condition Assessment",
+                "_id": "6a2ba19c93046eb8a1710407"
+              }
+            ],
+            "_id": "6a2ba19c93046eb8a17103fc"
+          },
+          {
+            "categoryName": "Part Check List",
+            "parameters": [
+              {
+                "name": "Magnetic pickup (VJ0972) Qty:1",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Available",
+                  "Not Available"
+                ],
+                "passingValue": "Available",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": true,
+                "aiReportSection": "Checklist",
+                "_id": "6a2ba19c93046eb8a1710409"
+              },
+              {
+                "name": "Brush holder (VE8429) Qty:4",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Available",
+                  "Not Available"
+                ],
+                "passingValue": "Available",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": true,
+                "aiReportSection": "Checklist",
+                "_id": "6a2ba19c93046eb8a171040a"
+              },
+              {
+                "name": "Brush (VE7609) Qty:12",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Available",
+                  "Not Available"
+                ],
+                "passingValue": "Available",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": true,
+                "aiReportSection": "Checklist",
+                "_id": "6a2ba19c93046eb8a171040b"
+              },
+              {
+                "name": "Armature cable A, AA (VE2836/BF2610) Qty:1",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Available",
+                  "Not Available"
+                ],
+                "passingValue": "Available",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": true,
+                "aiReportSection": "Checklist",
+                "_id": "6a2ba19c93046eb8a171040c"
+              },
+              {
+                "name": "Magnetic pole cable S/SS/SX/SSX (VE4491/VE4487) Qty:2",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Available",
+                  "Not Available"
+                ],
+                "passingValue": "Available",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": true,
+                "aiReportSection": "Checklist",
+                "_id": "6a2ba19c93046eb8a171040d"
+              },
+              {
+                "name": "Magnetic pickup cable (VE3957) Qty:1",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Available",
+                  "Not Available"
+                ],
+                "passingValue": "Available",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": true,
+                "aiReportSection": "Checklist",
+                "_id": "6a2ba19c93046eb8a171040e"
+              },
+              {
+                "name": "Drive Ring (VE4548) Qty:1",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Available",
+                  "Not Available"
+                ],
+                "passingValue": "Available",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": true,
+                "aiReportSection": "Checklist",
+                "_id": "6a2ba19c93046eb8a171040f"
+              },
+              {
+                "name": "Air Baffle (VE0758) Qty:2",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Available",
+                  "Not Available"
+                ],
+                "passingValue": "Available",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": true,
+                "aiReportSection": "Checklist",
+                "_id": "6a2ba19c93046eb8a1710410"
+              },
+              {
+                "name": "Mounting Bolt (VE4776) Qty:10",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Available",
+                  "Not Available"
+                ],
+                "passingValue": "Available",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": true,
+                "aiReportSection": "Checklist",
+                "_id": "6a2ba19c93046eb8a1710411"
+              },
+              {
+                "name": "Support, Brush Holder (VJ0928) Qty:4",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Available",
+                  "Not Available"
+                ],
+                "passingValue": "Available",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": true,
+                "aiReportSection": "Checklist",
+                "_id": "6a2ba19c93046eb8a1710412"
+              },
+              {
+                "name": "Support Bolt (VF7377) Qty:4",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Available",
+                  "Not Available"
+                ],
+                "passingValue": "Available",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": true,
+                "aiReportSection": "Checklist",
+                "_id": "6a2ba19c93046eb8a1710413"
+              },
+              {
+                "name": "Clamp (VJ1204) Qty:1",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Available",
+                  "Not Available"
+                ],
+                "passingValue": "Available",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": true,
+                "aiReportSection": "Checklist",
+                "_id": "6a2ba19c93046eb8a1710414"
+              },
+              {
+                "name": "Clamp (VE4483) Qty:1",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Available",
+                  "Not Available"
+                ],
+                "passingValue": "Available",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": true,
+                "aiReportSection": "Checklist",
+                "_id": "6a2ba19c93046eb8a1710415"
+              },
+              {
+                "name": "Sensor Terminal Block (VE1272) Qty:2",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Available",
+                  "Not Available"
+                ],
+                "passingValue": "Available",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": true,
+                "aiReportSection": "Checklist",
+                "_id": "6a2ba19c93046eb8a1710416"
+              },
+              {
+                "name": "Connection Strip (VJ0969) Qty:6",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Available",
+                  "Not Available"
+                ],
+                "passingValue": "Available",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": true,
+                "aiReportSection": "Checklist",
+                "_id": "6a2ba19c93046eb8a1710417"
+              },
+              {
+                "name": "Jumper / link Strip (VE4524) Qty:1",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Available",
+                  "Not Available"
+                ],
+                "passingValue": "Available",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": true,
+                "aiReportSection": "Checklist",
+                "_id": "6a2ba19c93046eb8a1710418"
+              }
+            ],
+            "_id": "6a2ba19c93046eb8a1710408"
+          }
+        ],
+        "_id": "6a2ba19c93046eb8a17103d9"
+      },
+      {
+        "stageName": "Pre-Assembly & Assembly",
+        "categories": [
+          {
+            "categoryName": "Pre-Assembly Checklist",
+            "parameters": [
+              {
+                "name": "Parts Cleaned",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Completed",
+                  "Not Completed"
+                ],
+                "passingValue": "Completed",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Checklist",
+                "_id": "6a2ba19c93046eb8a171041b"
+              },
+              {
+                "name": "Parts Dried",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Completed",
+                  "Not Completed"
+                ],
+                "passingValue": "Completed",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Checklist",
+                "_id": "6a2ba19c93046eb8a171041c"
+              },
+              {
+                "name": "Varnish Applied",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Completed",
+                  "Not Completed"
+                ],
+                "passingValue": "Completed",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Checklist",
+                "_id": "6a2ba19c93046eb8a171041d"
+              },
+              {
+                "name": "Varnish Cured",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Completed",
+                  "Not Completed"
+                ],
+                "passingValue": "Completed",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Checklist",
+                "_id": "6a2ba19c93046eb8a171041e"
+              },
+              {
+                "name": "Windings Reinsulated",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Completed",
+                  "Not Completed"
+                ],
+                "passingValue": "Completed",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Checklist",
+                "_id": "6a2ba19c93046eb8a171041f"
+              },
+              {
+                "name": "Bearings Ready",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Completed",
+                  "Not Completed"
+                ],
+                "passingValue": "Completed",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Checklist",
+                "_id": "6a2ba19c93046eb8a1710420"
+              },
+              {
+                "name": "Seals Ready",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Completed",
+                  "Not Completed"
+                ],
+                "passingValue": "Completed",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Checklist",
+                "_id": "6a2ba19c93046eb8a1710421"
+              },
+              {
+                "name": "Tools Calibrated",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Completed",
+                  "Not Completed"
+                ],
+                "passingValue": "Completed",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Checklist",
+                "_id": "6a2ba19c93046eb8a1710422"
+              }
+            ],
+            "_id": "6a2ba19c93046eb8a171041a"
+          },
+          {
+            "categoryName": "Assembly Checklist",
+            "parameters": [
+              {
+                "name": "Stator Installed",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Completed",
+                  "Not Completed"
+                ],
+                "passingValue": "Completed",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Checklist",
+                "_id": "6a2ba19c93046eb8a1710424"
+              },
+              {
+                "name": "Rotor Installed",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Completed",
+                  "Not Completed"
+                ],
+                "passingValue": "Completed",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Checklist",
+                "_id": "6a2ba19c93046eb8a1710425"
+              },
+              {
+                "name": "DE Bearing Installed",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Completed",
+                  "Not Completed"
+                ],
+                "passingValue": "Completed",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Checklist",
+                "_id": "6a2ba19c93046eb8a1710426"
+              },
+              {
+                "name": "NDE Bearing Installed",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Completed",
+                  "Not Completed"
+                ],
+                "passingValue": "Completed",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Checklist",
+                "_id": "6a2ba19c93046eb8a1710427"
+              },
+              {
+                "name": "Brush Holder Installed",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Completed",
+                  "Not Completed"
+                ],
+                "passingValue": "Completed",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Checklist",
+                "_id": "6a2ba19c93046eb8a1710428"
+              },
+              {
+                "name": "Air Baffle Installed",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Completed",
+                  "Not Completed"
+                ],
+                "passingValue": "Completed",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Checklist",
+                "_id": "6a2ba19c93046eb8a1710429"
+              },
+              {
+                "name": "Drive Ring Installed",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Completed",
+                  "Not Completed"
+                ],
+                "passingValue": "Completed",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Checklist",
+                "_id": "6a2ba19c93046eb8a171042a"
+              },
+              {
+                "name": "Encoder Installed",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Completed",
+                  "Not Completed"
+                ],
+                "passingValue": "Completed",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Checklist",
+                "_id": "6a2ba19c93046eb8a171042b"
+              },
+              {
+                "name": "RTD Connected",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Completed",
+                  "Not Completed"
+                ],
+                "passingValue": "Completed",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Checklist",
+                "_id": "6a2ba19c93046eb8a171042c"
+              },
+              {
+                "name": "Terminal Connections Tightened",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Completed",
+                  "Not Completed"
+                ],
+                "passingValue": "Completed",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Checklist",
+                "_id": "6a2ba19c93046eb8a171042d"
+              }
+            ],
+            "_id": "6a2ba19c93046eb8a1710423"
+          },
+          {
+            "categoryName": "Torque Verification",
+            "parameters": [
+              {
+                "name": "Exciter Pole Torque",
+                "parameterType": "NUMERIC",
+                "severity": "CRITICAL",
+                "standardValue": 310,
+                "toleranceType": "NONE",
+                "toleranceMin": 293,
+                "toleranceMax": 326,
+                "unit": "lb.ft",
+                "unitOptions": [
+                  "lb.ft"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2ba19c93046eb8a171042f"
+              },
+              {
+                "name": "Commutator Pole Torque",
+                "parameterType": "NUMERIC",
+                "severity": "CRITICAL",
+                "standardValue": 225,
+                "toleranceType": "NONE",
+                "toleranceMin": 215,
+                "toleranceMax": 240,
+                "unit": "lb.ft",
+                "unitOptions": [
+                  "lb.ft"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2ba19c93046eb8a1710430"
+              },
+              {
+                "name": "Armature Frame Head Torque",
+                "parameterType": "NUMERIC",
+                "severity": "CRITICAL",
+                "standardValue": 170,
+                "toleranceType": "NONE",
+                "toleranceMin": 160,
+                "toleranceMax": 180,
+                "unit": "lb.ft",
+                "unitOptions": [
+                  "lb.ft"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2ba19c93046eb8a1710431"
+              },
+              {
+                "name": "Air Baffle Torque",
+                "parameterType": "NUMERIC",
+                "severity": "CRITICAL",
+                "standardValue": 58,
+                "toleranceType": "NONE",
+                "toleranceMin": 55,
+                "toleranceMax": 60,
+                "unit": "lb.ft",
+                "unitOptions": [
+                  "lb.ft"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2ba19c93046eb8a1710432"
+              },
+              {
+                "name": "DE Bearing Housing Torque",
+                "parameterType": "NUMERIC",
+                "severity": "CRITICAL",
+                "standardValue": 58,
+                "toleranceType": "NONE",
+                "toleranceMin": 55,
+                "toleranceMax": 60,
+                "unit": "lb.ft",
+                "unitOptions": [
+                  "lb.ft"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2ba19c93046eb8a1710433"
+              },
+              {
+                "name": "NDE Bearing Housing Torque",
+                "parameterType": "NUMERIC",
+                "severity": "CRITICAL",
+                "standardValue": 58,
+                "toleranceType": "NONE",
+                "toleranceMin": 55,
+                "toleranceMax": 60,
+                "unit": "lb.ft",
+                "unitOptions": [
+                  "lb.ft"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2ba19c93046eb8a1710434"
+              },
+              {
+                "name": "Brush Holder Torque",
+                "parameterType": "NUMERIC",
+                "severity": "CRITICAL",
+                "standardValue": 310,
+                "toleranceType": "NONE",
+                "toleranceMin": 293,
+                "toleranceMax": 326,
+                "unit": "lb.ft",
+                "unitOptions": [
+                  "lb.ft"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2ba19c93046eb8a1710435"
+              }
+            ],
+            "_id": "6a2ba19c93046eb8a171042e"
+          }
+        ],
+        "_id": "6a2ba19c93046eb8a1710419"
+      },
+      {
+        "stageName": "Testing",
+        "categories": [
+          {
+            "categoryName": "Testing Photos",
+            "parameters": [
+              {
+                "name": "Testing Photos",
+                "parameterType": "PHOTO_REQUIRED",
+                "severity": "INFO",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [],
+                "measurementRequired": false,
+                "photoRequired": true,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2ba19c93046eb8a1710438"
+              }
+            ],
+            "_id": "6a2ba19c93046eb8a1710437"
+          },
+          {
+            "categoryName": "Electrical Tests",
+            "parameters": [
+              {
+                "name": "IR Armature",
+                "parameterType": "NUMERIC",
+                "severity": "CRITICAL",
+                "standardValue": 5,
+                "toleranceType": "NONE",
+                "toleranceMin": 5,
+                "toleranceMax": 9999,
+                "unit": "MΩ",
+                "unitOptions": [
+                  "MΩ"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2ba19c93046eb8a171043a"
+              },
+              {
+                "name": "IR Field",
+                "parameterType": "NUMERIC",
+                "severity": "CRITICAL",
+                "standardValue": 5,
+                "toleranceType": "NONE",
+                "toleranceMin": 5,
+                "toleranceMax": 9999,
+                "unit": "MΩ",
+                "unitOptions": [
+                  "MΩ"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2ba19c93046eb8a171043b"
+              }
+            ],
+            "_id": "6a2ba19c93046eb8a1710439"
+          },
+          {
+            "categoryName": "Mechanical Tests",
+            "parameters": [
+              {
+                "name": "No Load Run Test",
+                "parameterType": "BOOLEAN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Pass",
+                  "Fail"
+                ],
+                "passingValue": "Pass",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2ba19c93046eb8a171043d"
+              },
+              {
+                "name": "Noise Check",
+                "parameterType": "BOOLEAN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Pass",
+                  "Fail"
+                ],
+                "passingValue": "Pass",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2ba19c93046eb8a171043e"
+              },
+              {
+                "name": "Brush Sparking Check",
+                "parameterType": "BOOLEAN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Pass",
+                  "Fail"
+                ],
+                "passingValue": "Pass",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2ba19c93046eb8a171043f"
+              }
+            ],
+            "_id": "6a2ba19c93046eb8a171043c"
+          },
+          {
+            "categoryName": "Sensor Tests",
+            "parameters": [
+              {
+                "name": "Winding Temperature Sensor (RTD) - Resistance Value",
+                "parameterType": "NUMERIC",
+                "severity": "INFO",
+                "standardValue": null,
+                "toleranceType": "NONE",
+                "toleranceMin": null,
+                "toleranceMax": null,
+                "unit": "Ω",
+                "unitOptions": [
+                  "Ω"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2ba19c93046eb8a1710441"
+              },
+              {
+                "name": "Winding Temperature Sensor (RTD) - Status",
+                "parameterType": "BOOLEAN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Pass",
+                  "Fail"
+                ],
+                "passingValue": "Pass",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2ba19c93046eb8a1710442"
+              },
+              {
+                "name": "RPM Sensor - Resistance Value",
+                "parameterType": "NUMERIC",
+                "severity": "INFO",
+                "standardValue": null,
+                "toleranceType": "NONE",
+                "toleranceMin": null,
+                "toleranceMax": null,
+                "unit": "Ω",
+                "unitOptions": [
+                  "Ω"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2ba19c93046eb8a1710443"
+              },
+              {
+                "name": "RPM Sensor - Status",
+                "parameterType": "BOOLEAN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Pass",
+                  "Fail"
+                ],
+                "passingValue": "Pass",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2ba19c93046eb8a1710444"
+              }
+            ],
+            "_id": "6a2ba19c93046eb8a1710440"
+          },
+          {
+            "categoryName": "Surge Test",
+            "parameters": [
+              {
+                "name": "Armature Coil Surge - Waveform Result",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Balanced",
+                  "Unbalanced"
+                ],
+                "passingValue": "Balanced",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": true,
+                "aiReportSection": "Testing",
+                "_id": "6a2ba19c93046eb8a1710446"
+              },
+              {
+                "name": "Armature Coil Surge - Applied Voltage",
+                "parameterType": "NUMERIC",
+                "severity": "INFO",
+                "standardValue": null,
+                "toleranceType": "NONE",
+                "toleranceMin": null,
+                "toleranceMax": null,
+                "unit": "V",
+                "unitOptions": [
+                  "V"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2ba19c93046eb8a1710447"
+              },
+              {
+                "name": "Armature Coil Surge - Status",
+                "parameterType": "BOOLEAN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Pass",
+                  "Fail"
+                ],
+                "passingValue": "Pass",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2ba19c93046eb8a1710448"
+              },
+              {
+                "name": "Field Coil Surge - Waveform Result",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Balanced",
+                  "Unbalanced"
+                ],
+                "passingValue": "Balanced",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": true,
+                "aiReportSection": "Testing",
+                "_id": "6a2ba19c93046eb8a1710449"
+              },
+              {
+                "name": "Field Coil Surge - Applied Voltage",
+                "parameterType": "NUMERIC",
+                "severity": "INFO",
+                "standardValue": null,
+                "toleranceType": "NONE",
+                "toleranceMin": null,
+                "toleranceMax": null,
+                "unit": "V",
+                "unitOptions": [
+                  "V"
+                ],
+                "options": [],
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Dimensional Assessment",
+                "_id": "6a2ba19c93046eb8a171044a"
+              },
+              {
+                "name": "Field Coil Surge - Status",
+                "parameterType": "BOOLEAN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Pass",
+                  "Fail"
+                ],
+                "passingValue": "Pass",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2ba19c93046eb8a171044b"
+              }
+            ],
+            "_id": "6a2ba19c93046eb8a1710445"
+          }
+        ],
+        "_id": "6a2ba19c93046eb8a1710436"
+      },
+      {
+        "stageName": "Dispatch",
+        "categories": [
+          {
+            "categoryName": "Dispatch Checklist",
+            "parameters": [
+              {
+                "name": "Final Inspection Completed",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Completed",
+                  "Not Completed"
+                ],
+                "passingValue": "Completed",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Checklist",
+                "_id": "6a2ba19c93046eb8a171044e"
+              },
+              {
+                "name": "QA Approved",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Completed",
+                  "Not Completed"
+                ],
+                "passingValue": "Completed",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Checklist",
+                "_id": "6a2ba19c93046eb8a171044f"
+              },
+              {
+                "name": "Test Report Attached",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Completed",
+                  "Not Completed"
+                ],
+                "passingValue": "Completed",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Checklist",
+                "_id": "6a2ba19c93046eb8a1710450"
+              },
+              {
+                "name": "Customer Report Attached",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Completed",
+                  "Not Completed"
+                ],
+                "passingValue": "Completed",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Checklist",
+                "_id": "6a2ba19c93046eb8a1710451"
+              },
+              {
+                "name": "Dispatch Cleared",
+                "parameterType": "DROPDOWN",
+                "severity": "MAJOR",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [
+                  "Completed",
+                  "Not Completed"
+                ],
+                "passingValue": "Completed",
+                "measurementRequired": true,
+                "photoRequired": false,
+                "remarksRequired": false,
+                "aiReportSection": "Checklist",
+                "_id": "6a2ba19c93046eb8a1710452"
+              }
+            ],
+            "_id": "6a2ba19c93046eb8a171044d"
+          },
+          {
+            "categoryName": "Final Photos",
+            "parameters": [
+              {
+                "name": "Final Assembly Photos",
+                "parameterType": "PHOTO_REQUIRED",
+                "severity": "INFO",
+                "toleranceType": "NONE",
+                "unitOptions": [],
+                "options": [],
+                "measurementRequired": false,
+                "photoRequired": true,
+                "remarksRequired": false,
+                "aiReportSection": "Visual Assessment",
+                "_id": "6a2ba19c93046eb8a1710454"
+              }
+            ],
+            "_id": "6a2ba19c93046eb8a1710453"
+          }
+        ],
+        "_id": "6a2ba19c93046eb8a171044c"
+      }
+    ],
+    "revisionDate": "2026-06-12T06:05:16.023Z",
+    "createdAt": "2026-06-12T06:05:16.127Z",
+    "updatedAt": "2026-06-12T06:05:16.127Z",
+    "__v": 0
+  }
+]

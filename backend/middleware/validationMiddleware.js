@@ -4,14 +4,16 @@
  */
 
 const ApiResponse = require('../utils/apiResponse');
+const Logger = require('../utils/logger');
 
 const validateRequest = (schema, property = 'body') => {
   return (req, res, next) => {
     const { error, value } = schema.validate(req[property], { abortEarly: false, stripUnknown: true });
 
     if (error) {
-      console.log("JOI VALIDATION ERROR:");
-      console.log(error.details);
+      Logger.debug('Validation error', {
+        fields: error.details.map(d => d.path.join('.'))
+      });
 
       const errors = error.details.map(detail => ({
         field: detail.path.join('.'),

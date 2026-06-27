@@ -39,6 +39,23 @@ function getImageSize(buffer) {
   return [100, 100];
 }
 
+function hasImageValues(value) {
+  if (value === null || value === undefined) return false;
+  if (Array.isArray(value)) {
+    return value.some((item) => hasImageValues(item));
+  }
+  if (typeof value === 'object') {
+    return Object.values(value).some((item) => hasImageValues(item));
+  }
+  if (typeof value === 'string') {
+    return /\.(png|jpe?g|gif|bmp)$/i.test(value)
+      || /^data:image\//i.test(value)
+      || /^\/(uploads|assets)\//i.test(value)
+      || /^https?:\/\//i.test(value);
+  }
+  return false;
+}
+
 /**
  * Template Engine Service
  * Handles DOCX template manipulation and placeholder replacement
@@ -69,7 +86,7 @@ class TemplateEngineService {
    * @param {Object} data - Data object with placeholder keys and values
    * @returns {Buffer} The modified DOCX file
    */
-  replaceTextPlaceholders(templateBuffer, data) {
+  replaceTextPlaceholders(templateBuffer, data, modules = []) {
     try {
       const zip = new PizZip(templateBuffer);
       
@@ -80,6 +97,7 @@ class TemplateEngineService {
       zip.file('word/document.xml', xml);
 
       const doc = new Docxtemplater(zip, {
+        modules,
         paragraphLoop: true,
         linebreaks: true,
         nullGetter: () => { return ''; }
@@ -173,19 +191,44 @@ class TemplateEngineService {
    */
   generateDocxFromTemplate(templateBuffer, replacements) {
     try {
-      // Ensure all values are strings
       const cleanReplacements = {};
       Object.entries(replacements).forEach(([key, value]) => {
         if (value === null || value === undefined) {
           cleanReplacements[key] = '';
+        } else if (Array.isArray(value)) {
+          cleanReplacements[key] = value;
         } else if (typeof value === 'object') {
-          cleanReplacements[key] = JSON.stringify(value);
+          cleanReplacements[key] = hasImageValues(value) ? value : JSON.stringify(value);
         } else {
-          cleanReplacements[key] = String(value);
+          cleanReplacements[key] = value;
         }
       });
 
-      return this.replaceTextPlaceholders(templateBuffer, cleanReplacements);
+      const modules = [];
+      if (hasImageValues(cleanReplacements)) {
+        modules.push(new ImageModule({
+          centered: false,
+          getImage: (tagValue) => {
+            if (!tagValue) return Buffer.alloc(0);
+            if (typeof tagValue === 'string') {
+              if (!fs.existsSync(tagValue)) {
+                return Buffer.alloc(0);
+              }
+              return fs.readFileSync(tagValue);
+            }
+            if (typeof tagValue === 'object') {
+              const imagePath = tagValue.url || tagValue.image || tagValue.path;
+              if (typeof imagePath === 'string' && fs.existsSync(imagePath)) {
+                return fs.readFileSync(imagePath);
+              }
+            }
+            return Buffer.alloc(0);
+          },
+          getSize: (imgBuffer) => getImageSize(imgBuffer)
+        }));
+      }
+
+      return this.replaceTextPlaceholders(templateBuffer, cleanReplacements, modules);
     } catch (error) {
       throw new Error(`Failed to generate DOCX: ${error.message}`);
     }

@@ -28,14 +28,14 @@ export const inspectionTemplates = {
       { "partName": "FAN HOUSING, 2ND STAGE", "quantity": 1, "status": "Available", "remarks": "" },
       { "partName": "IMPELLER 2nd STAGE", "quantity": 1, "status": "Available", "remarks": "" },
       { "partName": "FAN HOUSING, 1ST STAGE", "quantity": 1, "status": "Available", "remarks": "" },
-      { "partName": "IMPELLER 1ST STAGE", "quantity": 1, "status": "Available", "remarks": "" },
+      { "partName": "IMPELLER 1st STAGE", "quantity": 1, "status": "Available", "remarks": "" },
       { "partName": "CABLE, SPEED SENSOR", "quantity": 1, "status": "Available", "remarks": "" },
       { "partName": "CONNECTOR - 0.125\" TO 1/4\" DIAMETER CABLE", "quantity": 1, "status": "Available", "remarks": "" },
       { "partName": "MAGNETIC PICKUP, SPEED SENSOR", "quantity": 1, "status": "Available", "remarks": "" },
       { "partName": "CARBON BRUSH", "quantity": 6, "status": "Available", "remarks": "" },
       { "partName": "CARBON BRUSH HOLDER", "quantity": 6, "status": "Available", "remarks": "" },
       { "partName": "CONNECTION BOX", "quantity": 1, "status": "Available", "remarks": "" },
-      { "partName": "AUXILIARY CABLE", "quantity": 4, "status": "Available", "remarks": "" },
+      { "partName": "AUXILARY CABLE", "quantity": 4, "status": "Available", "remarks": "" },
       { "partName": "MAIN CABLE", "quantity": 3, "status": "Available", "remarks": "" },
       { "partName": "FIELD CABLE", "quantity": 2, "status": "Available", "remarks": "" },
       { "partName": "1ST STAGE FAN HOUSING PLATE", "quantity": 1, "status": "Available", "remarks": "" }
@@ -43,11 +43,11 @@ export const inspectionTemplates = {
     "electricalTests": {
       "irTest": {
         "appliedVoltage": 1000,
-        "terminals": ["Armature to G", "Field to G"],
+        "terminals": ["R to G", "Y to G", "B to G", "T13 to G", "T14 to G", "T15 to G", "T16 to G", "F1 to G", "F2 to G"],
         "standardValue": "Above 1MΩ"
       },
       "windingResistance": {
-        "terminals": ["Armature", "Field"],
+        "terminals": ["R to Y", "Y to B", "B to R", "T13 to T14", "T15 to T16", "F1 to F2"],
         "standardValue": "Standard"
       }
     }

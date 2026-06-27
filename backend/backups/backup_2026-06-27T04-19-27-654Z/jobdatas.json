@@ -1,0 +1,1260 @@
+[
+  {
+    "_id": "6a37c30e053fca90950417da",
+    "job": "6a37b7782919f01b1c255f54",
+    "templateSnapshot": {
+      "equipmentModels": [],
+      "templateKey": "EH5000_PROCESS_V1",
+      "displayName": "EH5000 Wheel Motor Master Rebuild Process",
+      "isActive": true,
+      "department": {
+        "_id": "6a37b06a3176a57397f7a178",
+        "departmentKey": "WM_SHOP",
+        "displayName": "Wheel Motor Shop",
+        "isActive": true,
+        "createdAt": "2026-06-21T09:35:38.036Z",
+        "updatedAt": "2026-06-21T09:35:38.036Z",
+        "__v": 0
+      },
+      "component": {
+        "_id": "6a37b06a3176a57397f7a17a",
+        "componentKey": "WM",
+        "displayName": "Wheel Motor",
+        "department": "6a37b06a3176a57397f7a178",
+        "isActive": true,
+        "createdAt": "2026-06-21T09:35:38.136Z",
+        "updatedAt": "2026-06-21T09:35:38.136Z",
+        "__v": 0
+      },
+      "workflowType": {
+        "_id": "6a37b06c3176a57397f7a19a",
+        "workflowKey": "STD_REBUILD",
+        "displayName": "Standard Rebuild",
+        "status": "PUBLISHED",
+        "version": 1,
+        "createdBy": "69e78301fd711a7b1d659146",
+        "createdAt": "2026-06-21T09:35:40.036Z",
+        "updatedAt": "2026-06-21T09:35:40.036Z",
+        "__v": 0
+      },
+      "stages": [
+        {
+          "stageLibraryId": {
+            "_id": "6a37c12fab550683f24be757",
+            "stageKey": "EH5000_STG_INSPECTION_1782038831271",
+            "displayName": "EH5000 Visual Inspection & Incoming Assessment",
+            "operations": [
+              {
+                "_id": "6a37c12eab550683f24be74d",
+                "operationKey": "EH5000_OP_INCOMING_CHK_1782038830866",
+                "displayName": "Incoming Visual Checklist",
+                "tasks": [
+                  {
+                    "taskKey": "TSK_CHK",
+                    "displayName": "Incoming Visual Inspection Checklist",
+                    "taskType": "LIST",
+                    "fields": [
+                      {
+                        "fieldKey": "CHK_0",
+                        "displayName": "Hub Present",
+                        "fieldType": "CHECKBOX",
+                        "options": [],
+                        "rules": [
+                          {
+                            "ruleType": "REQUIRED",
+                            "blockNextStage": false
+                          }
+                        ]
+                      },
+                      {
+                        "fieldKey": "CHK_1",
+                        "displayName": "Coupling Present",
+                        "fieldType": "CHECKBOX",
+                        "options": [],
+                        "rules": [
+                          {
+                            "ruleType": "REQUIRED",
+                            "blockNextStage": false
+                          }
+                        ]
+                      },
+                      {
+                        "fieldKey": "CHK_2",
+                        "displayName": "Brake Disc Present",
+                        "fieldType": "CHECKBOX",
+                        "options": [],
+                        "rules": [
+                          {
+                            "ruleType": "REQUIRED",
+                            "blockNextStage": false
+                          }
+                        ]
+                      },
+                      {
+                        "fieldKey": "CHK_3",
+                        "displayName": "Speed Sensor Present",
+                        "fieldType": "CHECKBOX",
+                        "options": [],
+                        "rules": [
+                          {
+                            "ruleType": "REQUIRED",
+                            "blockNextStage": false
+                          }
+                        ]
+                      },
+                      {
+                        "fieldKey": "CHK_4",
+                        "displayName": "RTD Sensors Present",
+                        "fieldType": "CHECKBOX",
+                        "options": [],
+                        "rules": [
+                          {
+                            "ruleType": "REQUIRED",
+                            "blockNextStage": false
+                          }
+                        ]
+                      },
+                      {
+                        "fieldKey": "CHK_5",
+                        "displayName": "Bus Bar Present",
+                        "fieldType": "CHECKBOX",
+                        "options": [],
+                        "rules": [
+                          {
+                            "ruleType": "REQUIRED",
+                            "blockNextStage": false
+                          }
+                        ]
+                      },
+                      {
+                        "fieldKey": "CHK_6",
+                        "displayName": "Parking Brake Present",
+                        "fieldType": "CHECKBOX",
+                        "options": [],
+                        "rules": [
+                          {
+                            "ruleType": "REQUIRED",
+                            "blockNextStage": false
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "status": "PUBLISHED",
+                "version": 1,
+                "createdAt": "2026-06-21T10:47:10.878Z",
+                "updatedAt": "2026-06-21T10:47:10.878Z",
+                "__v": 0
+              },
+              {
+                "_id": "6a37c12eab550683f24be74f",
+                "operationKey": "EH5000_OP_ELEC_1782038830957",
+                "displayName": "Incoming Electrical Tests",
+                "tasks": [
+                  {
+                    "taskKey": "TSK_ELEC",
+                    "displayName": "Electrical Test Records",
+                    "taskType": "GRID",
+                    "fields": [
+                      {
+                        "fieldKey": "ELEC_0",
+                        "displayName": "IR R-G",
+                        "fieldType": "NUMBER",
+                        "unit": "MΩ",
+                        "options": [],
+                        "rules": [
+                          {
+                            "ruleType": "MIN",
+                            "value": 1,
+                            "blockNextStage": false
+                          }
+                        ]
+                      },
+                      {
+                        "fieldKey": "ELEC_1",
+                        "displayName": "IR Y-G",
+                        "fieldType": "NUMBER",
+                        "unit": "MΩ",
+                        "options": [],
+                        "rules": [
+                          {
+                            "ruleType": "MIN",
+                            "value": 1,
+                            "blockNextStage": false
+                          }
+                        ]
+                      },
+                      {
+                        "fieldKey": "ELEC_2",
+                        "displayName": "IR B-G",
+                        "fieldType": "NUMBER",
+                        "unit": "MΩ",
+                        "options": [],
+                        "rules": [
+                          {
+                            "ruleType": "MIN",
+                            "value": 1,
+                            "blockNextStage": false
+                          }
+                        ]
+                      },
+                      {
+                        "fieldKey": "ELEC_3",
+                        "displayName": "Winding Resistance R-Y",
+                        "fieldType": "NUMBER",
+                        "unit": "mΩ",
+                        "options": [],
+                        "rules": []
+                      },
+                      {
+                        "fieldKey": "ELEC_4",
+                        "displayName": "Winding Resistance Y-B",
+                        "fieldType": "NUMBER",
+                        "unit": "mΩ",
+                        "options": [],
+                        "rules": []
+                      },
+                      {
+                        "fieldKey": "ELEC_5",
+                        "displayName": "Winding Resistance B-R",
+                        "fieldType": "NUMBER",
+                        "unit": "mΩ",
+                        "options": [],
+                        "rules": []
+                      },
+                      {
+                        "fieldKey": "ELEC_6",
+                        "displayName": "Speed Sensor Resistance",
+                        "fieldType": "NUMBER",
+                        "unit": "Ω",
+                        "options": [],
+                        "rules": []
+                      },
+                      {
+                        "fieldKey": "ELEC_7",
+                        "displayName": "RTD Resistance",
+                        "fieldType": "NUMBER",
+                        "unit": "Ω",
+                        "options": [],
+                        "rules": []
+                      }
+                    ]
+                  }
+                ],
+                "status": "PUBLISHED",
+                "version": 1,
+                "createdAt": "2026-06-21T10:47:10.961Z",
+                "updatedAt": "2026-06-21T10:47:10.961Z",
+                "__v": 0
+              },
+              {
+                "_id": "6a37c12fab550683f24be751",
+                "operationKey": "EH5000_OP_PARTS_1782038831040",
+                "displayName": "Incoming Parts Checklist",
+                "tasks": [
+                  {
+                    "taskKey": "TSK_PARTS",
+                    "displayName": "Parts Verified",
+                    "taskType": "LIST",
+                    "fields": [
+                      {
+                        "fieldKey": "PART_0",
+                        "displayName": "Hub (Qty: 1)",
+                        "fieldType": "CHECKBOX",
+                        "options": [],
+                        "rules": []
+                      },
+                      {
+                        "fieldKey": "PART_1",
+                        "displayName": "Coupling (Qty: 1)",
+                        "fieldType": "CHECKBOX",
+                        "options": [],
+                        "rules": []
+                      },
+                      {
+                        "fieldKey": "PART_2",
+                        "displayName": "Brake Disc (Qty: 1)",
+                        "fieldType": "CHECKBOX",
+                        "options": [],
+                        "rules": []
+                      },
+                      {
+                        "fieldKey": "PART_3",
+                        "displayName": "Speed Sensor (Qty: 1)",
+                        "fieldType": "CHECKBOX",
+                        "options": [],
+                        "rules": []
+                      },
+                      {
+                        "fieldKey": "PART_4",
+                        "displayName": "RTD Sensor (Motor Bearing Temp) (Qty: 2)",
+                        "fieldType": "CHECKBOX",
+                        "options": [],
+                        "rules": []
+                      },
+                      {
+                        "fieldKey": "PART_5",
+                        "displayName": "Bus Bar (Qty: 2)",
+                        "fieldType": "CHECKBOX",
+                        "options": [],
+                        "rules": []
+                      },
+                      {
+                        "fieldKey": "PART_6",
+                        "displayName": "Parking Brake (Qty: 2)",
+                        "fieldType": "CHECKBOX",
+                        "options": [],
+                        "rules": []
+                      },
+                      {
+                        "fieldKey": "PART_7",
+                        "displayName": "Brake Disc Bolt (Qty: 1)",
+                        "fieldType": "CHECKBOX",
+                        "options": [],
+                        "rules": []
+                      }
+                    ]
+                  }
+                ],
+                "status": "PUBLISHED",
+                "version": 1,
+                "createdAt": "2026-06-21T10:47:11.043Z",
+                "updatedAt": "2026-06-21T10:47:11.043Z",
+                "__v": 0
+              }
+            ],
+            "status": "PUBLISHED",
+            "version": 1,
+            "createdAt": "2026-06-21T10:47:11.275Z",
+            "updatedAt": "2026-06-21T10:47:11.275Z",
+            "__v": 0
+          },
+          "order": 1,
+          "isRequired": true,
+          "_id": "6a37c12fab550683f24be75d"
+        },
+        {
+          "stageLibraryId": {
+            "_id": "6a37c12fab550683f24be759",
+            "stageKey": "EH5000_STG_DISMANTLING_1782038831353",
+            "displayName": "EH5000 Dismantling & Analysis",
+            "operations": [
+              {
+                "_id": "6a37c12fab550683f24be753",
+                "operationKey": "EH5000_OP_DISMANTLING_1782038831108",
+                "displayName": "Dismantling Checklist",
+                "tasks": [
+                  {
+                    "taskKey": "TSK_DISMANTLING",
+                    "displayName": "Dismantling Steps",
+                    "taskType": "LIST",
+                    "fields": [
+                      {
+                        "fieldKey": "DIS_0",
+                        "displayName": "Drive Ring Removed",
+                        "fieldType": "CHECKBOX",
+                        "options": [],
+                        "rules": []
+                      },
+                      {
+                        "fieldKey": "DIS_1",
+                        "displayName": "Drive Ring Cover Removed",
+                        "fieldType": "CHECKBOX",
+                        "options": [],
+                        "rules": []
+                      },
+                      {
+                        "fieldKey": "DIS_2",
+                        "displayName": "Brake Caliper Removed",
+                        "fieldType": "CHECKBOX",
+                        "options": [],
+                        "rules": []
+                      },
+                      {
+                        "fieldKey": "DIS_3",
+                        "displayName": "Brake Disc Removed",
+                        "fieldType": "CHECKBOX",
+                        "options": [],
+                        "rules": []
+                      },
+                      {
+                        "fieldKey": "DIS_4",
+                        "displayName": "Encoder Assembly Removed",
+                        "fieldType": "CHECKBOX",
+                        "options": [],
+                        "rules": []
+                      },
+                      {
+                        "fieldKey": "DIS_5",
+                        "displayName": "RTD Connections Removed",
+                        "fieldType": "CHECKBOX",
+                        "options": [],
+                        "rules": []
+                      },
+                      {
+                        "fieldKey": "DIS_6",
+                        "displayName": "DE Outer Seal Removed",
+                        "fieldType": "CHECKBOX",
+                        "options": [],
+                        "rules": []
+                      },
+                      {
+                        "fieldKey": "DIS_7",
+                        "displayName": "DE Inner Seal Removed",
+                        "fieldType": "CHECKBOX",
+                        "options": [],
+                        "rules": []
+                      },
+                      {
+                        "fieldKey": "DIS_8",
+                        "displayName": "NDE Outer Seal Removed",
+                        "fieldType": "CHECKBOX",
+                        "options": [],
+                        "rules": []
+                      },
+                      {
+                        "fieldKey": "DIS_9",
+                        "displayName": "NDE Inner Seal Removed",
+                        "fieldType": "CHECKBOX",
+                        "options": [],
+                        "rules": []
+                      },
+                      {
+                        "fieldKey": "DIS_10",
+                        "displayName": "Rotor Removed",
+                        "fieldType": "CHECKBOX",
+                        "options": [],
+                        "rules": []
+                      },
+                      {
+                        "fieldKey": "DIS_11",
+                        "displayName": "Stator Removed",
+                        "fieldType": "CHECKBOX",
+                        "options": [],
+                        "rules": []
+                      },
+                      {
+                        "fieldKey": "DIS_12",
+                        "displayName": "DE Bearing Removed",
+                        "fieldType": "CHECKBOX",
+                        "options": [],
+                        "rules": []
+                      },
+                      {
+                        "fieldKey": "DIS_13",
+                        "displayName": "NDE Bearing Removed",
+                        "fieldType": "CHECKBOX",
+                        "options": [],
+                        "rules": []
+                      },
+                      {
+                        "fieldKey": "DIS_14",
+                        "displayName": "DE Housing Removed",
+                        "fieldType": "CHECKBOX",
+                        "options": [],
+                        "rules": []
+                      },
+                      {
+                        "fieldKey": "DIS_15",
+                        "displayName": "NDE Housing Removed",
+                        "fieldType": "CHECKBOX",
+                        "options": [],
+                        "rules": []
+                      }
+                    ]
+                  }
+                ],
+                "status": "PUBLISHED",
+                "version": 1,
+                "createdAt": "2026-06-21T10:47:11.110Z",
+                "updatedAt": "2026-06-21T10:47:11.110Z",
+                "__v": 0
+              },
+              {
+                "_id": "6a37c12fab550683f24be755",
+                "operationKey": "EH5000_OP_DIM_1782038831190",
+                "displayName": "Dimensional Measurements",
+                "tasks": [
+                  {
+                    "taskKey": "TSK_DIM",
+                    "displayName": "Measurements",
+                    "taskType": "GRID",
+                    "fields": [
+                      {
+                        "fieldKey": "DIM_0",
+                        "displayName": "NDE Bearing Seat Dia",
+                        "fieldType": "NUMBER",
+                        "unit": "mm",
+                        "options": [],
+                        "rules": [
+                          {
+                            "ruleType": "MIN",
+                            "value": 129.97,
+                            "blockNextStage": false
+                          },
+                          {
+                            "ruleType": "MAX",
+                            "value": 130.043,
+                            "blockNextStage": false
+                          }
+                        ]
+                      },
+                      {
+                        "fieldKey": "DIM_1",
+                        "displayName": "NDE Housing Bore",
+                        "fieldType": "NUMBER",
+                        "unit": "mm",
+                        "options": [],
+                        "rules": [
+                          {
+                            "ruleType": "MIN",
+                            "value": 230,
+                            "blockNextStage": false
+                          },
+                          {
+                            "ruleType": "MAX",
+                            "value": 230.035,
+                            "blockNextStage": false
+                          }
+                        ]
+                      },
+                      {
+                        "fieldKey": "DIM_2",
+                        "displayName": "DE Bearing Seat Dia",
+                        "fieldType": "NUMBER",
+                        "unit": "mm",
+                        "options": [],
+                        "rules": [
+                          {
+                            "ruleType": "MIN",
+                            "value": 149.97,
+                            "blockNextStage": false
+                          },
+                          {
+                            "ruleType": "MAX",
+                            "value": 150.043,
+                            "blockNextStage": false
+                          }
+                        ]
+                      },
+                      {
+                        "fieldKey": "DIM_3",
+                        "displayName": "DE Housing Bore",
+                        "fieldType": "NUMBER",
+                        "unit": "mm",
+                        "options": [],
+                        "rules": [
+                          {
+                            "ruleType": "MIN",
+                            "value": 225,
+                            "blockNextStage": false
+                          },
+                          {
+                            "ruleType": "MAX",
+                            "value": 225.035,
+                            "blockNextStage": false
+                          }
+                        ]
+                      },
+                      {
+                        "fieldKey": "DIM_4",
+                        "displayName": "Rotor Air Gap (DE)",
+                        "fieldType": "NUMBER",
+                        "unit": "mm",
+                        "options": [],
+                        "rules": [
+                          {
+                            "ruleType": "MIN",
+                            "value": 2,
+                            "blockNextStage": false
+                          },
+                          {
+                            "ruleType": "MAX",
+                            "value": 4,
+                            "blockNextStage": false
+                          }
+                        ]
+                      },
+                      {
+                        "fieldKey": "DIM_5",
+                        "displayName": "Rotor Air Gap (NDE)",
+                        "fieldType": "NUMBER",
+                        "unit": "mm",
+                        "options": [],
+                        "rules": [
+                          {
+                            "ruleType": "MIN",
+                            "value": 2,
+                            "blockNextStage": false
+                          },
+                          {
+                            "ruleType": "MAX",
+                            "value": 4,
+                            "blockNextStage": false
+                          }
+                        ]
+                      },
+                      {
+                        "fieldKey": "DIM_6",
+                        "displayName": "Brake Disc Thickness",
+                        "fieldType": "NUMBER",
+                        "unit": "mm",
+                        "options": [],
+                        "rules": [
+                          {
+                            "ruleType": "MIN",
+                            "value": 15,
+                            "blockNextStage": false
+                          },
+                          {
+                            "ruleType": "MAX",
+                            "value": 20,
+                            "blockNextStage": false
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "status": "PUBLISHED",
+                "version": 1,
+                "createdAt": "2026-06-21T10:47:11.193Z",
+                "updatedAt": "2026-06-21T10:47:11.193Z",
+                "__v": 0
+              }
+            ],
+            "status": "PUBLISHED",
+            "version": 1,
+            "createdAt": "2026-06-21T10:47:11.355Z",
+            "updatedAt": "2026-06-21T10:47:11.355Z",
+            "__v": 0
+          },
+          "order": 2,
+          "isRequired": true,
+          "_id": "6a37c12fab550683f24be75e"
+        }
+      ],
+      "status": "PUBLISHED",
+      "version": 1,
+      "__v": 0
+    },
+    "stage1": {
+      "photos": [],
+      "status": "Pending"
+    },
+    "stage2": {
+      "photos": [],
+      "status": "Pending"
+    },
+    "stage3": {
+      "photos": [],
+      "status": "Pending",
+      "materialsUsed": [],
+      "consumablesUsed": []
+    },
+    "stage4": {
+      "photos": [],
+      "status": "Pending"
+    },
+    "createdAt": "2026-06-21T10:55:10.914Z",
+    "updatedAt": "2026-06-21T10:55:10.914Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a37c71da276242621ac05c4",
+    "job": "6a2787215ab90c0f635a64f8",
+    "stage1": {
+      "photos": [],
+      "status": "Pending"
+    },
+    "stage2": {
+      "photos": [],
+      "status": "Pending"
+    },
+    "stage3": {
+      "photos": [],
+      "status": "Pending",
+      "materialsUsed": [],
+      "consumablesUsed": []
+    },
+    "stage4": {
+      "photos": [],
+      "status": "Pending"
+    },
+    "createdAt": "2026-06-21T11:12:29.933Z",
+    "updatedAt": "2026-06-21T11:12:29.933Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a37c775a276242621ac05e6",
+    "job": "6a2a8da50868d12c06e0c061",
+    "stage1": {
+      "photos": [
+        "/uploads/photos-1782045350146-283769579.jpeg"
+      ],
+      "status": "Pending",
+      "aiSummary": "The component exhibits operational wear, surface discoloration, and significant residual lubricant. Severe material deformation and chipping are clearly visible within the shaft's keyway or spline groove. This damage necessitates immediate non-destructive testing for crack detection and dimensional verification to determine component integrity and reusability."
+    },
+    "stage2": {
+      "photos": [],
+      "status": "Pending"
+    },
+    "stage3": {
+      "photos": [],
+      "status": "Pending",
+      "materialsUsed": [],
+      "consumablesUsed": []
+    },
+    "stage4": {
+      "photos": [],
+      "status": "Pending"
+    },
+    "createdAt": "2026-06-21T11:13:57.465Z",
+    "updatedAt": "2026-06-21T12:36:08.163Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a37c77fa276242621ac0602",
+    "job": "6a2cce984986ecb1fb4e29f7",
+    "stage1": {
+      "photos": [],
+      "status": "Pending"
+    },
+    "stage2": {
+      "photos": [],
+      "status": "Pending"
+    },
+    "stage3": {
+      "photos": [],
+      "status": "Pending",
+      "materialsUsed": [],
+      "consumablesUsed": []
+    },
+    "stage4": {
+      "photos": [],
+      "status": "Pending"
+    },
+    "createdAt": "2026-06-21T11:14:07.103Z",
+    "updatedAt": "2026-06-21T11:14:07.103Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a37d178a276242621ac0682",
+    "job": "6a1ff5228c4ad890624665a9",
+    "stage1": {
+      "photos": [],
+      "status": "Pending"
+    },
+    "stage2": {
+      "technician": "",
+      "startDate": "2026-05-25",
+      "completionDate": "",
+      "photos": [],
+      "dismantlingChecklist": {},
+      "dimensionalMeasurements": {},
+      "componentConditionAssessment": {},
+      "overallRemarks": "",
+      "status": "Completed"
+    },
+    "stage3": {
+      "technician": "",
+      "startDate": "2026-05-26",
+      "completionDate": "",
+      "photos": [
+        "/uploads/files-1780547971135-310930657.jpg",
+        "/uploads/files-1780547972389-205233073.jpg",
+        "/uploads/files-1780547973400-442236071.jpg",
+        "/uploads/files-1780547973763-890347797.jpg",
+        "/uploads/files-1780547974397-115557380.jpg",
+        "/uploads/files-1780547974863-313966355.jpg",
+        "/uploads/files-1780547975137-604937654.jpg",
+        "/uploads/files-1780547975318-753360038.jpg",
+        "/uploads/files-1780547975497-336022383.jpg"
+      ],
+      "preAssemblyChecklist": {},
+      "assemblyChecklist": {
+        "Stator and rotor varnish work completed,\nbearing replaced,housing cleaned and installed,carbon brush installed,stator and rotor assembly carried out, hub installed, fan and fan housings installed": {
+          "checked": true,
+          "date": "2026-06-26"
+        }
+      },
+      "torqueVerifications": {
+        "Engine mounting flange": {
+          "actual": "250",
+          "status": "Pass"
+        }
+      },
+      "materialsUsed": [
+        {
+          "name": "Bearing",
+          "quantity": "1",
+          "unit": "",
+          "partNo": "",
+          "_id": "6a37d58f08431387002570b5"
+        }
+      ],
+      "consumablesUsed": [],
+      "overallRemarks": "",
+      "status": "In Progress"
+    },
+    "stage4": {
+      "technician": "",
+      "startDate": "",
+      "completionDate": "",
+      "photos": [],
+      "electricalTests": {},
+      "functionalTests": [],
+      "sensorTests": {},
+      "surgeTests": [
+        {
+          "testName": "R-G",
+          "result": "Pass",
+          "photo": [
+            ""
+          ],
+          "remarks": ""
+        },
+        {
+          "testName": "G-B",
+          "result": "Pass",
+          "photo": [
+            ""
+          ],
+          "remarks": ""
+        },
+        {
+          "testName": "B-R",
+          "result": "Pass",
+          "photo": [
+            ""
+          ],
+          "remarks": ""
+        }
+      ],
+      "dispatchChecklist": {},
+      "qaApprovedBy": "",
+      "qaApprovedDate": "",
+      "overallRemarks": "",
+      "status": "Completed"
+    },
+    "createdAt": "2026-06-21T11:56:40.408Z",
+    "updatedAt": "2026-06-21T12:14:15.392Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a37d575f565ef2a2442e918",
+    "job": "6a114c73a8e1e1d4b6abfc9a",
+    "__v": 0,
+    "createdAt": "2026-06-21T12:13:41.785Z",
+    "stage1": {
+      "electricalTests": {},
+      "incomingChecklist": {},
+      "partsChecklist": {},
+      "photos": [],
+      "sensorTests": {},
+      "status": "Pending",
+      "surgeTests": {}
+    },
+    "stage2": {
+      "technician": "",
+      "startDate": "",
+      "completionDate": "",
+      "photos": [],
+      "dismantlingChecklist": {},
+      "dimensionalMeasurements": {},
+      "componentConditionAssessment": {},
+      "overallRemarks": "",
+      "status": "Completed"
+    },
+    "stage3": {
+      "assemblyChecklist": {},
+      "consumablesUsed": [],
+      "materialsUsed": [],
+      "photos": [],
+      "preAssemblyChecklist": {},
+      "status": "Pending",
+      "torqueVerifications": {}
+    },
+    "stage4": {
+      "dispatchChecklist": {},
+      "electricalTests": {},
+      "functionalTests": {},
+      "photos": [],
+      "sensorTests": {},
+      "status": "Pending",
+      "surgeTests": {}
+    },
+    "updatedAt": "2026-06-21T12:13:41.785Z"
+  },
+  {
+    "_id": "6a37d58ff565ef2a2442e91e",
+    "job": "69e8ec7cff3b218c0a1d4e4b",
+    "__v": 0,
+    "createdAt": "2026-06-21T12:14:06.962Z",
+    "stage1": {
+      "electricalTests": {},
+      "incomingChecklist": {},
+      "partsChecklist": {},
+      "photos": [],
+      "sensorTests": {},
+      "status": "Pending",
+      "surgeTests": {}
+    },
+    "stage2": {
+      "componentConditionAssessment": {},
+      "dimensionalMeasurements": {},
+      "dismantlingChecklist": {},
+      "photos": [],
+      "status": "Pending"
+    },
+    "stage3": {
+      "technician": "",
+      "startDate": "2026-05-15",
+      "completionDate": "",
+      "photos": [],
+      "preAssemblyChecklist": {},
+      "assemblyChecklist": {
+        "Flange cleaning and varnish work completed ": {
+          "checked": true,
+          "date": "2026-05-15"
+        }
+      },
+      "torqueVerifications": {},
+      "materialsUsed": [],
+      "consumablesUsed": [],
+      "overallRemarks": "",
+      "status": "In Progress"
+    },
+    "stage4": {
+      "dispatchChecklist": {},
+      "electricalTests": {},
+      "functionalTests": {},
+      "photos": [],
+      "sensorTests": {},
+      "status": "Pending",
+      "surgeTests": {}
+    },
+    "updatedAt": "2026-06-21T12:14:06.962Z"
+  },
+  {
+    "_id": "6a3817ec0cff17db997beab0",
+    "job": "69e8ec81ff3b218c0a1d4e8e",
+    "stage1": {
+      "photos": [],
+      "status": "Pending"
+    },
+    "stage2": {
+      "photos": [],
+      "status": "Pending"
+    },
+    "stage3": {
+      "photos": [],
+      "status": "Pending",
+      "materialsUsed": [],
+      "consumablesUsed": []
+    },
+    "stage4": {
+      "photos": [],
+      "status": "Pending"
+    },
+    "createdAt": "2026-06-21T16:57:16.776Z",
+    "updatedAt": "2026-06-21T16:57:16.776Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a38317bb6097c3f8a7c40bf",
+    "job": "69e8ec74ff3b218c0a1d4dd5",
+    "stage1": {
+      "photos": [],
+      "status": "Pending"
+    },
+    "stage2": {
+      "photos": [],
+      "status": "Pending"
+    },
+    "stage3": {
+      "photos": [],
+      "status": "Pending",
+      "materialsUsed": [],
+      "consumablesUsed": []
+    },
+    "stage4": {
+      "photos": [],
+      "status": "Pending"
+    },
+    "createdAt": "2026-06-21T18:46:19.768Z",
+    "updatedAt": "2026-06-21T18:46:19.768Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a383b08ac6f17ad0017e8f6",
+    "job": "6a383b07ac6f17ad0017e8e7",
+    "stage1": {
+      "photos": [],
+      "status": "Pending"
+    },
+    "stage2": {
+      "photos": [],
+      "status": "Pending"
+    },
+    "stage3": {
+      "photos": [],
+      "status": "Pending",
+      "materialsUsed": [],
+      "consumablesUsed": []
+    },
+    "stage4": {
+      "photos": [],
+      "status": "Pending"
+    },
+    "createdAt": "2026-06-21T19:27:04.380Z",
+    "updatedAt": "2026-06-21T19:27:04.380Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a383b32ac6f17ad0017e912",
+    "job": "6a383b31ac6f17ad0017e904",
+    "stage1": {
+      "photos": [
+        "/uploads/photos-1782070493110-210987180.jpeg",
+        "/uploads/photos-1782071087248-129240633.jpeg"
+      ],
+      "status": "Pending",
+      "inspectionDecision": "Proceed to Overhaul",
+      "aiSummary": "The component displays a well-maintained red casing and clean mounting flange, but the central shaft end is heavily packed with protective green grease. Critical inspection reveals severe deformation and significant wear on the shaft's keyway and adjacent surfaces. This damage necessitates further investigation into the shaft's structural integrity and the root cause of the operational stress or impact."
+    },
+    "stage2": {
+      "photos": [],
+      "status": "Pending"
+    },
+    "stage3": {
+      "photos": [],
+      "status": "Pending",
+      "materialsUsed": [],
+      "consumablesUsed": []
+    },
+    "stage4": {
+      "photos": [],
+      "status": "Pending"
+    },
+    "createdAt": "2026-06-21T19:27:46.038Z",
+    "updatedAt": "2026-06-21T19:45:30.831Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a383f83ac6f17ad0017e968",
+    "job": "6a383f81ac6f17ad0017e95a",
+    "stage1": {
+      "photos": [],
+      "status": "Pending"
+    },
+    "stage2": {
+      "photos": [],
+      "status": "Pending"
+    },
+    "stage3": {
+      "photos": [],
+      "status": "Pending",
+      "materialsUsed": [],
+      "consumablesUsed": []
+    },
+    "stage4": {
+      "photos": [],
+      "status": "Pending"
+    },
+    "createdAt": "2026-06-21T19:46:11.418Z",
+    "updatedAt": "2026-06-21T19:46:11.418Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a383fb9ac6f17ad0017e983",
+    "job": "6a383fb8ac6f17ad0017e977",
+    "stage1": {
+      "photos": [],
+      "status": "Pending"
+    },
+    "stage2": {
+      "photos": [],
+      "status": "Pending"
+    },
+    "stage3": {
+      "photos": [],
+      "status": "Pending",
+      "materialsUsed": [],
+      "consumablesUsed": []
+    },
+    "stage4": {
+      "photos": [],
+      "status": "Pending"
+    },
+    "createdAt": "2026-06-21T19:47:05.691Z",
+    "updatedAt": "2026-06-21T19:47:05.691Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a383fe5ac6f17ad0017e99e",
+    "job": "6a383fe4ac6f17ad0017e992",
+    "stage1": {
+      "photos": [],
+      "status": "Pending"
+    },
+    "stage2": {
+      "photos": [],
+      "status": "Pending"
+    },
+    "stage3": {
+      "photos": [],
+      "status": "Pending",
+      "materialsUsed": [],
+      "consumablesUsed": []
+    },
+    "stage4": {
+      "photos": [],
+      "status": "Pending"
+    },
+    "createdAt": "2026-06-21T19:47:49.045Z",
+    "updatedAt": "2026-06-21T19:47:49.045Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a384012ac6f17ad0017e9bb",
+    "job": "6a384011ac6f17ad0017e9ad",
+    "stage1": {
+      "photos": [],
+      "status": "Pending"
+    },
+    "stage2": {
+      "photos": [],
+      "status": "Pending",
+      "dismantlingChecklist": {
+        "Drive Ring Removed": {
+          "checked": true,
+          "date": "2026-06-22"
+        },
+        "Drive Ring Cover Removed": {
+          "checked": true,
+          "date": "2026-06-22"
+        }
+      }
+    },
+    "stage3": {
+      "photos": [],
+      "status": "Pending",
+      "materialsUsed": [],
+      "consumablesUsed": []
+    },
+    "stage4": {
+      "photos": [],
+      "status": "Pending"
+    },
+    "createdAt": "2026-06-21T19:48:34.253Z",
+    "updatedAt": "2026-06-22T07:17:29.060Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a3f461a97798df68fd28695",
+    "job": "6a3f461797798df68fd28683",
+    "stage1": {
+      "photos": [],
+      "status": "Pending"
+    },
+    "stage2": {
+      "photos": [],
+      "status": "Pending"
+    },
+    "stage3": {
+      "photos": [],
+      "status": "Pending",
+      "materialsUsed": [],
+      "consumablesUsed": []
+    },
+    "stage4": {
+      "photos": [
+        "/uploads/photos-1782532401394-845961434.jpg",
+        "/uploads/photos-1782532655420-401492528.jpg",
+        "/uploads/photos-1782532689460-977185084.jpg",
+        "/uploads/photos-1782532693710-561410373.jpg",
+        "/uploads/photos-1782532695628-972778638.jpg",
+        "/uploads/photos-1782532697048-730187361.jpg",
+        "/uploads/photos-1782532698054-390460085.jpg",
+        "/uploads/photos-1782532699235-912799233.jpg"
+      ],
+      "status": "Pending",
+      "technician": "Rajeev Kumar",
+      "startDate": "2026-06-25",
+      "qaApprovedBy": "Imran ",
+      "functionalTests": {
+        "No Load Run Test": {
+          "status": "Pass"
+        },
+        "Brush Sparking Check (Nil/Light)": {
+          "status": "Pass"
+        },
+        "Noise Check": {
+          "status": "Pass"
+        },
+        "Bearing Temperature Check": {
+          "status": "Pass"
+        }
+      },
+      "sensorTests": {
+        "Winding Temperature Sensor (RTD)": {
+          "status": "Pass"
+        },
+        "RPM Sensor (Magnetic Pickup)": {
+          "status": "Pass"
+        }
+      },
+      "surgeTests": {
+        "Armature Coil": {
+          "waveform": "Balanced"
+        },
+        "Field Coil": {
+          "waveform": "Balanced"
+        }
+      },
+      "qaApprovedDate": "2026-06-26",
+      "electricalTests": {
+        "IR Armature (A-G)": {
+          "appliedVoltage": "1000",
+          "status": "Pass",
+          "value": "25.6"
+        },
+        "IR Field (S-G)": {
+          "appliedVoltage": "500",
+          "status": "Pass",
+          "value": "156"
+        }
+      }
+    },
+    "createdAt": "2026-06-27T03:40:10.314Z",
+    "updatedAt": "2026-06-27T04:06:53.988Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a3f4cf097798df68fd28838",
+    "job": "6a3839de4a76341484726c76",
+    "stage1": {
+      "photos": [],
+      "status": "Pending"
+    },
+    "stage2": {
+      "photos": [],
+      "status": "Pending"
+    },
+    "stage3": {
+      "photos": [],
+      "status": "Pending",
+      "materialsUsed": [],
+      "consumablesUsed": []
+    },
+    "stage4": {
+      "photos": [],
+      "status": "Pending"
+    },
+    "createdAt": "2026-06-27T04:09:20.070Z",
+    "updatedAt": "2026-06-27T04:09:20.070Z",
+    "__v": 0
+  }
+]
