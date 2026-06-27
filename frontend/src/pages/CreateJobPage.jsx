@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import api from '../utils/api';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -7,10 +7,29 @@ export default function CreateJobPage() {
   const navigate = useNavigate();
   const [saving, setSaving] = useState(false);
   const [draftSaving, setDraftSaving] = useState(false);
+  const [machineModels, setMachineModels] = useState([]);
+
+  useEffect(() => {
+    api.get('/admin/machine-models')
+      .then(res => {
+        const models = res.data?.data || res.data || [];
+        setMachineModels(models.filter(m => m.active !== false));
+      })
+      .catch(() => {
+        // Fallback to known models if API fails
+        setMachineModels([
+          { name: 'EH5000', make: 'HITACHI' },
+          { name: 'EH4500', make: 'HITACHI' },
+          { name: '830E AC', make: 'KOMATSU' },
+          { name: '830E DC', make: 'KOMATSU' },
+          { name: 'BELAZ', make: 'BELAZ' },
+        ]);
+      });
+  }, []);
 
   const [form, setForm] = useState({
     jobNo: '',
-    equipmentModel: 'OTHER',
+    equipmentModel: '',
     description: '',
     serialNumber: '',
     receivedFrom: '',
@@ -165,12 +184,12 @@ export default function CreateJobPage() {
                   onChange={e => handleInputChange('equipmentModel', e.target.value)}
                   required
                 >
-                  <option value="EH5000">EH5000</option>
-                  <option value="EH4500">EH4500</option>
-                  <option value="830E AC">830E AC</option>
-                  <option value="830E DC">830E DC</option>
-                  <option value="BELAZ">BELAZ</option>
-                  <option value="OTHER">OTHER</option>
+                  <option value="">-- Select Model --</option>
+                  {machineModels.map(m => (
+                    <option key={m.name} value={m.name}>
+                      {m.make ? `${m.make} — ${m.name}` : m.name}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div className="form-group">

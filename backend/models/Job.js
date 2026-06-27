@@ -36,7 +36,7 @@ const jobSchema = new mongoose.Schema({
 
   // Component & Equipment type (links to admin collections)
   componentType:    String,          // e.g. Wheel Motor, Alternator, GBM, MBM
-  equipmentModel:   { type: String, enum: ['EH5000','EH4500','830E AC','830E DC','BELAZ','OTHER'], default: 'OTHER' },
+  equipmentModel:   { type: String, default: '' },
 
   // Lifecycle stage — 5 fixed stages
   // 'Visual Inspection & Incoming Assessment'

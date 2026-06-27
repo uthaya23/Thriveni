@@ -6,6 +6,7 @@
 const Job = require('../models/Job');
 const User = require('../models/User');
 const ProductionPlan = require('../models/ProductionPlan');
+const { MachineModel } = require('../models/AdminLookups');
 const generateJobNo = require('../utils/generateJobNo');
 const Logger = require('../utils/logger');
 const ApiResponse = require('../utils/apiResponse');
@@ -70,6 +71,19 @@ class JobService {
       if (userId) {
         jobData.createdBy = userId;
         jobData.updatedBy = userId;
+      }
+
+      // Validate equipmentModel against MachineModel registry
+      if (jobData.equipmentModel) {
+        const modelExists = await MachineModel.findOne({ 
+          name: jobData.equipmentModel,
+          active: true 
+        });
+        if (!modelExists) {
+          return ApiResponse.badRequest(
+            `Equipment model "${jobData.equipmentModel}" is not registered. Add it in Admin settings first.`
+          );
+        }
       }
 
       const job = new Job(jobData);
