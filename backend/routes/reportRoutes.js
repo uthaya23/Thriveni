@@ -29,6 +29,10 @@ const {
   generateFallbackDraft
 } = require('../services/ReportService');
 
+const invalidateCachedPdf = (reportNo, req) => {
+  // No-op: PDFs are now generated on the fly and not cached locally
+};
+
 router.use(protect);
 router.use(notTechnician);
 
@@ -245,7 +249,7 @@ router.get('/pdf/:reportId', asyncHandler(async (req, res) => {
   };
 
   if (report.categorizedPhotos && Array.isArray(report.categorizedPhotos)) {
-    report.categorizedPhotos.forEach(p => {
+    for (const p of report.categorizedPhotos) {
       let b64 = null;
       let localPath = null;
       let isPortrait = false;
@@ -257,6 +261,16 @@ router.get('/pdf/:reportId', asyncHandler(async (req, res) => {
           const bitmap = fs.readFileSync(localPath);
           const ext = path.extname(localPath).slice(1) || 'png';
           b64 = `data:image/${ext};base64,${bitmap.toString('base64')}`;
+        }
+      } else if (p.url && (p.url.startsWith('http://') || p.url.startsWith('https://'))) {
+        try {
+          const response = await fetch(p.url);
+          const buffer = await response.arrayBuffer();
+          const ext = p.url.split('.').pop().split('?')[0] || 'png';
+          b64 = `data:image/${ext};base64,${Buffer.from(buffer).toString('base64')}`;
+        } catch (err) {
+          console.warn('Failed to fetch remote image:', p.url, err.message);
+          b64 = p.url;
         }
       }
 
@@ -276,7 +290,7 @@ router.get('/pdf/:reportId', asyncHandler(async (req, res) => {
         else if (cat.includes('dispatch') || cat.includes('final') || cat.includes('ship')) categorizedPhotos.dispatch.push(photoData);
         else categorizedPhotos.initial.push(photoData); // fallback
       }
-    });
+    }
   }
 
   // Paginate photos into chunks of dynamic layout sizing to prevent layout overflow in A4 boxes
@@ -790,21 +804,12 @@ router.get('/pdf/:reportId', asyncHandler(async (req, res) => {
       return res.send(injectedHtml);
     }
 
-    let shouldGenerate = true;
+    Logger.info('Generating new PDF on the fly', { reportNo: report.reportNo });
+    const pdfBuffer = await PdfService.generateFromTemplate(templatePath, templateData);
     
-    // Check if PDF exists. If it does, we use it!
-    // (If the report is updated, the cache invalidation logic will delete this file, forcing a regeneration)
-    if (fs.existsSync(pdfPath)) {
-      shouldGenerate = false;
-      Logger.info('Cache hit - serving cached PDF', { reportNo: report.reportNo });
-    }
-
-    if (shouldGenerate) {
-      Logger.info('Generating new PDF', { reportNo: report.reportNo });
-      await PdfService.generateFromTemplate(templatePath, templateData, pdfPath);
-    }
-    
-    res.download(pdfPath, pdfFilename);
+    res.contentType('application/pdf');
+    res.setHeader('Content-Disposition', `inline; filename="${pdfFilename}"`);
+    res.send(pdfBuffer);
   } catch (err) {
     console.error('PDF Generation Error:', err);
     res.status(500).json(ApiResponse.error('High-fidelity PDF generation failed', 500, { error: err.message }));

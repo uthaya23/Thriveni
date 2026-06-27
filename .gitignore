@@ -33,3 +33,5 @@ ai-images/
 
 # Office temp files
 ~$*
+.vercel
+.env*

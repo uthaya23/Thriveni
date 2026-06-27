@@ -75,18 +75,17 @@ class ReportGenerationService {
 
       // Insert photos if available
       if (jobData.photos && Object.keys(jobData.photos).length > 0) {
-        docxBuffer = this._insertPhotosIntoTemplate(docxBuffer, jobData.photos);
+        docxBuffer = await this._insertPhotosIntoTemplate(docxBuffer, jobData.photos);
       }
 
       // Save DOCX
-      const docxPath = await this._saveDocx(docxBuffer, jobData.jobNo);
-      const reportUrl = `/api/reports/download/${jobData.jobNo}?format=docx`;
+      const docxUrl = await this._saveDocx(docxBuffer, jobData.jobNo);
 
       return {
         success: true,
         jobNo: jobData.jobNo,
-        docxPath,
-        reportUrl,
+        docxPath: docxUrl,
+        reportUrl: docxUrl,
         generatedAt: new Date().toISOString(),
         format: 'docx',
       };
@@ -257,45 +256,55 @@ class ReportGenerationService {
    * @param {Object} photos - Photo references
    * @returns {Buffer} Modified DOCX buffer
    */
-  _insertPhotosIntoTemplate(docxBuffer, photos) {
+  async _insertPhotosIntoTemplate(docxBuffer, photos) {
     try {
-      // Map photo categories to template image placeholders
       const imageMap = {};
 
-      if (photos.receivedCondition && fs.existsSync(photos.receivedCondition)) {
-        imageMap.photoReceivedCondition = photos.receivedCondition;
-      }
-      if (photos.inspection && fs.existsSync(photos.inspection)) {
-        imageMap.photoInspection = photos.inspection;
-      }
-      if (photos.dismantling && fs.existsSync(photos.dismantling)) {
-        imageMap.photoDismantling = photos.dismantling;
-      }
-      if (photos.damagedParts && fs.existsSync(photos.damagedParts)) {
-        imageMap.photoDamagedParts = photos.damagedParts;
-      }
-      if (photos.assembly && fs.existsSync(photos.assembly)) {
-        imageMap.photoAssembly = photos.assembly;
-      }
-      if (photos.testing && fs.existsSync(photos.testing)) {
-        imageMap.photoTesting = photos.testing;
-      }
-      if (photos.finalCondition && fs.existsSync(photos.finalCondition)) {
-        imageMap.photoFinalCondition = photos.finalCondition;
-      }
+      const resolveImage = async (val) => {
+        if (!val) return null;
+        if (typeof val === 'string') {
+          if (val.startsWith('http://') || val.startsWith('https://')) {
+            try {
+              const res = await fetch(val);
+              const arrayBuffer = await res.arrayBuffer();
+              return Buffer.from(arrayBuffer);
+            } catch (err) {
+              console.warn(`Failed to fetch ${val}:`, err.message);
+              return null;
+            }
+          } else if (fs.existsSync(val)) {
+            return val;
+          }
+        }
+        return null;
+      };
+
+      imageMap.photoReceivedCondition = await resolveImage(photos.receivedCondition);
+      imageMap.photoInspection = await resolveImage(photos.inspection);
+      imageMap.photoDismantling = await resolveImage(photos.dismantling);
+      imageMap.photoDamagedParts = await resolveImage(photos.damagedParts);
+      imageMap.photoAssembly = await resolveImage(photos.assembly);
+      imageMap.photoTesting = await resolveImage(photos.testing);
+      imageMap.photoFinalCondition = await resolveImage(photos.finalCondition);
 
       // Add user-specific aliases requested in the prompt
-      if (photos.receivedCondition && fs.existsSync(photos.receivedCondition)) {
-        imageMap.receivedPhoto1 = photos.receivedCondition;
+      if (imageMap.photoReceivedCondition) {
+        imageMap.receivedPhoto1 = imageMap.photoReceivedCondition;
       }
-      if (photos.dismantling && fs.existsSync(photos.dismantling)) {
-        imageMap.bearingPhoto = photos.dismantling;
-        imageMap.rotorPhoto = photos.dismantling;
+      if (imageMap.photoDismantling) {
+        imageMap.bearingPhoto = imageMap.photoDismantling;
+        imageMap.rotorPhoto = imageMap.photoDismantling;
       }
 
+      // Filter out null values
+      const finalImageMap = {};
+      Object.entries(imageMap).forEach(([k, v]) => {
+        if (v) finalImageMap[k] = v;
+      });
+
       // Only insert images if map has entries
-      if (Object.keys(imageMap).length > 0) {
-        return templateEngineService.insertImages(docxBuffer, imageMap);
+      if (Object.keys(finalImageMap).length > 0) {
+        return templateEngineService.insertImages(docxBuffer, finalImageMap);
       }
 
       return docxBuffer;
@@ -315,13 +324,13 @@ class ReportGenerationService {
   async _saveDocx(docxBuffer, jobNo) {
     const safeJobNo = String(jobNo).replace(/[^a-zA-Z0-9-]/g, '_');
     const filename = `Report_${safeJobNo}_${Date.now()}.docx`;
-    const filepath = path.join(this.reportsDir, filename);
-
+    
     try {
-      fs.writeFileSync(filepath, docxBuffer);
-      return filepath;
+      const { uploadToBlob } = require('./vercelBlob');
+      const blob = await uploadToBlob(docxBuffer, filename, 'reports/');
+      return blob.url; // Returns the public Vercel Blob URL
     } catch (error) {
-      throw new Error(`Failed to save DOCX: ${error.message}`);
+      throw new Error(`Failed to upload DOCX to Vercel Blob: ${error.message}`);
     }
   }
 

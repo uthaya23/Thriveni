@@ -7,7 +7,7 @@ class PdfService {
   /**
    * Generate PDF from HTML template
    */
-  static async generateFromTemplate(templatePath, data, outputPath) {
+  static async generateFromTemplate(templatePath, data) {
     // Register useful Handlebars helpers
     handlebars.registerHelper('eq', function (a, b) {
       return a === b;
@@ -125,14 +125,13 @@ class PdfService {
       const reportNo = (data.report && data.report.reportNo) || 'N/A';
       const footerText = `Job No: ${jobNo} | Report No: ${reportNo}`;
 
-      await page.pdf({
-        path: outputPath,
+      const pdfBuffer = await page.pdf({
         format: 'A4',
         printBackground: true,
         displayHeaderFooter: false
       });
       
-      return outputPath;
+      return pdfBuffer;
     } finally {
       await browser.close();
     }

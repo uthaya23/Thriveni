@@ -137,6 +137,10 @@ class TemplateEngineService {
             return Buffer.alloc(0);
           }
 
+          if (Buffer.isBuffer(tagValue)) {
+            return tagValue;
+          }
+
           if (typeof tagValue === 'string') {
             if (!fs.existsSync(tagValue)) {
               console.warn(`Image file not found: ${tagValue}`);
@@ -210,6 +214,7 @@ class TemplateEngineService {
           centered: false,
           getImage: (tagValue) => {
             if (!tagValue) return Buffer.alloc(0);
+            if (Buffer.isBuffer(tagValue)) return tagValue;
             if (typeof tagValue === 'string') {
               if (!fs.existsSync(tagValue)) {
                 return Buffer.alloc(0);
