@@ -613,8 +613,8 @@ function MatrixTab({ plans, filterQ }) {
         </button>
       </div>
 
-      {renderTable("FLEET 1: STANDARD EQUIPMENT PLAN (KOMATSU, BELAZ, EH4500)", table1Data)}
-      {renderTable("FLEET 2: SPECIAL PROJECTS & OTHER CONTRACTS (EH5000, L2350)", table2Data)}
+      {renderTable("FLEET 1: STANDARD EQUIPMENT PLAN", table1Data)}
+      {renderTable("FLEET 2: SPECIAL PROJECTS & OTHER CONTRACTS", table2Data)}
     </div>
   );
 }

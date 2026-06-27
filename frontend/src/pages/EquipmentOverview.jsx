@@ -5,13 +5,58 @@ import toast from 'react-hot-toast';
 export default function EquipmentOverview() {
   const [equipment, setEquipment] = useState([]);
   const [showModal, setShowModal] = useState(false);
-  const [form, setForm] = useState({ type:'830E DC', equipNo:'', name:'', serialNo:'', site:'', status:'Active', totalLifeHrs:'', lastService:'', notes:'' });
+  const [machineModels, setMachineModels] = useState([]);
+  const [modelColors, setModelColors] = useState({});
+  const [form, setForm] = useState({ type:'', equipNo:'', name:'', serialNo:'', site:'', status:'Active', totalLifeHrs:'', lastService:'', notes:'' });
   const [editId, setEditId] = useState(null);
   
-  const EQ_COLORS = { '830E DC':'#f59e0b','830E AC':'#3b82f6','EH5000':'#22c55e','EH4500':'#eab308','BELAZ':'#ef4444' };
+  // Default colors for known models
+  // New models added via Admin UI get a default color automatically
+  const DEFAULT_COLORS = {
+    '830E DC': '#f59e0b',
+    '830E AC': '#3b82f6',
+    'EH5000':  '#22c55e',
+    'EH4500':  '#eab308',
+    'BELAZ':   '#ef4444'
+  };
+
+  const FALLBACK_COLORS = [
+    '#8b5cf6', '#ec4899', '#14b8a6',
+    '#f97316', '#06b6d4', '#84cc16'
+  ];
 
   const fetch_ = async () => { try { const {data}=await api.get('/equipment'); setEquipment(data); } catch { toast.error('Failed to load'); } };
-  useEffect(()=>{fetch_();},[]);
+  
+  useEffect(() => {
+    fetch_();
+  
+    // Fetch machine models from OEM registry
+    api.get('/admin/machine-models')
+      .then(res => {
+        const models = res.data?.data || res.data || [];
+        const active = models.filter(m => m.active !== false);
+        setMachineModels(active);
+  
+        // Build color map — known models keep their color,
+        // new models get assigned a fallback color automatically
+        const colors = {};
+        active.forEach((m, idx) => {
+          colors[m.name] = DEFAULT_COLORS[m.name] || FALLBACK_COLORS[idx % FALLBACK_COLORS.length];
+        });
+        setModelColors(colors);
+      })
+      .catch(() => {
+        // If API fails, fall back to known models
+        setMachineModels([
+          { name: '830E DC', make: 'KOMATSU' },
+          { name: '830E AC', make: 'KOMATSU' },
+          { name: 'EH5000',  make: 'HITACHI' },
+          { name: 'EH4500',  make: 'HITACHI' },
+          { name: 'BELAZ',   make: 'BELAZ'   }
+        ]);
+        setModelColors(DEFAULT_COLORS);
+      });
+  }, []);
 
   const save = async () => {
     try {
@@ -20,7 +65,17 @@ export default function EquipmentOverview() {
     } catch(e){ toast.error(e.response?.data?.message||'Error'); }
   };
   const del = async id => { if(!window.confirm('Delete?'))return; await api.delete(`/equipment/${id}`); toast.success('Deleted'); fetch_(); };
-  const open = (eq=null)=>{ setEditId(eq?._id||null); setForm(eq?{...eq}:{type:'830E DC',equipNo:'',name:'',serialNo:'',site:'',status:'Active',totalLifeHrs:'',lastService:'',notes:''}); setShowModal(true); };
+  const open = (eq=null)=>{ setEditId(eq?._id||null); setForm(eq ? { ...eq } : {
+    type: machineModels[0]?.name || '',
+    equipNo: '',
+    name: '',
+    serialNo: '',
+    site: '',
+    status: 'Active',
+    totalLifeHrs: '',
+    lastService: '',
+    notes: ''
+  }); setShowModal(true); };
 
   return (
     <div className="grid-canvas">
@@ -40,7 +95,7 @@ export default function EquipmentOverview() {
         </div>
       ) : (
         equipment.map(eq => (
-          <div key={eq._id} className="col-span-4 panel" style={{ borderTop: `4px solid ${EQ_COLORS[eq.type] || '#ccc'}` }}>
+          <div key={eq._id} className="col-span-4 panel" style={{ borderTop: `4px solid ${modelColors[eq.type] || '#6b7280'}` }}>
             <div className="panel-body">
               <div className="flex justify-between mb-4">
                 <div>
@@ -74,7 +129,11 @@ export default function EquipmentOverview() {
             <div className="panel-body grid-2" style={{ padding: '1.5rem', gap: '1rem' }}>
               <div className="col-span-6 form-group"><label>Type</label>
                 <select value={form.type} onChange={e=>setForm({...form, type: e.target.value})}>
-                  {Object.keys(EQ_COLORS).map(k=><option key={k}>{k}</option>)}
+                  {machineModels.map(m => (
+                    <option key={m.name} value={m.name}>
+                      {m.make ? `${m.make} — ${m.name}` : m.name}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div className="col-span-6 form-group"><label>Equip No</label><input value={form.equipNo} onChange={e=>setForm({...form, equipNo: e.target.value})} /></div>
