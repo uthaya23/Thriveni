@@ -52,6 +52,7 @@ export default function JobDetailPage() {
   const [loading, setLoading] = useState(true);
   const [viewStage, setViewStage] = useState('Overview');
   const [savingStage, setSavingStage] = useState(false);
+  const [qaReview, setQaReview] = useState(null);
   const tabRef = useRef();
 
   const fetchJob = useCallback(async () => {
@@ -76,6 +77,15 @@ export default function JobDetailPage() {
   }, [id, navigate]);
 
   useEffect(() => { fetchJob(); }, [fetchJob]);
+
+  // Fetch QA review status
+  useEffect(() => {
+    if (id) {
+      api.get(`/qa/${id}`)
+        .then(res => setQaReview(res.data?.data))
+        .catch(() => setQaReview(null));
+    }
+  }, [id]);
 
   // Map legacy stage names to new 5-stage system
   const normalizeStage = (stage) => {
@@ -106,6 +116,18 @@ export default function JobDetailPage() {
     }
     if (currentStageIdx >= STAGES.length - 1) return;
     const next = STAGES[currentStageIdx + 1];
+
+    // QA Gate — cannot advance from Stage 3 to Stage 4 without approval
+    if (next === 'Testing & Dispatch') {
+      if (!qaReview || qaReview.status !== 'Approved') {
+        toast.error(
+          'QA approval required before advancing to Stage 4. Submit Stage 3 for QA review first.',
+          { duration: 6000 }
+        );
+        return;
+      }
+    }
+
     setSavingStage(true);
     try {
       const payload = { ...job, stage: next };

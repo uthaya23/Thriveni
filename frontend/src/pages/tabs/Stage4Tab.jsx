@@ -134,6 +134,27 @@ const Stage4Tab = forwardRef(({ jobId, job, template }, ref) => {
 
   return (
     <div className="space-y-6 pb-20">
+      {/* QA Approval Banner */}
+      {data.qaApprovedBy && (
+        <div style={{
+          background: '#f0fdf4',
+          border: '1px solid #bbf7d0',
+          borderRadius: '12px',
+          padding: '1rem 1.5rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.75rem'
+        }}>
+          <span style={{ fontSize: '1.5rem' }}>✅</span>
+          <div>
+            <div style={{ fontWeight: 700, color: '#15803d' }}>QA Approved</div>
+            <div style={{ fontSize: '0.8rem', color: '#166534' }}>
+              Approved by {data.qaApprovedBy}{data.qaApprovedDate ? ` on ${data.qaApprovedDate}` : ''}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>

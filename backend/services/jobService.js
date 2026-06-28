@@ -230,6 +230,24 @@ class JobService {
     try {
       Logger.info('Updating job', { jobId, updatedBy });
 
+      // ── QA Stage Gate ──────────────────────────────
+      // Prevent advancing to Stage 4 without QA approval
+      const STAGE_4 = 'Testing & Dispatch';
+      const STAGE_3 = 'Pre-Assembly & Assembly';
+
+      if (updateData.stage === STAGE_4) {
+        const currentJob = await Job.findById(jobId);
+        if (currentJob && (currentJob.stage === STAGE_3 || currentJob.stage === 'QA Review Pending')) {
+          const QAReview = require('../models/QAReview');
+          const qaReview = await QAReview.findOne({ job: jobId });
+          if (!qaReview || qaReview.status !== 'Approved') {
+            return ApiResponse.badRequest(
+              'QA approval required before advancing to Stage 4. Submit Stage 3 for QA review first.'
+            );
+          }
+        }
+      }
+
       // Handle completion timestamp
       if (updateData.stage === 'Completed') {
         updateData.completedAt = new Date();

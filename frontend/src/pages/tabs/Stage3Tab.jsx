@@ -1,5 +1,6 @@
 import React, { forwardRef, useImperativeHandle, useState } from 'react';
 import toast from 'react-hot-toast';
+import api from '../../utils/api';
 import { useStageData, uploadPhotos, getImageUrl, evalNumeric, STATUS_BADGE } from './stageUtils';
 
 import TechnicianSelect from '../../components/TechnicianSelect';
@@ -98,17 +99,132 @@ const Stage3Tab = forwardRef(({ jobId, job, template }, ref) => {
   const asmChecklist = s3.assemblyChecklist || [];
   const torques = s3.torqueVerifications || [];
 
+  const [qaStatus, setQaStatus] = useState(null);
+
+  // Fetch QA review status for this job
+  React.useEffect(() => {
+    if (jobId) {
+      api.get(`/qa/${jobId}`)
+        .then(res => setQaStatus(res.data?.data))
+        .catch(() => setQaStatus(null));
+    }
+  }, [jobId]);
+
   if (isSummaryMode) {
     return (
-      <AssemblySummaryView
-        job={job}
-        data={data}
-        template={template}
-        onEdit={() => {
-          setIsSummaryMode(false);
-          window.__stage3_edit_mode_active = true;
-        }}
-      />
+      <div>
+        <AssemblySummaryView
+          job={job}
+          data={data}
+          template={template}
+          onEdit={() => {
+            setIsSummaryMode(false);
+            window.__stage3_edit_mode_active = true;
+          }}
+        />
+
+        {/* QA Rejection Banner */}
+        {qaStatus?.status === 'Rejected' && (
+          <div style={{
+            marginTop: '1.5rem',
+            padding: '1.5rem',
+            background: '#fef2f2',
+            borderRadius: '12px',
+            border: '1px solid #fecaca'
+          }}>
+            <h4 style={{ color: '#dc2626', fontWeight: 800, marginBottom: '0.5rem', fontSize: '0.9rem' }}>
+              ❌ QA Review Rejected
+            </h4>
+            <p style={{ color: '#991b1b', fontSize: '0.875rem', marginBottom: '0.5rem' }}>
+              <strong>Reason:</strong> {qaStatus.rejectionReason}
+            </p>
+            {qaStatus.reviewedBy && (
+              <p style={{ color: '#b91c1c', fontSize: '0.8rem' }}>
+                Rejected by {qaStatus.reviewedBy.name} on {new Date(qaStatus.reviewedAt).toLocaleDateString('en-GB')}
+              </p>
+            )}
+            <p style={{ color: '#991b1b', fontSize: '0.8rem', marginTop: '0.75rem', fontWeight: 600 }}>
+              Fix the issues above, then resubmit for QA review.
+            </p>
+          </div>
+        )}
+
+        {/* QA Pending Banner */}
+        {qaStatus?.status === 'Pending' && (
+          <div style={{
+            marginTop: '1.5rem',
+            padding: '1.5rem',
+            background: '#fffbeb',
+            borderRadius: '12px',
+            border: '1px solid #fde68a'
+          }}>
+            <h4 style={{ color: '#d97706', fontWeight: 800, fontSize: '0.9rem' }}>
+              ⏳ Pending QA Approval
+            </h4>
+            <p style={{ color: '#92400e', fontSize: '0.8rem', marginTop: '0.25rem' }}>
+              Submitted for manager review. Stage 4 will unlock after approval.
+            </p>
+          </div>
+        )}
+
+        {/* QA Approved Banner */}
+        {qaStatus?.status === 'Approved' && (
+          <div style={{
+            marginTop: '1.5rem',
+            padding: '1.5rem',
+            background: '#f0fdf4',
+            borderRadius: '12px',
+            border: '1px solid #bbf7d0'
+          }}>
+            <h4 style={{ color: '#15803d', fontWeight: 800, fontSize: '0.9rem' }}>
+              ✅ QA Approved
+            </h4>
+            <p style={{ color: '#166534', fontSize: '0.8rem', marginTop: '0.25rem' }}>
+              Approved by {qaStatus.reviewedBy?.name} on {new Date(qaStatus.reviewedAt).toLocaleDateString('en-GB')}. Stage 4 is unlocked.
+            </p>
+          </div>
+        )}
+
+        {/* Submit for QA Review Button */}
+        {(!qaStatus || qaStatus.status === 'Not Submitted' || qaStatus.status === 'Rejected') && (
+          <div style={{
+            marginTop: '1.5rem',
+            padding: '1.5rem',
+            background: '#f0fdf4',
+            borderRadius: '12px',
+            border: '1px solid #bbf7d0'
+          }}>
+            <h4 style={{ color: '#15803d', fontWeight: 800, marginBottom: '0.5rem' }}>
+              {qaStatus?.status === 'Rejected' ? '🔄 Resubmit for QA Review' : '✅ Stage 3 Complete'}
+            </h4>
+            <p style={{ color: '#166534', fontSize: '0.875rem', marginBottom: '1rem' }}>
+              {qaStatus?.status === 'Rejected'
+                ? 'After fixing the issues, resubmit for QA review.'
+                : 'Assembly is complete. Submit for QA review to unlock Stage 4.'}
+            </p>
+            <button
+              style={{ padding: '10px 20px', background: '#16a34a', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer' }}
+              onClick={async () => {
+                try {
+                  await api.post(`/qa/${jobId}/submit`, {
+                    comment: qaStatus?.status === 'Rejected'
+                      ? 'Resubmitted after addressing rejection feedback'
+                      : 'Stage 3 assembly completed — submitted for QA review'
+                  });
+                  toast.success('Submitted for QA review. Manager will be notified.');
+                  // Refresh QA status
+                  const res = await api.get(`/qa/${jobId}`);
+                  setQaStatus(res.data?.data);
+                } catch (err) {
+                  toast.error(err.response?.data?.message || 'Failed to submit for QA review');
+                }
+              }}
+            >
+              {qaStatus?.status === 'Rejected' ? '🔄 Resubmit for QA Review' : '📋 Submit for QA Review'}
+            </button>
+          </div>
+        )}
+      </div>
     );
   }
 
