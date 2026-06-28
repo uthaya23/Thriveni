@@ -124,16 +124,20 @@ router.post('/:jobId/approve', notTechnician, asyncHandler(async (req, res) => {
 
   const review = await QAReview.findOne({ job: jobId });
   if (!review) {
+    console.error('Approve failed: No QA review found', jobId);
     return res.status(400).json(
       ApiResponse.badRequest('No QA review found for this job')
     );
   }
 
   if (review.status === 'Approved') {
+    console.error('Approve failed: Already approved', jobId);
     return res.status(400).json(
       ApiResponse.badRequest('Job is already QA approved')
     );
   }
+
+  console.log('Approve success! Saving to DB...', jobId);
 
   // Approve
   review.status = 'Approved';
@@ -150,17 +154,29 @@ router.post('/:jobId/approve', notTechnician, asyncHandler(async (req, res) => {
   await review.save();
 
   // Update JobData stage4 qaApprovedBy fields
-  await JobData.findOneAndUpdate(
+  const jobDataUpdate = await JobData.findOneAndUpdate(
     { job: jobId },
     {
       'stage4.qaApprovedBy': req.user.name,
       'stage4.qaApprovedDate': new Date().toISOString().split('T')[0]
-    }
+    },
+    { new: true }
   );
 
-  // Advance job to Stage 4
-  await Job.findByIdAndUpdate(jobId, {
-    stage: 'Testing & Dispatch'
+  // Advance job to Stage 4 — use findByIdAndUpdate directly for reliability
+  const updatedJob = await Job.findByIdAndUpdate(
+    jobId,
+    { $set: { stage: 'Testing & Dispatch' } },
+    { new: true }
+  );
+
+  if (!updatedJob) {
+    Logger.error('Failed to update job stage after QA approval', null, { jobId });
+  }
+
+  Logger.info('Job advanced to Stage 4 after QA approval', {
+    jobNo: job.jobNo,
+    newStage: updatedJob?.stage
   });
 
   await AuditService.log({

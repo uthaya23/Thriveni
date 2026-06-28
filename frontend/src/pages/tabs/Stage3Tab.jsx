@@ -2,12 +2,14 @@ import React, { forwardRef, useImperativeHandle, useState } from 'react';
 import toast from 'react-hot-toast';
 import api from '../../utils/api';
 import { useStageData, uploadPhotos, getImageUrl, evalNumeric, STATUS_BADGE } from './stageUtils';
+import { useAuth } from '../../context/AuthContext';
 
 import TechnicianSelect from '../../components/TechnicianSelect';
 import AssemblySummaryView from './AssemblySummaryView';
 
 const Stage3Tab = forwardRef(({ jobId, job, template }, ref) => {
   const { data, setData, loading, saving, save } = useStageData(jobId, 3);
+  const { user } = useAuth();
   const [uploading, setUploading] = useState(false);
   const [isSummaryMode, setIsSummaryMode] = useState(false);
 
@@ -91,6 +93,27 @@ const Stage3Tab = forwardRef(({ jobId, job, template }, ref) => {
     });
   };
 
+  const [qaStatus, setQaStatus] = useState(null);
+
+  // Fetch QA review status for this job
+  React.useEffect(() => {
+    if (jobId) {
+      api.get(`/qa/${jobId}`)
+        .then(res => {
+          const data = res.data?.data;
+          // Handle both response shapes
+          // Shape 1: { status: 'Not Submitted', review: null }
+          // Shape 2: { _id: ..., status: 'Approved', ... }
+          if (data?.review === null) {
+            setQaStatus({ status: 'Not Submitted' });
+          } else {
+            setQaStatus(data);
+          }
+        })
+        .catch(() => setQaStatus({ status: 'Not Submitted' }));
+    }
+  }, [jobId]);
+
   if (loading) return <div className="py-20 text-center text-slate-400">Loading...</div>;
   if (!data) return null;
 
@@ -99,121 +122,126 @@ const Stage3Tab = forwardRef(({ jobId, job, template }, ref) => {
   const asmChecklist = s3.assemblyChecklist || [];
   const torques = s3.torqueVerifications || [];
 
-  const [qaStatus, setQaStatus] = useState(null);
-
-  // Fetch QA review status for this job
-  React.useEffect(() => {
-    if (jobId) {
-      api.get(`/qa/${jobId}`)
-        .then(res => setQaStatus(res.data?.data))
-        .catch(() => setQaStatus(null));
-    }
-  }, [jobId]);
-
   if (isSummaryMode) {
     return (
-      <div>
-        <AssemblySummaryView
-          job={job}
-          data={data}
-          template={template}
-          onEdit={() => {
-            setIsSummaryMode(false);
-            window.__stage3_edit_mode_active = true;
-          }}
-        />
-
+      <div className="space-y-6">
         {/* QA Rejection Banner */}
         {qaStatus?.status === 'Rejected' && (
-          <div style={{
-            marginTop: '1.5rem',
-            padding: '1.5rem',
-            background: '#fef2f2',
-            borderRadius: '12px',
-            border: '1px solid #fecaca'
-          }}>
-            <h4 style={{ color: '#dc2626', fontWeight: 800, marginBottom: '0.5rem', fontSize: '0.9rem' }}>
+          <div className="p-6 bg-red-50 rounded-xl border border-red-200">
+            <h4 className="text-red-600 font-extrabold text-sm mb-2">
               ❌ QA Review Rejected
             </h4>
-            <p style={{ color: '#991b1b', fontSize: '0.875rem', marginBottom: '0.5rem' }}>
+            <p className="text-red-800 text-sm mb-2">
               <strong>Reason:</strong> {qaStatus.rejectionReason}
             </p>
             {qaStatus.reviewedBy && (
-              <p style={{ color: '#b91c1c', fontSize: '0.8rem' }}>
-                Rejected by {qaStatus.reviewedBy.name} on {new Date(qaStatus.reviewedAt).toLocaleDateString('en-GB')}
+              <p className="text-red-700 text-xs">
+                Rejected by {qaStatus.reviewedBy.name || 'Manager'}{qaStatus.reviewedAt ? ` on ${new Date(qaStatus.reviewedAt).toLocaleDateString('en-GB')}` : ''}
               </p>
             )}
-            <p style={{ color: '#991b1b', fontSize: '0.8rem', marginTop: '0.75rem', fontWeight: 600 }}>
-              Fix the issues above, then resubmit for QA review.
+            <p className="text-red-800 text-xs mt-3 font-semibold">
+              Fix the issues below, then resubmit for QA review.
             </p>
           </div>
         )}
 
         {/* QA Pending Banner */}
         {qaStatus?.status === 'Pending' && (
-          <div style={{
-            marginTop: '1.5rem',
-            padding: '1.5rem',
-            background: '#fffbeb',
-            borderRadius: '12px',
-            border: '1px solid #fde68a'
-          }}>
-            <h4 style={{ color: '#d97706', fontWeight: 800, fontSize: '0.9rem' }}>
-              ⏳ Pending QA Approval
-            </h4>
-            <p style={{ color: '#92400e', fontSize: '0.8rem', marginTop: '0.25rem' }}>
-              Submitted for manager review. Stage 4 will unlock after approval.
-            </p>
+          <div className="p-6 bg-amber-50 rounded-xl border border-amber-200">
+            <div className="flex justify-between items-start">
+              <div>
+                <h4 className="text-amber-600 font-extrabold text-sm">
+                  ⏳ Pending QA Approval
+                </h4>
+                <p className="text-amber-800 text-xs mt-1">
+                  Submitted for manager review. Stage 4 will unlock after approval.
+                </p>
+              </div>
+              
+              {user?.role !== 'technician' && (
+                <div className="flex gap-3">
+                  <button
+                    onClick={async () => {
+                      const reason = window.prompt("Enter rejection reason:") || "Rejected by Manager";
+                      try {
+                        const res = await api.post(`/qa/${jobId}/reject`, { reason });
+                        toast.success('Assembly rejected');
+                        setQaStatus(res.data?.data);
+                      } catch (err) {
+                        toast.error(err.response?.data?.message || 'Failed to reject');
+                      }
+                    }}
+                    className="px-4 py-2 bg-white border border-red-500 text-red-500 rounded-lg font-bold text-xs cursor-pointer hover:bg-red-50 transition-colors"
+                  >
+                    Reject
+                  </button>
+                  <button
+                    onClick={async () => {
+                      try {
+                        const res = await api.post(`/qa/${jobId}/approve`);
+                        toast.success('Assembly QA approved — Stage 4 is now unlocked!');
+                        setQaStatus(res.data?.data);
+                        window.location.reload(); // Simple reliable refresh
+                      } catch (err) {
+                        toast.error(err.response?.data?.message || 'Failed to approve');
+                      }
+                    }}
+                    className="px-4 py-2 bg-green-600 border-none text-white rounded-lg font-bold text-xs cursor-pointer hover:bg-green-700 transition-colors"
+                  >
+                    Approve
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         )}
 
         {/* QA Approved Banner */}
         {qaStatus?.status === 'Approved' && (
           <div style={{
-            marginTop: '1.5rem',
             padding: '1.5rem',
             background: '#f0fdf4',
             borderRadius: '12px',
-            border: '1px solid #bbf7d0'
+            border: '2px solid #86efac',
+            marginBottom: '1rem'
           }}>
-            <h4 style={{ color: '#15803d', fontWeight: 800, fontSize: '0.9rem' }}>
-              ✅ QA Approved
-            </h4>
-            <p style={{ color: '#166534', fontSize: '0.8rem', marginTop: '0.25rem' }}>
-              Approved by {qaStatus.reviewedBy?.name} on {new Date(qaStatus.reviewedAt).toLocaleDateString('en-GB')}. Stage 4 is unlocked.
-            </p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <span style={{ fontSize: '1.5rem' }}>✅</span>
+              <div>
+                <div style={{ fontWeight: 800, color: '#15803d', fontSize: '0.95rem' }}>
+                  QA Approved
+                </div>
+                <div style={{ fontSize: '0.8rem', color: '#166534', marginTop: '0.25rem' }}>
+                  {qaStatus.approvalNotes
+                    ? `Notes: ${qaStatus.approvalNotes}`
+                    : 'Assembly has been approved. Stage 4 is now unlocked.'}
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
         {/* Submit for QA Review Button */}
         {(!qaStatus || qaStatus.status === 'Not Submitted' || qaStatus.status === 'Rejected') && (
-          <div style={{
-            marginTop: '1.5rem',
-            padding: '1.5rem',
-            background: '#f0fdf4',
-            borderRadius: '12px',
-            border: '1px solid #bbf7d0'
-          }}>
-            <h4 style={{ color: '#15803d', fontWeight: 800, marginBottom: '0.5rem' }}>
+          <div className="p-6 bg-green-50 rounded-xl border border-green-200">
+            <h4 className="text-green-700 font-extrabold mb-2">
               {qaStatus?.status === 'Rejected' ? '🔄 Resubmit for QA Review' : '✅ Stage 3 Complete'}
             </h4>
-            <p style={{ color: '#166534', fontSize: '0.875rem', marginBottom: '1rem' }}>
+            <p className="text-green-800 text-sm mb-4">
               {qaStatus?.status === 'Rejected'
                 ? 'After fixing the issues, resubmit for QA review.'
                 : 'Assembly is complete. Submit for QA review to unlock Stage 4.'}
             </p>
             <button
-              style={{ padding: '10px 20px', background: '#16a34a', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer' }}
+              className="px-5 py-2.5 bg-green-600 text-white border-none rounded-lg font-bold text-sm cursor-pointer hover:bg-green-700 transition-colors"
               onClick={async () => {
                 try {
-                  await api.post(`/qa/${jobId}/submit`, {
+                  const res = await api.post(`/qa/${jobId}/submit`, {
                     comment: qaStatus?.status === 'Rejected'
                       ? 'Resubmitted after addressing rejection feedback'
                       : 'Stage 3 assembly completed — submitted for QA review'
                   });
                   toast.success('Submitted for QA review. Manager will be notified.');
-                  // Refresh QA status
-                  const res = await api.get(`/qa/${jobId}`);
                   setQaStatus(res.data?.data);
                 } catch (err) {
                   toast.error(err.response?.data?.message || 'Failed to submit for QA review');
@@ -224,6 +252,16 @@ const Stage3Tab = forwardRef(({ jobId, job, template }, ref) => {
             </button>
           </div>
         )}
+
+        <AssemblySummaryView
+          job={job}
+          data={data}
+          template={template}
+          onEdit={() => {
+            setIsSummaryMode(false);
+            window.__stage3_edit_mode_active = true;
+          }}
+        />
       </div>
     );
   }

@@ -119,11 +119,22 @@ export default function JobDetailPage() {
 
     // QA Gate — cannot advance from Stage 3 to Stage 4 without approval
     if (next === 'Testing & Dispatch') {
-      if (!qaReview || qaReview.status !== 'Approved') {
-        toast.error(
-          'QA approval required before advancing to Stage 4. Submit Stage 3 for QA review first.',
-          { duration: 6000 }
-        );
+      try {
+        const qaRes = await api.get(`/qa/${id}`);
+        const rawData = qaRes.data?.data;
+        // Normalize response shape
+        const freshQaReview = rawData?.review === null
+          ? { status: 'Not Submitted' }
+          : rawData;
+        if (!freshQaReview || freshQaReview.status !== 'Approved') {
+          toast.error(
+            'QA approval required before advancing to Stage 4. Submit Stage 3 for QA review first.',
+            { duration: 6000 }
+          );
+          return;
+        }
+      } catch (err) {
+        toast.error('Failed to verify QA status');
         return;
       }
     }
@@ -137,7 +148,9 @@ export default function JobDetailPage() {
       setJob(data);
       setViewStage(next);
       toast.success(`Advanced to ${next}`);
-    } catch { toast.error('Failed to update stage'); }
+    } catch (err) { 
+      toast.error(err.response?.data?.message || 'Failed to update stage', { duration: 5000 }); 
+    }
     finally { setSavingStage(false); }
   };
 
