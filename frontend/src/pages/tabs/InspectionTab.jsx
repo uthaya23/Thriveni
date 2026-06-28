@@ -5,7 +5,7 @@ import DynamicTable from '../../components/DynamicTable';
 import CameraUploader from '../../components/CameraUploader';
 import ExpandableSection from '../../components/ExpandableSection';
 import { FiEye, FiZap, FiBox, FiBookOpen } from 'react-icons/fi';
-import { getTemplateForJob } from './inspectionTemplates';
+
 import { evaluateParameter } from '../../utils/inspectionEvaluator';
 
 const InspectionTab = forwardRef(({ jobId, job, isReadOnly, stageNameFilter }, ref) => {
@@ -24,9 +24,27 @@ const InspectionTab = forwardRef(({ jobId, job, isReadOnly, stageNameFilter }, r
   const [analyzing, setAnalyzing] = useState(false);
   const [previewPhoto, setPreviewPhoto] = useState(null);
   const [showAIModal, setShowAIModal] = useState(false);
-  const [aiMotorType, setAiMotorType] = useState(job?.componentType || 'Wheel Motor');
+  const [aiMotorType, setAiMotorType] = useState(job?.componentType || '');
   const [aiCustomDetails, setAiCustomDetails] = useState('');
   const [activeModal, setActiveModal] = useState(null);
+  const [componentTypes, setComponentTypes] = useState([]);
+
+  // Fetch component types for AI analysis dropdown
+  useEffect(() => {
+    api.get('/admin/component-types')
+      .then(res => {
+        const types = res.data?.data || res.data || [];
+        setComponentTypes(types.filter(t => t.active !== false));
+      })
+      .catch(() => {
+        setComponentTypes([
+          { name: 'Wheel Motor' },
+          { name: 'Main Blower Motor' },
+          { name: 'Grid Blower Motor' },
+          { name: 'Main Alternator' }
+        ]);
+      });
+  }, []);
 
   useImperativeHandle(ref, () => ({
     save: async () => {
@@ -462,12 +480,16 @@ const InspectionTab = forwardRef(({ jobId, job, isReadOnly, stageNameFilter }, r
             <div className="p-8 space-y-6">
               <div className="form-control w-full">
                 <label className="label-text text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3 block">Type of Component</label>
-                <select className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-4 focus:ring-blue-100 transition-all outline-none font-bold text-slate-800" value={aiMotorType} onChange={e => setAiMotorType(e.target.value)}>
-                  <option value="Wheel Motor">Wheel Motor</option>
-                  <option value="Main Blower Motor">Main Blower Motor</option>
-                  <option value="Grid Blower Motor">Grid Blower Motor</option>
-                  <option value="Main Alternator">Main Alternator</option>
-                  <option value="Exciter">Exciter</option>
+                <select
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-4 focus:ring-blue-100 transition-all outline-none font-bold text-slate-800"
+                  value={aiMotorType}
+                  onChange={e => setAiMotorType(e.target.value)}
+                >
+                  {componentTypes.map(t => (
+                    <option key={t.name} value={t.name}>
+                      {t.name}
+                    </option>
+                  ))}
                   <option value="Other / Misc">Other / Misc</option>
                 </select>
               </div>

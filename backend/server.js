@@ -105,6 +105,7 @@ app.use('/api/production-plans', require('./routes/productionPlanRoutes'));
 app.use('/api/inventory',      require('./routes/inventoryRoutes'));
 app.use('/api/templates',      require('./routes/templateRoutes'));
 app.use('/api/ai',             require('./routes/aiRoutes'));
+app.use('/api/audit',          require('./routes/auditRoutes'));
 
 // ── Health check ──────────────────────────────
 app.get('/api/health', (req, res) =>

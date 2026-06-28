@@ -99,4 +99,33 @@ const jobDataSchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
+const AuditService = require('../services/AuditService');
+
+// Post-save hook — log every stage save
+jobDataSchema.post('save', async function(doc) {
+  try {
+    // Determine which stage was most recently updated
+    const stages = ['stage1', 'stage2', 'stage3', 'stage4'];
+    const stageNumbers = { stage1: 1, stage2: 2, stage3: 3, stage4: 4 };
+
+    for (const stageName of stages) {
+      if (doc[stageName]?.status === 'Completed' || doc[stageName]?.technician) {
+        await AuditService.log({
+          entityType: 'JobData',
+          entityId: doc._id,
+          entityRef: doc._jobNo || String(doc.job),
+          action: 'stage_saved',
+          stage: stageNumbers[stageName],
+          summary: `Stage ${stageNumbers[stageName]} data saved`,
+          performedBy: doc._savedBy || doc.job,
+          req: null
+        });
+        break; // break loop to avoid logging multiple stages for a single save
+      }
+    }
+  } catch (err) {
+    // Never block saves
+  }
+});
+
 module.exports = mongoose.model('JobData', jobDataSchema);

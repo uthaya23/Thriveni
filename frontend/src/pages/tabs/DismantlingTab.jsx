@@ -4,63 +4,10 @@ import { getImageUrl } from '../../utils/api';
 import api from '../../utils/api';
 import toast from 'react-hot-toast';
 
-const getChecklistItems = (job) => {
-  const type = (job?.componentType || '').toLowerCase();
-  
-  if (type.includes('wheel motor') || type.includes('eh5000') || type.includes('eh4500')) {
-    return [
-      'Drive Ring Removed',
-      'Drive Ring Cover Removed',
-      'Brake Caliper Removed',
-      'Brake Disc Removed',
-      'Encoder Assembly Removed',
-      'RTD Connections Removed',
-      'DE Outer Seal Removed',
-      'DE Inner Seal Removed',
-      'NDE Outer Seal Removed',
-      'NDE Inner Seal Removed',
-      'Rotor Removed',
-      'Stator Removed',
-      'DE Bearing Removed',
-      'NDE Bearing Removed'
-    ];
-  }
-  
-  if (type.includes('alternator')) {
-    return [
-      'Exciter Stator Removed',
-      'Exciter Rotor Removed',
-      'Main Rotor Removed',
-      'Bearing Housing Assembly Removed',
-      'Bearings Removed',
-      'Hub Removed',
-      'Engine Mounting Flange Removed',
-      'Diode Wheel / Rectifier Assembly Removed',
-      'DE Bearing Removed',
-      'NDE Bearing Removed',
-      'Cooling Fan Removed',
-      'Terminal Box Removed',
-      'RTD / TC Connections Removed'
-    ];
-  }
-
-  // Generic / Default (AC Motors, GBM, MBM, etc.)
-  return [
-    'Drive End Cover Removed',
-    'Non-Drive End Cover Removed',
-    'Cooling Fan Removed',
-    'Fan Cover Removed',
-    'Rotor Removed',
-    'Stator Removed',
-    'DE Bearing Removed',
-    'NDE Bearing Removed',
-    'Terminal Box Removed',
-    'Accessories/Sensors Removed'
-  ];
-};
 
 const DismantlingTab = forwardRef(({ jobId, job, isReadOnly }, ref) => {
   const [data, setData] = useState(null);
+  const [templateChecklist, setTemplateChecklist] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -84,8 +31,13 @@ const DismantlingTab = forwardRef(({ jobId, job, isReadOnly }, ref) => {
   }));
 
   useEffect(() => {
-    api.get(`/dismantling/${jobId}`).then(res => {
-      const existingData = res.data._id ? res.data : null;
+    // Fetch saved dismantling data AND component template in parallel
+    Promise.all([
+      api.get(`/dismantling/${jobId}`).catch(() => null),
+      api.get(`/templates/jobdata/${jobId}`).catch(() => null)
+    ]).then(([dismantlingRes, templateRes]) => {
+      
+      const existingData = dismantlingRes?.data?._id ? dismantlingRes.data : null;
       setData(existingData || {
         startDate: '',
         completionDate: '',
@@ -95,16 +47,34 @@ const DismantlingTab = forwardRef(({ jobId, job, isReadOnly }, ref) => {
       });
       setIsEditing(!existingData);
       setLoading(false);
-    }).catch(() => {
-      setData({
-        startDate: '',
-        completionDate: '',
-        technician: '',
-        overallPhotos: [],
-        checklist: {}
-      });
-      setIsEditing(true);
-      setLoading(false);
+
+      // Load checklist items from ComponentTemplate
+      // stage2.dismantlingChecklist is an object where keys are item names
+      const template = templateRes?.data?.data || templateRes?.data;
+      if (template?.componentTemplate?.stage2?.dismantlingChecklist) {
+        const items = Object.keys(
+          template.componentTemplate.stage2.dismantlingChecklist
+        );
+        if (items.length > 0) {
+          setTemplateChecklist(items);
+          return;
+        }
+      }
+
+      // Fallback: if template has no dismantling checklist
+      // use a generic list so the tab never breaks
+      setTemplateChecklist([
+        'Drive End Cover Removed',
+        'Non-Drive End Cover Removed',
+        'Cooling Fan Removed',
+        'Fan Cover Removed',
+        'Rotor Removed',
+        'Stator Removed',
+        'DE Bearing Removed',
+        'NDE Bearing Removed',
+        'Terminal Box Removed',
+        'Accessories and Sensors Removed'
+      ]);
     });
   }, [jobId]);
 
@@ -182,7 +152,7 @@ const DismantlingTab = forwardRef(({ jobId, job, isReadOnly }, ref) => {
       <div className="bg-white p-8 rounded-xl border border-slate-200 shadow-sm">
         <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-6">Dismantling Checklist</label>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {getChecklistItems(job).map((item, idx) => {
+          {templateChecklist.map((item, idx) => {
             const itemData = data.checklist?.[item];
             const isChecked = typeof itemData === 'object' ? (itemData?.checked || false) : !!itemData;
             const checkDate = typeof itemData === 'object' ? (itemData?.date || '') : '';
@@ -328,7 +298,7 @@ const DismantlingTab = forwardRef(({ jobId, job, isReadOnly }, ref) => {
           <section className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
             <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest mb-6">Dismantling Checklist</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-              {getChecklistItems(job).map((item, idx) => {
+              {templateChecklist.map((item, idx) => {
                 const itemData = data.checklist?.[item];
                 const isChecked = typeof itemData === 'object' ? (itemData?.checked || false) : !!itemData;
                 const checkDate = typeof itemData === 'object' ? (itemData?.date || '') : '';

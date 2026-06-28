@@ -19,6 +19,7 @@ const JobData = require('../models/JobData');
 const Photo = require('../models/Photo');
 const ApiResponse = require('../utils/apiResponse');
 const Logger = require('../utils/logger');
+const AuditService = require('./AuditService');
 
 // ─────────────────────────────────────────────
 // Constants
@@ -505,6 +506,16 @@ Return EXACTLY this JSON structure:
       categorizedPhotos: []
     });
 
+    await AuditService.log({
+      entityType: 'Report',
+      entityId: report._id,
+      entityRef: job.jobNo,
+      action: 'report_generated',
+      summary: `AI report draft generated for job ${job.jobNo}`,
+      performedBy: userId,
+      req: null
+    });
+
     return ApiResponse.created(report, 'AI report draft created successfully');
   }
 
@@ -562,6 +573,17 @@ Return EXACTLY this JSON structure:
     });
 
     await report.save();
+
+    await AuditService.log({
+      entityType: 'Report',
+      entityId: report._id,
+      entityRef: report.reportNo,
+      action: 'report_submitted',
+      summary: `Report submitted for review`,
+      performedBy: userId,
+      req: null
+    });
+
     return ApiResponse.success('Report submitted for review', report);
   }
 
@@ -589,6 +611,17 @@ Return EXACTLY this JSON structure:
     });
 
     await report.save();
+
+    await AuditService.log({
+      entityType: 'Report',
+      entityId: report._id,
+      entityRef: report.reportNo,
+      action: 'report_qa_verified',
+      summary: `Report QA verified`,
+      performedBy: userId,
+      req: null
+    });
+
     return ApiResponse.success('Report QA verified', report);
   }
 
@@ -616,6 +649,17 @@ Return EXACTLY this JSON structure:
     });
 
     await report.save();
+
+    await AuditService.log({
+      entityType: 'Report',
+      entityId: report._id,
+      entityRef: report.reportNo,
+      action: 'report_final_approved',
+      summary: `Report final approved`,
+      performedBy: userId,
+      req: null
+    });
+
     return ApiResponse.success('Report final approved', report);
   }
 

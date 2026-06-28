@@ -8,6 +8,7 @@ export default function CreateJobPage() {
   const [saving, setSaving] = useState(false);
   const [draftSaving, setDraftSaving] = useState(false);
   const [machineModels, setMachineModels] = useState([]);
+  const [componentTypes, setComponentTypes] = useState([]);
 
   useEffect(() => {
     api.get('/admin/machine-models')
@@ -23,6 +24,22 @@ export default function CreateJobPage() {
           { name: '830E AC', make: 'KOMATSU' },
           { name: '830E DC', make: 'KOMATSU' },
           { name: 'BELAZ', make: 'BELAZ' },
+        ]);
+      });
+
+    // Fetch component types from registry
+    api.get('/admin/component-types')
+      .then(res => {
+        const types = res.data?.data || res.data || [];
+        setComponentTypes(types.filter(t => t.active !== false));
+      })
+      .catch(() => {
+        // Fallback to known types if API fails
+        setComponentTypes([
+          { name: 'WHEEL MOTOR' },
+          { name: 'MAIN BLOWER MOTOR' },
+          { name: 'GRID BLOWER MOTOR' },
+          { name: 'MAIN ALTERNATOR' }
         ]);
       });
   }, []);
@@ -195,7 +212,12 @@ export default function CreateJobPage() {
               <div className="form-group">
                 <label>Component Name *</label>
                 <select
-                  value={isOtherSelected ? 'OTHER' : (['WHEEL MOTOR', 'MAIN BLOWER MOTOR', 'GRID BLOWER MOTOR', 'MAIN ALTERNATOR'].includes(form.description) ? form.description : (form.description ? 'OTHER' : ''))}
+                  value={isOtherSelected
+                    ? 'OTHER'
+                    : (componentTypes.some(t => t.name === form.description?.toUpperCase())
+                        ? form.description?.toUpperCase()
+                        : (form.description ? 'OTHER' : ''))
+                  }
                   onChange={e => {
                     const val = e.target.value;
                     if (val === 'OTHER') {
@@ -209,13 +231,14 @@ export default function CreateJobPage() {
                   required
                 >
                   <option value="">Select Component</option>
-                  <option value="WHEEL MOTOR">WHEEL MOTOR</option>
-                  <option value="MAIN BLOWER MOTOR">MAIN BLOWER MOTOR</option>
-                  <option value="GRID BLOWER MOTOR">GRID BLOWER MOTOR</option>
-                  <option value="MAIN ALTERNATOR">MAIN ALTERNATOR</option>
+                  {componentTypes.map(t => (
+                    <option key={t.name} value={t.name}>
+                      {t.name}
+                    </option>
+                  ))}
                   <option value="OTHER">OTHER (Enter Manually)</option>
                 </select>
-                {(isOtherSelected || (form.description && !['WHEEL MOTOR', 'MAIN BLOWER MOTOR', 'GRID BLOWER MOTOR', 'MAIN ALTERNATOR'].includes(form.description))) && (
+                {(isOtherSelected || (form.description && !componentTypes.some(t => t.name === form.description?.toUpperCase()))) && (
                   <input
                     type="text"
                     placeholder="Enter component name manually"
@@ -347,7 +370,7 @@ export default function CreateJobPage() {
         </div>
 
         {/* SECTION 2.6 — Wheel Motor Specific Details (Conditional) */}
-        {form.description && form.description.toUpperCase().includes('WHEEL MOTOR') && (
+        {(form.finalDriveNo || form.finalDriveModel || (form.description && form.description.toUpperCase().includes('WHEEL MOTOR'))) && (
           <div className="panel" style={{ marginBottom: '1.5rem' }}>
             <div className="panel-header">
               <span>Wheel Motor Specific Details</span>

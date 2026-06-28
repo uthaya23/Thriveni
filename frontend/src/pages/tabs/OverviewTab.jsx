@@ -235,8 +235,7 @@ export default function OverviewTab({ job, onUpdate, isReadOnly, setViewStage })
           </div>
         </section>
 
-        {((form.description && form.description.toLowerCase().includes('wheel motor')) ||
-          (form.componentType && form.componentType.toLowerCase().includes('wheel motor'))) && (
+        {(form.finalDriveNo || form.finalDriveModel) && (
           <section>
             <h4 className="text-sm font-bold text-slate-700 uppercase tracking-wider mb-4 border-l-4 border-blue-500 pl-2">Wheel Motor Specifics</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -614,8 +613,7 @@ export default function OverviewTab({ job, onUpdate, isReadOnly, setViewStage })
             </div>
           </div>
 
-          {((job.description && job.description.toLowerCase().includes('wheel motor')) || 
-            (job.componentType && job.componentType.toLowerCase().includes('wheel motor'))) && (
+          {(job.finalDriveNo || job.finalDriveModel) && (
             <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
               <div className="bg-slate-50 px-5 py-3 border-b border-slate-200 flex items-center gap-2">
                 <FiTool className="text-slate-500" />

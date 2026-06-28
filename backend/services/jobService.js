@@ -9,6 +9,7 @@ const ProductionPlan = require('../models/ProductionPlan');
 const { MachineModel } = require('../models/AdminLookups');
 const generateJobNo = require('../utils/generateJobNo');
 const AssetService = require('./AssetService');
+const AuditService = require('./AuditService');
 const Logger = require('../utils/logger');
 const ApiResponse = require('../utils/apiResponse');
 const Pagination = require('../utils/pagination');
@@ -93,6 +94,16 @@ class JobService {
 
       // Auto-create or update asset registry
       await AssetService.findOrCreateAsset(job, userId);
+
+      await AuditService.log({
+        entityType: 'Job',
+        entityId: job._id,
+        entityRef: job.jobNo,
+        action: 'created',
+        summary: `Job ${job.jobNo} created for ${job.equipmentModel} ${job.componentType} (Serial: ${job.serialNumber})`,
+        performedBy: userId,
+        req: null
+      });
 
       Logger.info('Job created successfully', { jobId: job._id, jobNo: job.jobNo });
       return ApiResponse.created(job, 'Job created successfully');
@@ -248,6 +259,7 @@ class JobService {
         }
       }
 
+      const existingJob = await Job.findById(jobId);
       const job = await Job.findByIdAndUpdate(
         jobId,
         updateData,
@@ -257,6 +269,27 @@ class JobService {
 
       if (!job) {
         return ApiResponse.notFound('Job not found');
+      }
+
+      if (existingJob) {
+        const trackedFields = [
+          'status', 'stage', 'priority', 'scopeOfWork',
+          'siteComplaints', 'delayReason', 'inspectionAssignedTo'
+        ];
+        const changes = AuditService.diffFields(existingJob, job, trackedFields);
+
+        if (changes.length > 0) {
+          await AuditService.log({
+            entityType: 'Job',
+            entityId: job._id,
+            entityRef: job.jobNo,
+            action: changes.some(c => c.field === 'status') ? 'status_changed' : 'updated',
+            changes,
+            summary: `Job ${job.jobNo} updated`,
+            performedBy: updatedBy,
+            req: null
+          });
+        }
       }
 
       Logger.info('Job updated successfully', { jobId, jobNo: job.jobNo });
@@ -285,6 +318,16 @@ class JobService {
       job.deletedAt = new Date();
       job.deletedBy = deletedBy;
       await job.save();
+
+      await AuditService.log({
+        entityType: 'Job',
+        entityId: job._id,
+        entityRef: job.jobNo,
+        action: 'deleted',
+        summary: `Job ${job.jobNo} soft deleted`,
+        performedBy: deletedBy,
+        req: null
+      });
 
       Logger.info('Job soft deleted', { jobId, jobNo: job.jobNo, deletedBy });
       return ApiResponse.success('Job deleted successfully', { jobNo: job.jobNo });

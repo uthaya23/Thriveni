@@ -603,8 +603,7 @@ const PageFooter = () => (
     }
   };
 
-  const isWheelMotor = !!((job.description && job.description.toLowerCase().includes('wheel motor')) || 
-                        (job.componentType && job.componentType.toLowerCase().includes('wheel motor')));
+  const isWheelMotor = !!(job.finalDriveNo || job.finalDriveModel);
 
   return (
     <div className="bg-slate-100 min-h-screen flex flex-col font-sans">
