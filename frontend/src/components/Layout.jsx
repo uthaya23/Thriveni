@@ -1,6 +1,6 @@
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { FiHome, FiList, FiDatabase, FiUser, FiLogOut, FiSettings, FiUsers, FiBox, FiLayout, FiChevronDown, FiGrid } from 'react-icons/fi';
+import { FiHome, FiList, FiDatabase, FiUser, FiLogOut, FiSettings, FiUsers, FiBox, FiLayout, FiChevronDown, FiGrid, FiActivity, FiCode } from 'react-icons/fi';
 import { useState, useRef, useEffect } from 'react';
 
 const BOTTOM_NAV = [
@@ -21,7 +21,10 @@ const DESKTOP_MAIN = [
 const DESKTOP_MORE = [
   { to: '/production-planning',icon: FiLayout,     label: 'Planning',    end: false, notTechnician: true },
   { to: '/inventory',          icon: FiBox,        label: 'Inventory',   end: false, notTechnician: true },
+  { to: '/assets',             icon: FiDatabase,   label: 'Assets',      end: false, notTechnician: true },
   { to: '/users',              icon: FiUsers,      label: 'Users',       end: false, adminOnly: true },
+  { to: '/templates',          icon: FiCode,       label: 'Templates',   end: false, adminOnly: true },
+  { to: '/audit',              icon: FiActivity,   label: 'Audit Log',   end: false, adminOnly: true },
   { to: '/admin',              icon: FiSettings,   label: 'Settings',    end: false, adminOnly: true },
 ];
 

@@ -64,9 +64,30 @@ class JobService {
     try {
       Logger.info('Creating new job', { customerName: jobData.customerName, userId });
 
-      // Generate job number if not provided
-      if (!jobData.jobNo) {
+      // R-ID-004: Job number uniqueness check
+      if (jobData.jobNo) {
+        const existingJob = await Job.findOne({ jobNo: jobData.jobNo, isDeleted: { $ne: true } });
+        if (existingJob) {
+          return ApiResponse.badRequest(`Job Number ${jobData.jobNo} already exists.`);
+        }
+      } else {
         jobData.jobNo = await generateJobNo();
+      }
+
+      // R-ID-005 & R-LIFE-006: Serial Number Rules
+      let warningMessage = null;
+      if (jobData.componentSerialNumber) {
+        jobData.componentSerialNumber = jobData.componentSerialNumber.toUpperCase();
+        
+        const activeJobForAsset = await Job.findOne({ 
+          componentSerialNumber: jobData.componentSerialNumber,
+          status: { $nin: ['Completed', 'Cancelled'] },
+          isDeleted: { $ne: true }
+        });
+
+        if (activeJobForAsset) {
+          warningMessage = `Warning: An active job (${activeJobForAsset.jobNo}) already exists for serial number ${jobData.componentSerialNumber}.`;
+        }
       }
 
       // Add audit fields
@@ -106,7 +127,7 @@ class JobService {
       });
 
       Logger.info('Job created successfully', { jobId: job._id, jobNo: job.jobNo });
-      return ApiResponse.created(job, 'Job created successfully');
+      return ApiResponse.created(job, warningMessage || 'Job created successfully');
     } catch (error) {
       Logger.error('Error creating job', error);
       throw error;
@@ -141,8 +162,8 @@ class JobService {
       if (isNaN(pageNum) || pageNum < 1) pageNum = 1;
       if (isNaN(limitNum) || limitNum < 1) limitNum = 200;
 
-      // Build filter object
-      const filter = {};
+      // Build filter object (exclude deleted)
+      const filter = { isDeleted: { $ne: true } };
 
       if (status) filter.status = status;
       if (priority) filter.priority = priority;
@@ -207,7 +228,7 @@ class JobService {
    */
   static async getJobById(jobId) {
     try {
-      const job = await Job.findById(jobId)
+      const job = await Job.findOne({ _id: jobId, isDeleted: { $ne: true } })
         .populate('createdBy', 'name email')
         .populate('updatedBy', 'name email')
         .lean();
@@ -229,6 +250,15 @@ class JobService {
   static async updateJob(jobId, updateData, updatedBy = null) {
     try {
       Logger.info('Updating job', { jobId, updatedBy });
+
+      // R-LIFE-004: On Hold Rule
+      if (updateData.status === 'On Hold') {
+        const currentJob = await Job.findById(jobId);
+        const finalReason = updateData.delayReason !== undefined ? updateData.delayReason : currentJob?.delayReason;
+        if (!finalReason || finalReason.trim() === '') {
+          return ApiResponse.badRequest('A delay reason is mandatory when placing a job On Hold.');
+        }
+      }
 
       // ── QA Stage Gate ──────────────────────────────
       // Prevent advancing to Stage 4 without QA approval

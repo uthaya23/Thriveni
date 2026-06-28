@@ -68,6 +68,7 @@ export default function JobTracker() {
   const [stageFilter, setStageFilter] = useState('InProgress');
   const [equipmentFilter, setEquipmentFilter] = useState('');
   const [componentFilter, setComponentFilter] = useState('');
+  const [myJobsOnly, setMyJobsOnly] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
@@ -137,6 +138,10 @@ export default function JobTracker() {
 
     if (stageFilter && stageFilter !== 'InProgress') {
       if (effectiveStage !== stageFilter) return false;
+    }
+
+    if (myJobsOnly && user?.name) {
+      if (!job.assignedTo || !job.assignedTo.includes(user.name)) return false;
     }
 
     if (equipmentFilter && job.equipmentModel?.toUpperCase().trim() !== equipmentFilter) return false;
@@ -283,6 +288,25 @@ export default function JobTracker() {
               Reset
             </button>
           )}
+
+          {/* My Jobs Filter */}
+          <button
+            onClick={() => setMyJobsOnly(!myJobsOnly)}
+            style={{
+              minHeight: 38,
+              padding: '8px 16px',
+              fontSize: '0.8rem',
+              fontWeight: 600,
+              borderRadius: 8,
+              cursor: 'pointer',
+              backgroundColor: myJobsOnly ? 'var(--thriveni-blue)' : '#fff',
+              border: myJobsOnly ? '1.5px solid var(--thriveni-blue)' : '1.5px solid var(--border)',
+              color: myJobsOnly ? '#fff' : 'var(--text-primary)',
+              transition: 'all 0.2s'
+            }}
+          >
+            {myJobsOnly ? '✓ My Assigned Jobs' : 'My Assigned Jobs'}
+          </button>
         </div>
 
         {/* Filter Chips */}
@@ -367,9 +391,14 @@ export default function JobTracker() {
                     <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4, lineHeight: 1.3 }}>
                       {job.equipmentModel || job.description || 'Component'}
                     </div>
-                    <div style={{ fontSize: '0.75rem', fontWeight: 500, color: 'var(--text-muted)', marginBottom: 16 }}>
+                    <div style={{ fontSize: '0.75rem', fontWeight: 500, color: 'var(--text-muted)', marginBottom: 4 }}>
                       {job.serialNumber ? `SN: ${job.serialNumber}` : 'No Serial Number'}
                     </div>
+                    {job.assignedTo && (
+                      <div style={{ fontSize: '0.7rem', fontWeight: 600, color: '#3b82f6', marginBottom: 16 }}>
+                        👤 {job.assignedTo}
+                      </div>
+                    )}
                   </div>
                   
                   {/* Row 3: Stage + Days + Arrow */}

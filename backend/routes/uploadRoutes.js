@@ -60,4 +60,37 @@ router.post('/photos', protect, upload.array('photos', 20), asyncHandler(async (
   res.status(200).json(ApiResponse.success('Photos uploaded', { urls }));
 }));
 
+/**
+ * @route   GET /api/upload/proxy
+ * @desc    Proxy to securely fetch private blob images
+ * @access  Private
+ */
+router.get('/proxy', protect, asyncHandler(async (req, res) => {
+  const { url } = req.query;
+  if (!url || !url.includes('blob.vercel-storage.com')) {
+    return res.status(400).send('Invalid or missing URL');
+  }
+
+  try {
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${process.env.BLOB_READ_WRITE_TOKEN}`
+      }
+    });
+
+    if (!response.ok) {
+      return res.status(response.status).send('Failed to fetch image');
+    }
+
+    res.setHeader('Content-Type', response.headers.get('content-type') || 'application/octet-stream');
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    
+    const { Readable } = require('stream');
+    Readable.fromWeb(response.body).pipe(res);
+  } catch (error) {
+    Logger.error('Media proxy error', error);
+    res.status(500).send('Proxy error');
+  }
+}));
+
 module.exports = router;

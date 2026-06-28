@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import api, { getImageUrl } from '../../utils/api';
+import imageCompression from 'browser-image-compression';
 
 export { getImageUrl };
 
@@ -40,7 +41,27 @@ export function useStageData(jobId, stageNum) {
 /** Upload photos and return their server paths */
 export async function uploadPhotos(files) {
   const formData = new FormData();
-  Array.from(files).forEach(f => formData.append('photos', f));
+  
+  const options = {
+    maxSizeMB: 1,
+    maxWidthOrHeight: 1200,
+    useWebWorker: true
+  };
+
+  for (const f of Array.from(files)) {
+    if (f.type.startsWith('image/')) {
+      try {
+        const compressed = await imageCompression(f, options);
+        formData.append('photos', compressed, f.name);
+      } catch (err) {
+        console.error('Compression failed for', f.name, err);
+        formData.append('photos', f);
+      }
+    } else {
+      formData.append('photos', f);
+    }
+  }
+
   const { data } = await api.post('/upload/photos', formData, {
     headers: { 'Content-Type': 'multipart/form-data' }
   });

@@ -78,7 +78,6 @@ const qaReviewSchema = new mongoose.Schema({
 
 }, { timestamps: true });
 
-qaReviewSchema.index({ job: 1 });
 qaReviewSchema.index({ status: 1 });
 qaReviewSchema.index({ jobNo: 1 });
 

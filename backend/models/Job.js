@@ -63,8 +63,14 @@ const jobSchema = new mongoose.Schema({
   completedAt: Date,
   failureReportUrl: String,
   failureReportName: String,
+  assignedTo: String, // Comma separated list of assigned technicians
   inspectionAssignedTo: String,
   productionPlan: { type: mongoose.Schema.Types.ObjectId, ref: 'ProductionPlan' },
+  
+  // Soft Delete fields
+  isDeleted: { type: Boolean, default: false },
+  deletedAt: Date,
+  deletedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
 }, { timestamps: true });
 
 // Performance Indexes

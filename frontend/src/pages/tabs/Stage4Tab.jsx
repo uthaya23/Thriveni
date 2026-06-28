@@ -23,7 +23,13 @@ const Stage4Tab = forwardRef(({ jobId, job, template }, ref) => {
     }
   }, [data]);
 
-  useImperativeHandle(ref, () => ({ save: () => save() }));
+  useImperativeHandle(ref, () => ({
+    save: () => save(data)
+  }));
+
+  if (loading || !data) {
+    return <div className="p-8 text-center text-slate-500 font-medium animate-pulse">Loading testing data...</div>;
+  }
 
   const handleSave = async () => {
     try { 

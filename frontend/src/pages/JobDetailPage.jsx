@@ -10,27 +10,10 @@ import Stage1Tab    from './tabs/Stage1Tab';
 import Stage2Tab    from './tabs/Stage2Tab';
 import Stage3Tab    from './tabs/Stage3Tab';
 import Stage4Tab    from './tabs/Stage4Tab';
+import Stage5Tab    from './tabs/Stage5Tab';
 import ReportTab    from './tabs/ReportTab';
 import MaterialsTab from './tabs/MaterialsTab';
-
-const STAGES = [
-  'Visual Inspection & Incoming Assessment',
-  'Dismantling & Analysis',
-  'Pre-Assembly & Assembly',
-  'Testing & Dispatch',
-  'Report Generation',
-  'Completed'
-];
-const ALL_TABS = [
-  'Overview',
-  'Visual Inspection & Incoming Assessment',
-  'Dismantling & Analysis',
-  'Pre-Assembly & Assembly',
-  'Testing & Dispatch',
-  'Materials',
-  'Report Generation',
-  'Completed'
-];
+import HistoryTab   from './tabs/HistoryTab';
 
 const STAGE_META = {
   'Overview':                                { color: '#64748b', bg: '#f1f5f9', icon: '🏠', short: 'Overview' },
@@ -38,8 +21,10 @@ const STAGE_META = {
   'Dismantling & Analysis':                  { color: '#dc2626', bg: '#fee2e2', icon: '🔧', short: 'Dismantling' },
   'Pre-Assembly & Assembly':                 { color: '#9333ea', bg: '#faf5ff', icon: '⚙️', short: 'Assembly' },
   'Testing & Dispatch':                      { color: '#0284c7', bg: '#e0f2fe', icon: '⚡', short: 'Testing' },
+  'Final Drive Installation':                { color: '#db2777', bg: '#fdf2f8', icon: '🚜', short: 'Final Drive' },
   'Materials':                               { color: '#f59e0b', bg: '#fef3c7', icon: '🏪', short: 'Materials' },
   'Report Generation':                       { color: '#16a34a', bg: '#dcfce7', icon: '📄', short: 'Report' },
+  'History':                                 { color: '#475569', bg: '#f1f5f9', icon: '📜', short: 'History' },
   'Completed':                               { color: '#059669', bg: '#ecfdf5', icon: '✅', short: 'Done' },
 };
 
@@ -54,6 +39,30 @@ export default function JobDetailPage() {
   const [savingStage, setSavingStage] = useState(false);
   const [qaReview, setQaReview] = useState(null);
   const tabRef = useRef();
+
+  const isWheelMotor = job?.componentType?.toLowerCase().includes('wheel motor');
+
+  const STAGES = [
+    'Visual Inspection & Incoming Assessment',
+    'Dismantling & Analysis',
+    'Pre-Assembly & Assembly',
+    'Testing & Dispatch',
+    ...(isWheelMotor ? ['Final Drive Installation'] : []),
+    'Report Generation',
+    'Completed'
+  ];
+
+  const ALL_TABS = [
+    'Overview',
+    'Visual Inspection & Incoming Assessment',
+    'Dismantling & Analysis',
+    'Pre-Assembly & Assembly',
+    'Testing & Dispatch',
+    ...(isWheelMotor ? ['Final Drive Installation'] : []),
+    'Materials',
+    'Report Generation',
+    'History'
+  ];
 
   const fetchJob = useCallback(async () => {
     try {
@@ -258,7 +267,9 @@ export default function JobDetailPage() {
         {viewStage === 'Materials' && user?.role !== 'technician' && <MaterialsTab jobId={id} />}
         {viewStage === 'Pre-Assembly & Assembly' && <Stage3Tab ref={tabRef} jobId={id} job={job} template={template} />}
         {viewStage === 'Testing & Dispatch' && <Stage4Tab ref={tabRef} jobId={id} job={job} template={template} />}
+        {viewStage === 'Final Drive Installation' && isWheelMotor && <Stage5Tab ref={tabRef} job={job} template={template} />}
         {viewStage === 'Report Generation' && user?.role !== 'technician' && <ReportTab jobId={id} job={job} />}
+        {viewStage === 'History' && <HistoryTab />}
         {viewStage === 'Completed' && <div className="text-center py-20 text-green-600 font-bold text-xl">✅ Job Completed</div>}
       </div>
     </div>

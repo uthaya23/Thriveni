@@ -11,7 +11,7 @@ const uploadToBlob = async (fileBuffer, originalName, prefix = '') => {
   const uniqueName = `${prefix}${Date.now()}-${Math.round(Math.random() * 1e5)}-${base}${ext}`;
   
   const blob = await put(uniqueName, fileBuffer, {
-    access: 'public',
+    access: 'private',
     token: process.env.BLOB_READ_WRITE_TOKEN
   });
   

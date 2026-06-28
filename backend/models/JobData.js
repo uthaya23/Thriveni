@@ -96,6 +96,18 @@ const jobDataSchema = new mongoose.Schema({
     qaApprovedDate: String,
     overallRemarks: String,
     status: { type: String, enum: ['Pending', 'In Progress', 'Completed'], default: 'Pending' }
+  },
+
+  // ── Stage 5: Final Drive Installation (Wheel Motors Only) ──
+  stage5: {
+    technician: String,
+    startDate: String,
+    completionDate: String,
+    photos: [String],
+    finalDriveNumber: String,
+    finalDriveModel: String,
+    installingDate: String,
+    status: { type: String, enum: ['Pending', 'In Progress', 'Completed'], default: 'Pending' }
   }
 }, { timestamps: true });
 

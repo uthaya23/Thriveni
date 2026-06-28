@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { FiCamera, FiImage, FiX } from 'react-icons/fi';
 import api, { getImageUrl } from '../utils/api';
+import imageCompression from 'browser-image-compression';
 
 /**
  * Mobile-friendly camera uploader with image compression.
@@ -11,26 +12,20 @@ export default function CameraUploader({ photos = [], onChange, label = "Upload 
   const cameraInputRef = useRef(null);
   const [uploading, setUploading] = useState(false);
 
-  const compressImage = (file, maxWidth = 1200, quality = 0.8) => {
-    return new Promise((resolve) => {
-      if (!file.type.startsWith('image/')) { resolve(file); return; }
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          let w = img.width, h = img.height;
-          if (w > maxWidth) { h = (h * maxWidth) / w; w = maxWidth; }
-          canvas.width = w; canvas.height = h;
-          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-          canvas.toBlob((blob) => {
-            resolve(new File([blob], file.name, { type: 'image/jpeg' }));
-          }, 'image/jpeg', quality);
-        };
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    });
+  const compressImage = async (file) => {
+    if (!file.type.startsWith('image/')) return file;
+    const options = {
+      maxSizeMB: 1, // Compress to max 1MB
+      maxWidthOrHeight: 1200,
+      useWebWorker: true
+    };
+    try {
+      const compressedFile = await imageCompression(file, options);
+      return compressedFile;
+    } catch (error) {
+      console.error('Image compression failed:', error);
+      return file; // Fallback to original if compression fails
+    }
   };
 
   const handleUpload = async (e) => {
@@ -42,7 +37,7 @@ export default function CameraUploader({ photos = [], onChange, label = "Upload 
       const formData = new FormData();
       for (const file of Array.from(files)) {
         const compressed = await compressImage(file);
-        formData.append('files', compressed);
+        formData.append('files', compressed, file.name);
       }
       const res = await api.post('/upload/multiple', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }

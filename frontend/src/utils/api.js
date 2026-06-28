@@ -37,7 +37,14 @@ export const getImageUrl = (url) => {
   }
   if (typeof targetUrl !== 'string') return '';
   const normalized = targetUrl.trim();
-  if (/^(https?:|data:|blob:)/i.test(normalized)) return normalized;
+  if (/^(data:|blob:)/i.test(normalized)) return normalized;
+  if (normalized.includes('blob.vercel-storage.com')) {
+    const user = JSON.parse(localStorage.getItem('trc-user') || 'null');
+    const tokenParam = user?.token ? `&token=${user.token}` : '';
+    const proxyUrl = `/upload/proxy?url=${encodeURIComponent(normalized)}${tokenParam}`;
+    return BACKEND_URL ? `${BACKEND_URL}${proxyUrl}` : `/api${proxyUrl}`;
+  }
+  if (/^(https?:)/i.test(normalized)) return normalized;
   return BACKEND_URL ? `${BACKEND_URL}${normalized}` : normalized;
 };
 

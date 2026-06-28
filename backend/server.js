@@ -142,5 +142,14 @@ if (buildExists) {
 const errorHandler = require('./middleware/errorMiddleware');
 app.use(errorHandler);
 
+const PORT = process.env.PORT || 5005;
+
+// Only start listening if we are not in Vercel serverless environment
+if (process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
+
 // Export the app for Vercel's serverless environment
 module.exports = app;

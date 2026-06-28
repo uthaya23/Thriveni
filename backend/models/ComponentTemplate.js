@@ -66,17 +66,33 @@ const stage4Schema = new mongoose.Schema({
 }, { _id: false });
 
 const componentTemplateSchema = new mongoose.Schema({
-  componentKey: { type: String, required: true, unique: true }, // e.g. 'EH5000_WHEEL_MOTOR'
+  componentKey: { type: String, required: true },               // e.g. 'EH5000_WHEEL_MOTOR' (Identity)
+  revision: { type: Number, default: 1, required: true },       // Revision number
   displayName: { type: String, required: true },                // e.g. 'EH5000 Wheel Motor'
   equipmentModels: [String],                                    // ['EH5000', 'EH4500']
   componentType: String,                                        // 'Wheel Motor'
   make: String,                                                 // 'HITACHI', 'KOMATSU'
-  isActive: { type: Boolean, default: true },
+  department: { type: String, default: 'Auto Electrical' },
+  section: { type: String, default: 'Wheel Motor' },
+  
+  // Publication Lifecycle
+  status: { 
+    type: String, 
+    enum: ['Draft', 'Active', 'Superseded', 'Retired'], 
+    default: 'Active' 
+  },
+  publishedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  publishedAt: Date,
+  changeSummary: String,
+  templateHash: String,
 
   stage1: stage1Schema,
   stage2: stage2Schema,
   stage3: stage3Schema,
   stage4: stage4Schema
 }, { timestamps: true });
+
+// Ensure revision uniqueness per template family
+componentTemplateSchema.index({ componentKey: 1, revision: 1 }, { unique: true });
 
 module.exports = mongoose.model('ComponentTemplate', componentTemplateSchema);

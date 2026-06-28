@@ -5,6 +5,7 @@ import {
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import api, { getImageUrl } from '../../utils/api';
+import TechnicianSelect from '../../components/TechnicianSelect';
 
 const STATUSES = ['Pending','In Progress','Done','RFD','On Hold'];
 const STAGES = [
@@ -269,6 +270,9 @@ export default function OverviewTab({ job, onUpdate, isReadOnly, setViewStage })
         <section>
           <h4 className="text-sm font-bold text-slate-700 uppercase tracking-wider mb-4 border-l-4 border-blue-500 pl-2">Status & Tracking</h4>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="col-span-1 md:col-span-4">
+              <TechnicianSelect value={form.assignedTo||''} onChange={val=>set('assignedTo', val)} />
+            </div>
             <div>
               <label className="block text-xs font-bold text-slate-600 mb-1">Status</label>
               <select className="w-full border border-slate-300 rounded bg-slate-50 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none" value={form.status||''} onChange={e=>set('status',e.target.value)}>{STATUSES.map(s=><option key={s}>{s}</option>)}</select>
@@ -568,6 +572,7 @@ export default function OverviewTab({ job, onUpdate, isReadOnly, setViewStage })
             </div>
             <div className="p-5">
               <Row label="Job No"              value={job.jobNo}                                   mono />
+              <Row label="Assigned Technicians" value={job.assignedTo} />
               <Row label="Description"         value={job.description||job.desc} />
               <Row label="Component Type"      value={job.componentType} />
               <Row label="Equipment Model"     value={job.equipmentModel||job.equipment} />

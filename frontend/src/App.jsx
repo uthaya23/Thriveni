@@ -17,6 +17,10 @@ import ProfilePage from './pages/ProfilePage';
 import ProductionPlanningHub from './pages/ProductionPlanningHub';
 import InventoryDashboard from './pages/Inventory/InventoryDashboard';
 import ConsumptionReport from './pages/Inventory/ConsumptionReport';
+import AssetRegistry from './pages/AssetRegistry';
+import AssetDetailPage from './pages/AssetDetailPage';
+import AuditLogs from './pages/AuditLogs';
+import TemplateBuilder from './pages/TemplateBuilder';
 
 const PrivateRoute = ({ children, adminOnly, notTechnician }) => {
   const { user } = useAuth();
@@ -54,6 +58,10 @@ export default function App() {
             <Route path="users" element={<PrivateRoute adminOnly><UserManagement /></PrivateRoute>} />
             <Route path="admin" element={<PrivateRoute adminOnly><AdminPage /></PrivateRoute>} />
             <Route path="admin/technicians" element={<PrivateRoute adminOnly><TechnicianManagement /></PrivateRoute>} />
+            <Route path="assets" element={<PrivateRoute notTechnician><AssetRegistry /></PrivateRoute>} />
+            <Route path="assets/:serialNumber" element={<PrivateRoute notTechnician><AssetDetailPage /></PrivateRoute>} />
+            <Route path="audit" element={<PrivateRoute adminOnly><AuditLogs /></PrivateRoute>} />
+            <Route path="templates" element={<PrivateRoute adminOnly><TemplateBuilder /></PrivateRoute>} />
             <Route path="profile" element={<ProfilePage />} />
           </Route>
         </Routes>

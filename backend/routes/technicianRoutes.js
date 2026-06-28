@@ -1,13 +1,19 @@
 const express = require('express');
 const router = express.Router();
 const Technician = require('../models/Technician');
+const User = require('../models/User');
 const { protect, adminOnly } = require('../middleware/authMiddleware');
 const ApiResponse = require('../utils/apiResponse');
 
-// Get all technicians
+// Get all technicians (now fetches from User model)
 router.get('/all', async (req, res) => {
   try {
-    const technicians = await Technician.find({ active: true }).sort('name');
+    const users = await User.find({ active: true, role: { $in: ['technician', 'manager', 'admin'] } }).sort('name');
+    const technicians = users.map(u => ({
+      _id: u._id,
+      name: u.name,
+      department: u.role === 'technician' ? 'Workshop' : 'Management'
+    }));
     res.json(ApiResponse.success('Technicians retrieved successfully', { technicians }));
   } catch (err) {
     res.status(500).json(ApiResponse.error(err.message));

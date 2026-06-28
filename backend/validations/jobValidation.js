@@ -40,6 +40,12 @@ const jobBaseSchema = {
   stage: Joi.string().allow('', null),
   status: Joi.string().valid('Active', 'Draft', 'Completed', 'Cancelled', 'Pending', 'In Progress', 'Done', 'RFD', 'On Hold').default('Pending'),
   priority: Joi.string().valid('Low', 'Medium', 'High', 'Critical').default('Medium'),
+  
+  // Tracking
+  assignedTo: Joi.string().allow('', null),
+  delayReason: Joi.string().allow('', null),
+  curLocation: Joi.string().allow('', null),
+  rfdDate: Joi.string().allow('', null),
 
   // Audit
   createdBy: Joi.string().hex().length(24).allow(null),

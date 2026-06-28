@@ -81,18 +81,21 @@ export default function TechnicianSelect({ value, onChange }) {
                 <div 
                   key={tech._id} 
                   onClick={() => toggleTech(tech.name)}
-                  className={`flex items-center gap-2 px-2 py-1.5 rounded-md text-xs font-semibold cursor-pointer transition-colors ${
-                    isSelected ? 'bg-blue-50 text-blue-700 font-bold' : 'hover:bg-slate-50 text-slate-600'
+                  className={`flex items-center gap-3 px-2 py-2 rounded-md text-sm font-semibold cursor-pointer transition-all ${
+                    isSelected ? 'bg-blue-50 text-blue-800 shadow-sm' : 'hover:bg-slate-50 text-slate-700'
                   }`}
                 >
-                  <input 
-                    type="checkbox" 
-                    checked={isSelected} 
-                    readOnly 
-                    className="rounded text-blue-600 focus:ring-blue-500 h-3.5 w-3.5"
-                  />
-                  <span>{tech.name}</span>
-                  <span className="text-[10px] text-slate-400 font-normal">({tech.department})</span>
+                  <div className={`relative flex items-center justify-center w-7 h-7 rounded-full text-[10px] font-black text-white shrink-0 ${isSelected ? 'bg-blue-600' : 'bg-slate-300'}`}>
+                    {isSelected ? (
+                      <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>
+                    ) : (
+                      tech.name.substring(0, 2).toUpperCase()
+                    )}
+                  </div>
+                  <div className="flex flex-col">
+                    <span>{tech.name}</span>
+                    <span className="text-[10px] text-slate-400 font-medium leading-none">{tech.department}</span>
+                  </div>
                 </div>
               );
             })}
