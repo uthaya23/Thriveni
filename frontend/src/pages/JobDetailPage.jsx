@@ -139,27 +139,7 @@ export default function JobDetailPage() {
     if (currentStageIdx >= STAGES.length - 1) return;
     const next = STAGES[currentStageIdx + 1];
 
-    // QA Gate — cannot advance from Stage 3 to Stage 4 without approval
-    if (next === 'Testing & Dispatch') {
-      try {
-        const qaRes = await api.get(`/qa/${id}`);
-        const rawData = qaRes.data?.data;
-        // Normalize response shape
-        const freshQaReview = rawData?.review === null
-          ? { status: 'Not Submitted' }
-          : rawData;
-        if (!freshQaReview || freshQaReview.status !== 'Approved') {
-          toast.error(
-            'QA approval required before advancing to Stage 4. Submit Stage 3 for QA review first.',
-            { duration: 6000 }
-          );
-          return;
-        }
-      } catch (err) {
-        toast.error('Failed to verify QA status');
-        return;
-      }
-    }
+
 
     setSavingStage(true);
     try {
