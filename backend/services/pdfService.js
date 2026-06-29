@@ -1,4 +1,4 @@
-const puppeteer = require('puppeteer');
+
 const handlebars = require('handlebars');
 const fs = require('fs');
 const path = require('path');
@@ -109,10 +109,28 @@ class PdfService {
       allowProtoMethodsByDefault: true
     });
 
-    const browser = await puppeteer.launch({
-      headless: 'new',
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
-    });
+    let browser;
+    if (process.env.VERCEL) {
+      const chromium = require('@sparticuz/chromium');
+      const puppeteerCore = require('puppeteer-core');
+      
+      // Optional: optimize chromium settings for Vercel
+      chromium.setGraphicsMode = false;
+      
+      browser = await puppeteerCore.launch({
+        args: chromium.args,
+        defaultViewport: chromium.defaultViewport,
+        executablePath: await chromium.executablePath(),
+        headless: chromium.headless,
+        ignoreHTTPSErrors: true,
+      });
+    } else {
+      const puppeteer = require('puppeteer');
+      browser = await puppeteer.launch({
+        headless: 'new',
+        args: ['--no-sandbox', '--disable-setuid-sandbox']
+      });
+    }
 
     try {
       const page = await browser.newPage();
