@@ -45,17 +45,30 @@ router.post('/analyze-photos/:jobId', async (req, res) => {
           continue;
         }
 
-        // Read local files
+        // Read files (Local or Remote)
         const imageParts = [];
         for (const photoUrl of compData.photos.slice(0, 3)) {
           try {
-            const relativePath = photoUrl.startsWith('/') ? photoUrl.substring(1) : photoUrl;
-            const filePath = path.join(__dirname, '..', relativePath);
-            if (fs.existsSync(filePath)) {
-              const fileData = fs.readFileSync(filePath).toString('base64');
-              const ext = path.extname(filePath).toLowerCase();
-              const mimeType = ext === '.png' ? 'image/png' : 'image/jpeg';
-              imageParts.push({ inlineData: { data: fileData, mimeType } });
+            if (photoUrl.startsWith('http://') || photoUrl.startsWith('https://')) {
+              const fetchOptions = photoUrl.includes('vercel-storage.com') 
+                ? { headers: { Authorization: `Bearer ${process.env.BLOB_READ_WRITE_TOKEN}` } } 
+                : {};
+              const resp = await fetch(photoUrl, fetchOptions);
+              if (resp.ok) {
+                const arrayBuffer = await resp.arrayBuffer();
+                const buffer = Buffer.from(arrayBuffer);
+                const mimeType = resp.headers.get('content-type') || 'image/jpeg';
+                imageParts.push({ inlineData: { data: buffer.toString('base64'), mimeType } });
+              }
+            } else {
+              const relativePath = photoUrl.startsWith('/') ? photoUrl.substring(1) : photoUrl;
+              const filePath = path.join(__dirname, '..', relativePath);
+              if (fs.existsSync(filePath)) {
+                const fileData = fs.readFileSync(filePath).toString('base64');
+                const ext = path.extname(filePath).toLowerCase();
+                const mimeType = ext === '.png' ? 'image/png' : 'image/jpeg';
+                imageParts.push({ inlineData: { data: fileData, mimeType } });
+              }
             }
           } catch (err) {
             console.warn(`Error reading photo file for ${compName}:`, photoUrl, err.message);
@@ -106,17 +119,30 @@ Keep the summary professional, concise and precise (2 short sentences). Output p
       return res.status(400).json(ApiResponse.badRequest('No overall photos found to analyze in this stage.'));
     }
 
-    // Convert local files to base64 (max 4 images)
+    // Convert files (Local or Remote) to base64 (max 4 images)
     const imageParts = [];
     for (const photoUrl of photos.slice(0, 4)) {
       try {
-        const relativePath = photoUrl.startsWith('/') ? photoUrl.substring(1) : photoUrl;
-        const filePath = path.join(__dirname, '..', relativePath);
-        if (fs.existsSync(filePath)) {
-          const data = fs.readFileSync(filePath).toString('base64');
-          const ext = path.extname(filePath).toLowerCase();
-          const mimeType = ext === '.png' ? 'image/png' : 'image/jpeg';
-          imageParts.push({ inlineData: { data, mimeType } });
+        if (photoUrl.startsWith('http://') || photoUrl.startsWith('https://')) {
+          const fetchOptions = photoUrl.includes('vercel-storage.com') 
+            ? { headers: { Authorization: `Bearer ${process.env.BLOB_READ_WRITE_TOKEN}` } } 
+            : {};
+          const resp = await fetch(photoUrl, fetchOptions);
+          if (resp.ok) {
+            const arrayBuffer = await resp.arrayBuffer();
+            const buffer = Buffer.from(arrayBuffer);
+            const mimeType = resp.headers.get('content-type') || 'image/jpeg';
+            imageParts.push({ inlineData: { data: buffer.toString('base64'), mimeType } });
+          }
+        } else {
+          const relativePath = photoUrl.startsWith('/') ? photoUrl.substring(1) : photoUrl;
+          const filePath = path.join(__dirname, '..', relativePath);
+          if (fs.existsSync(filePath)) {
+            const data = fs.readFileSync(filePath).toString('base64');
+            const ext = path.extname(filePath).toLowerCase();
+            const mimeType = ext === '.png' ? 'image/png' : 'image/jpeg';
+            imageParts.push({ inlineData: { data, mimeType } });
+          }
         }
       } catch (err) {
         console.warn('Error reading photo file:', photoUrl, err.message);

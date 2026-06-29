@@ -151,6 +151,7 @@ const Stage2Tab = forwardRef(({ jobId, job, template }, ref) => {
       <DismantlingSummaryView
         job={job}
         data={data}
+        template={template}
         onEdit={() => {
           setIsSummaryMode(false);
           window.__stage2_edit_mode_active = true;

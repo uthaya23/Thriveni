@@ -33,6 +33,7 @@ export default function JobDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [job, setJob] = useState(null);
+  const [jobData, setJobData] = useState(null);
   const [template, setTemplate] = useState(null);
   const [loading, setLoading] = useState(true);
   const [viewStage, setViewStage] = useState('Overview');
@@ -40,14 +41,17 @@ export default function JobDetailPage() {
   const [qaReview, setQaReview] = useState(null);
   const tabRef = useRef();
 
-  const isWheelMotor = job?.componentType?.toLowerCase().includes('wheel motor');
+  const isWheelMotor = job?.componentType?.toLowerCase().includes('wheel motor') || job?.equipmentModel?.toLowerCase().includes('wm');
+  const isVendorJob = jobData?.stage1?.inspectionDecision === 'Send to Vendor';
 
   const STAGES = [
     'Visual Inspection & Incoming Assessment',
-    'Dismantling & Analysis',
-    'Pre-Assembly & Assembly',
-    'Testing & Dispatch',
-    ...(isWheelMotor ? ['Final Drive Installation'] : []),
+    ...(isVendorJob ? [] : [
+      'Dismantling & Analysis',
+      'Pre-Assembly & Assembly',
+      'Testing & Dispatch',
+      ...(isWheelMotor ? ['Final Drive Installation'] : [])
+    ]),
     'Report Generation',
     'Completed'
   ];
@@ -55,11 +59,13 @@ export default function JobDetailPage() {
   const ALL_TABS = [
     'Overview',
     'Visual Inspection & Incoming Assessment',
-    'Dismantling & Analysis',
-    'Pre-Assembly & Assembly',
-    'Testing & Dispatch',
-    ...(isWheelMotor ? ['Final Drive Installation'] : []),
-    'Materials',
+    ...(isVendorJob ? [] : [
+      'Dismantling & Analysis',
+      'Pre-Assembly & Assembly',
+      'Testing & Dispatch',
+      ...(isWheelMotor ? ['Final Drive Installation'] : []),
+      'Materials'
+    ]),
     'Report Generation',
     'History'
   ];
@@ -68,6 +74,13 @@ export default function JobDetailPage() {
     try {
       const { data } = await api.get(`/jobs/${id}`);
       setJob(data);
+
+      try {
+        const { data: jd } = await api.get(`/templates/jobdata/${id}`);
+        setJobData(jd);
+      } catch (err) {
+        console.error('Failed to load job data', err);
+      }
       // Load component template for this job's equipment model
       if (data.equipmentModel) {
         try {

@@ -281,6 +281,7 @@ class JobService {
       // Handle completion timestamp
       if (updateData.stage === 'Completed') {
         updateData.completedAt = new Date();
+        updateData.status = 'Completed'; // Enforce status automatically
       } else if (updateData.stage && updateData.stage !== 'Completed') {
         updateData.completedAt = null;
       }

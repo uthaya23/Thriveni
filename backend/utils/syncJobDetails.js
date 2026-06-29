@@ -17,12 +17,28 @@ async function syncJobDetailsFromStages(jobId) {
 
     let updated = false;
 
-    // Stage 1 (Visual Inspection) -> Received date
+    // Stage 1 (Visual Inspection) -> Received date and Vendor Decision
     if (jobData.stage1) {
       const stage1Date = jobData.stage1.completionDate || jobData.stage1.startDate;
       if (stage1Date && job.dateReceived !== stage1Date) {
         job.dateReceived = stage1Date;
         updated = true;
+      }
+      
+      // Auto-advance to Report Generation if sent to vendor to enforce UI skip rules on backend
+      if (jobData.stage1.inspectionDecision === 'Send to Vendor') {
+        const intermediateStages = [
+          'Dismantling & Analysis',
+          'Pre-Assembly & Assembly',
+          'Testing & Dispatch',
+          'Final Drive Installation'
+        ];
+        if (intermediateStages.includes(job.stage)) {
+          job.stage = 'Report Generation';
+          job.status = 'On Hold';
+          job.delayReason = 'Sent to Vendor';
+          updated = true;
+        }
       }
     }
 
