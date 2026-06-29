@@ -229,6 +229,16 @@ router.get('/pdf/:reportId', asyncHandler(async (req, res) => {
 
   // Helper to convert photo to base64 for PDF embedding
   const toBase64 = (filename, isAsset = false) => {
+    // Explicit static paths help Vercel's bundler (nft) include the files in the serverless build
+    if (isAsset && filename.includes('logo.png')) {
+      const logoPath = path.join(__dirname, '../assets/logo.png');
+      if (fs.existsSync(logoPath)) {
+        const bitmap = fs.readFileSync(logoPath);
+        return `data:image/png;base64,${bitmap.toString('base64')}`;
+      }
+      return null;
+    }
+
     const photoPath = isAsset 
       ? path.join(__dirname, filename) 
       : path.join(__dirname, '../uploads', filename);
@@ -238,6 +248,14 @@ router.get('/pdf/:reportId', asyncHandler(async (req, res) => {
       return `data:image/${ext};base64,${bitmap.toString('base64')}`;
     }
     return null;
+  };
+
+  // Helper: clean up photo captions, falling back to a default label
+  const cleanCaption = (caption, fallback = 'Component View') => {
+    if (!caption || typeof caption !== 'string' || caption.trim() === '' || caption.trim().toLowerCase() === 'undefined') {
+      return fallback;
+    }
+    return caption.trim();
   };
 
   // Categorize photos directly from the curated report.categorizedPhotos array

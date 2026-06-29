@@ -1,4 +1,12 @@
 {
+  "functions": {
+    "api/**/*.js": {
+      "includeFiles": "{assets/**,templates/**,uploads/**}"
+    },
+    "routes/**/*.js": {
+      "includeFiles": "{assets/**,templates/**,uploads/**}"
+    }
+  },
   "rewrites": [
     {
       "source": "/(.*)",
