@@ -249,29 +249,39 @@ router.get('/pdf/:reportId', asyncHandler(async (req, res) => {
     dispatch: []
   };
 
-  if (report.categorizedPhotos && Array.isArray(report.categorizedPhotos)) {
-    for (const p of report.categorizedPhotos) {
+  // Use curated report photos if available, otherwise fallback to all job photos
+  const photoSource = (report.categorizedPhotos && report.categorizedPhotos.length > 0) 
+    ? report.categorizedPhotos 
+    : (photos || []);
+
+  if (photoSource && Array.isArray(photoSource)) {
+    for (const p of photoSource) {
       let b64 = null;
       let localPath = null;
       let isPortrait = false;
-      if (p.url && p.url.startsWith('data:image')) {
-        b64 = p.url;
-      } else if (p.url && p.url.startsWith('/uploads')) {
-        localPath = path.join(__dirname, '..', p.url);
+      
+      // Determine URL property (curated uses p.url, raw Photo model uses p.path)
+      const url = p.url || p.path;
+      if (!url) continue;
+
+      if (url.startsWith('data:image')) {
+        b64 = url;
+      } else if (url.startsWith('/uploads')) {
+        localPath = path.join(__dirname, '..', url);
         if (fs.existsSync(localPath)) {
           const bitmap = fs.readFileSync(localPath);
           const ext = path.extname(localPath).slice(1) || 'png';
           b64 = `data:image/${ext};base64,${bitmap.toString('base64')}`;
         }
-      } else if (p.url && (p.url.startsWith('http://') || p.url.startsWith('https://'))) {
+      } else if (url.startsWith('http://') || url.startsWith('https://')) {
         try {
-          const response = await fetch(p.url);
+          const response = await fetch(url);
           const buffer = await response.arrayBuffer();
-          const ext = p.url.split('.').pop().split('?')[0] || 'png';
+          const ext = url.split('.').pop().split('?')[0] || 'png';
           b64 = `data:image/${ext};base64,${Buffer.from(buffer).toString('base64')}`;
         } catch (err) {
-          console.warn('Failed to fetch remote image:', p.url, err.message);
-          b64 = p.url;
+          console.warn('Failed to fetch remote image:', url, err.message);
+          b64 = url;
         }
       }
 
@@ -281,14 +291,16 @@ router.get('/pdf/:reportId', asyncHandler(async (req, res) => {
       }
 
       if (b64) {
-        const cat = (p.category || '').toLowerCase();
-        const photoData = { url: b64, caption: cleanCaption(p.caption, 'Component View'), isPortrait };
+        // Fallback for category: raw Photo model uses p.stage
+        const cat = ((p.category || p.stage) || '').toLowerCase();
+        const captionText = p.caption || p.description || p.remarks || 'Component View';
+        const photoData = { url: b64, caption: cleanCaption(captionText, 'Component View'), isPortrait };
         
-        if (cat.includes('receive') || cat.includes('initial')) categorizedPhotos.initial.push(photoData);
-        else if (cat.includes('dismantl')) categorizedPhotos.dismantling.push(photoData);
-        else if (cat.includes('assembl')) categorizedPhotos.assembly.push(photoData);
-        else if (cat.includes('test')) categorizedPhotos.testing.push(photoData);
-        else if (cat.includes('dispatch') || cat.includes('final') || cat.includes('ship')) categorizedPhotos.dispatch.push(photoData);
+        if (cat.includes('receive') || cat.includes('initial') || cat.includes('1')) categorizedPhotos.initial.push(photoData);
+        else if (cat.includes('dismantl') || cat.includes('2')) categorizedPhotos.dismantling.push(photoData);
+        else if (cat.includes('assembl') || cat.includes('3')) categorizedPhotos.assembly.push(photoData);
+        else if (cat.includes('test') || cat.includes('4')) categorizedPhotos.testing.push(photoData);
+        else if (cat.includes('dispatch') || cat.includes('final') || cat.includes('ship') || cat.includes('5')) categorizedPhotos.dispatch.push(photoData);
         else categorizedPhotos.initial.push(photoData); // fallback
       }
     }
