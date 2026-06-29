@@ -111,7 +111,7 @@ class PdfService {
 
     let browser;
     if (process.env.VERCEL) {
-      const chromiumModule = await import('@sparticuz/chromium');
+      const chromiumModule = await import('@sparticuz/chromium-min');
       const chromium = chromiumModule.default || chromiumModule;
       const puppeteerCoreModule = await import('puppeteer-core');
       const puppeteerCore = puppeteerCoreModule.default || puppeteerCoreModule;
@@ -122,7 +122,7 @@ class PdfService {
       browser = await puppeteerCore.launch({
         args: chromium.args,
         defaultViewport: chromium.defaultViewport,
-        executablePath: await chromium.executablePath(),
+        executablePath: await chromium.executablePath('https://github.com/Sparticuz/chromium/releases/download/v131.0.1/chromium-v131.0.1-pack.tar'),
         headless: chromium.headless,
         ignoreHTTPSErrors: true,
       });
