@@ -305,23 +305,49 @@ const PageFooter = () => (
       return toast.error('PDF download is only available after final approval.');
     }
 
-    const t = toast.loading('Generating Technical PDF...');
+    const t = toast.loading('Preparing Report for Print...');
     try {
+      // Save latest edits first
       await api.patch(`/reports/${selectedReport._id}`, editedData);
-      const res = await api.get(`/reports/pdf/${selectedReport._id}`, { responseType: 'blob' });
       
-      const url = window.URL.createObjectURL(new Blob([res.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      const safeJobNo = job.jobNo ? job.jobNo.replace(/[^A-Z0-9-]/gi, '_') : 'Report';
-      link.setAttribute('download', `${safeJobNo}_Technical_Report.pdf`);
-      document.body.appendChild(link);
-      link.click();
-      link.parentNode.removeChild(link);
+      // Fetch the fully rendered HTML from the backend template engine
+      const res = await api.get(`/reports/pdf/${selectedReport._id}?format=html`, { responseType: 'text' });
+      const htmlContent = res.data;
 
-      toast.success('PDF Downloaded Successfully', { id: t });
+      // Open in a new window and trigger the browser's native Print dialog (Save as PDF)
+      const printWindow = window.open('', '_blank', 'width=900,height=700');
+      if (!printWindow) {
+        toast.error('Pop-up blocked! Please allow pop-ups for this site.', { id: t });
+        return;
+      }
+
+      printWindow.document.open();
+      printWindow.document.write(htmlContent);
+      printWindow.document.close();
+
+      // Remove editable styling and inject print trigger
+      printWindow.document.querySelectorAll('.editable-field').forEach(el => {
+        el.style.border = 'none';
+        el.style.background = 'none';
+        el.contentEditable = 'false';
+      });
+
+      // Wait for images/content to load, then trigger print
+      printWindow.onload = () => {
+        setTimeout(() => {
+          printWindow.print();
+          toast.success('Print dialog opened — choose "Save as PDF"', { id: t });
+        }, 1500);
+      };
+
+      // Fallback if onload doesn't fire (some browsers)
+      setTimeout(() => {
+        try { printWindow.print(); } catch(e) {}
+        toast.success('Print dialog opened — choose "Save as PDF"', { id: t });
+      }, 3000);
+
     } catch (err) {
-      toast.error(err.response?.data?.message || err.message || 'Failed to generate PDF', { id: t });
+      toast.error(err.response?.data?.message || err.message || 'Failed to generate report', { id: t });
     }
   };
 
