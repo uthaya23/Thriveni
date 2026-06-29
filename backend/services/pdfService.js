@@ -109,11 +109,14 @@ class PdfService {
       allowProtoMethodsByDefault: true
     });
 
+    // Bypass Vercel/Webpack's aggressive import transpilation
+    const _importDynamic = new Function('modulePath', 'return import(modulePath)');
+    
     let browser;
     if (process.env.VERCEL) {
-      const chromiumModule = await import('@sparticuz/chromium-min');
+      const chromiumModule = await _importDynamic('@sparticuz/chromium-min');
       const chromium = chromiumModule.default || chromiumModule;
-      const puppeteerCoreModule = await import('puppeteer-core');
+      const puppeteerCoreModule = await _importDynamic('puppeteer-core');
       const puppeteerCore = puppeteerCoreModule.default || puppeteerCoreModule;
       
       // Optional: optimize chromium settings for Vercel
@@ -127,7 +130,7 @@ class PdfService {
         ignoreHTTPSErrors: true,
       });
     } else {
-      const puppeteerModule = await import('puppeteer');
+      const puppeteerModule = await _importDynamic('puppeteer');
       const puppeteer = puppeteerModule.default || puppeteerModule;
       browser = await puppeteer.launch({
         headless: 'new',
