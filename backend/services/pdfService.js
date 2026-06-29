@@ -111,7 +111,8 @@ class PdfService {
 
     let browser;
     if (process.env.VERCEL) {
-      const chromium = require('@sparticuz/chromium');
+      const chromiumModule = await import('@sparticuz/chromium');
+      const chromium = chromiumModule.default || chromiumModule;
       const puppeteerCore = require('puppeteer-core');
       
       // Optional: optimize chromium settings for Vercel
