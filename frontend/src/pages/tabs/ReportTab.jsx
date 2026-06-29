@@ -312,9 +312,24 @@ const PageFooter = () => (
       
       // Fetch the fully rendered HTML from the backend template engine
       const res = await api.get(`/reports/pdf/${selectedReport._id}?format=html`, { responseType: 'text' });
-      const htmlContent = res.data;
+      let htmlContent = res.data;
 
-      // Open in a new window and trigger the browser's native Print dialog (Save as PDF)
+      // Inject print-optimized CSS to force images and backgrounds to render
+      const printCSS = `
+        <style>
+          @media print {
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+            body { margin: 0 !important; padding: 0 !important; }
+            img { max-width: 100% !important; display: inline-block !important; break-inside: avoid !important; }
+            .editable-field { border: none !important; background: none !important; padding: 0 !important; }
+          }
+          /* Also apply in screen mode for the print preview */
+          .editable-field { border: none !important; background: none !important; padding: 0 !important; }
+        </style>
+      `;
+      htmlContent = htmlContent.replace('</head>', printCSS + '</head>');
+
+      // Open in a new window
       const printWindow = window.open('', '_blank', 'width=900,height=700');
       if (!printWindow) {
         toast.error('Pop-up blocked! Please allow pop-ups for this site.', { id: t });
@@ -325,26 +340,37 @@ const PageFooter = () => (
       printWindow.document.write(htmlContent);
       printWindow.document.close();
 
-      // Remove editable styling and inject print trigger
-      printWindow.document.querySelectorAll('.editable-field').forEach(el => {
-        el.style.border = 'none';
-        el.style.background = 'none';
-        el.contentEditable = 'false';
-      });
+      // Wait for ALL images to fully load before triggering print
+      const waitForImages = () => {
+        return new Promise((resolve) => {
+          const images = printWindow.document.querySelectorAll('img');
+          if (images.length === 0) return resolve();
+          
+          let loaded = 0;
+          const total = images.length;
+          const checkDone = () => { if (++loaded >= total) resolve(); };
+          
+          images.forEach(img => {
+            if (img.complete && img.naturalHeight > 0) {
+              checkDone();
+            } else {
+              img.onload = checkDone;
+              img.onerror = checkDone; // Don't block on broken images
+            }
+          });
 
-      // Wait for images/content to load, then trigger print
-      printWindow.onload = () => {
-        setTimeout(() => {
-          printWindow.print();
-          toast.success('Print dialog opened — choose "Save as PDF"', { id: t });
-        }, 1500);
+          // Safety timeout — don't wait forever
+          setTimeout(resolve, 8000);
+        });
       };
 
-      // Fallback if onload doesn't fire (some browsers)
-      setTimeout(() => {
-        try { printWindow.print(); } catch(e) {}
+      // Give the DOM a moment to parse, then wait for images, then print
+      setTimeout(async () => {
+        await waitForImages();
+        printWindow.focus();
+        printWindow.print();
         toast.success('Print dialog opened — choose "Save as PDF"', { id: t });
-      }, 3000);
+      }, 1000);
 
     } catch (err) {
       toast.error(err.response?.data?.message || err.message || 'Failed to generate report', { id: t });
