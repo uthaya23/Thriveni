@@ -153,10 +153,26 @@ class PdfService {
 
     try {
       const page = await browser.newPage();
-      await page.setContent(html, { waitUntil: 'domcontentloaded', timeout: 60000 });
-      // Add a tiny delay to ensure base64 images are painted
-      await new Promise(r => setTimeout(r, 1000));
       
+      // Increase timeout for serverless environment
+      await page.setContent(html, { waitUntil: ['domcontentloaded', 'networkidle0'], timeout: 60000 });
+      
+      // Explicitly wait for all images to fully load and decode inside the page
+      await page.evaluate(async () => {
+        const images = Array.from(document.querySelectorAll('img'));
+        await Promise.all(images.map(img => {
+          if (img.complete && img.naturalHeight > 0) return Promise.resolve();
+          return new Promise(resolve => {
+            img.onload = resolve;
+            img.onerror = resolve; // Continue even if one image breaks
+            // Fallback timeout in case event doesn't fire
+            setTimeout(resolve, 5000);
+          });
+        }));
+      });
+      
+      // Final delay to ensure CSS paints the rendered images
+      await new Promise(r => setTimeout(r, 1000));
       // Industrial PDF settings
       const jobNo = (data.job && data.job.jobNo) || 'N/A';
       const reportNo = (data.report && data.report.reportNo) || 'N/A';
