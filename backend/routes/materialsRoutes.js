@@ -46,9 +46,12 @@ router.post('/:jobId', asyncHandler(async (req, res) => {
     const processedItems = [];
 
     for (const item of rawItems) {
+      const qty = parseFloat(item.quantity) || 0;
+      const tc = parseFloat(item.totalCost) || 0;
       const processedItem = {
         ...item,
-        totalCost: (parseFloat(item.quantity) || 0) * (parseFloat(item.unitCost) || 0)
+        totalCost: tc,
+        unitCost: qty > 0 ? tc / qty : 0
       };
 
       // Check if this item had a previous transaction
@@ -180,7 +183,10 @@ router.patch('/:jobId/item/:itemId', asyncHandler(async (req, res) => {
     
     // Apply changes
     Object.assign(item, req.body);
-    item.totalCost = (parseFloat(item.quantity) || 0) * (parseFloat(item.unitCost) || 0);
+    const qty = parseFloat(item.quantity) || 0;
+    const tc = parseFloat(item.totalCost) || 0;
+    item.totalCost = tc;
+    item.unitCost = qty > 0 ? tc / qty : 0;
 
     if (item.inventoryItem) {
       const isNowReceived = item.status === 'Received';

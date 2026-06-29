@@ -67,7 +67,7 @@ export default function MaterialsTab({ jobId }) {
   const addItem = () => {
     setData(d => ({
       ...d,
-      items: [...d.items, { description: '', materialCode: '', quantity: 1, unit: 'Nos', unitCost: 0, status: 'Requested', inventoryItem: null }]
+      items: [...d.items, { description: '', materialCode: '', quantity: 1, unit: 'Nos', totalCost: 0, status: 'Requested', inventoryItem: null }]
     }));
   };
 
@@ -123,7 +123,7 @@ export default function MaterialsTab({ jobId }) {
                   <th className="px-4 py-3">Mat. Code</th>
                   <th className="px-4 py-3 w-[12%]">Quantity</th>
                   <th className="px-4 py-3 w-[10%]">Unit</th>
-                  <th className="px-4 py-3">Unit Cost (₹)</th>
+                  <th className="px-4 py-3">Total Cost (₹)</th>
                   <th className="px-4 py-3">Status</th>
                   <th className="px-4 py-3 text-center">Actions</th>
                 </tr>
@@ -154,7 +154,7 @@ export default function MaterialsTab({ jobId }) {
                                   updateItem(i, 'description', selected.itemName);
                                   updateItem(i, 'materialCode', selected.batchNumber || '');
                                   updateItem(i, 'unit', selected.unit || 'Nos');
-                                  updateItem(i, 'unitCost', selected.unitCost || 0);
+                                  updateItem(i, 'totalCost', (selected.unitCost || 0) * (data.items[i].quantity || 1));
                                 }
                               }
                             }}
@@ -203,7 +203,7 @@ export default function MaterialsTab({ jobId }) {
                         <input value={item.unit} disabled={!!item.inventoryItem || !!item.issuedTransaction} onChange={e=>updateItem(i,'unit',e.target.value)} className="w-full text-xs font-semibold px-2.5 py-1.5 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 outline-none disabled:bg-slate-100 disabled:text-slate-400" />
                       </td>
                       <td className="px-4 py-3">
-                        <input type="number" value={item.unitCost} disabled={!!item.issuedTransaction} onChange={e=>updateItem(i,'unitCost',Number(e.target.value))} className="w-full text-xs font-semibold px-2.5 py-1.5 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 outline-none disabled:bg-slate-100 disabled:text-slate-400" min="0" />
+                        <input type="number" value={item.totalCost ?? (item.unitCost * item.quantity || 0)} disabled={!!item.issuedTransaction} onChange={e=>updateItem(i,'totalCost',Number(e.target.value))} className="w-full text-xs font-semibold px-2.5 py-1.5 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 outline-none disabled:bg-slate-100 disabled:text-slate-400" min="0" />
                       </td>
                       <td className="px-4 py-3">
                         <select value={item.status} onChange={e=>updateItem(i,'status',e.target.value)} className="text-xs font-semibold px-2.5 py-1.5 border border-slate-200 bg-white rounded-lg focus:ring-1 focus:ring-blue-500 outline-none">
@@ -229,7 +229,7 @@ export default function MaterialsTab({ jobId }) {
             <span className="text-xs text-slate-500">Calculated automatically from item quantities and costs</span>
           </div>
           <span className="text-lg font-black text-blue-600">
-            ₹ {data.items.reduce((s,i) => s + ((i.quantity||0)*(i.unitCost||0)), 0).toLocaleString('en-IN')}
+            ₹ {data.items.reduce((s,i) => s + (i.totalCost || (i.unitCost * i.quantity) || 0), 0).toLocaleString('en-IN')}
           </span>
         </div>
 

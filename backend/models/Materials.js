@@ -19,9 +19,15 @@ const materialItemSchema = new mongoose.Schema({
   issuedTransaction: { type: mongoose.Schema.Types.ObjectId, ref: 'InventoryTransaction' },
 }, { timestamps: true });
 
-// Auto-calculate totalCost
+// Auto-calculate unitCost if only totalCost is provided, or vice versa
 materialItemSchema.pre('save', function(next) {
-  this.totalCost = this.quantity * this.unitCost;
+  if (this.isModified('totalCost') || this.isModified('quantity')) {
+    // If they provided totalCost from frontend, derive unitCost so it's consistent
+    this.unitCost = this.quantity > 0 ? this.totalCost / this.quantity : 0;
+  } else if (this.isModified('unitCost')) {
+    // Fallback just in case something else only updates unitCost
+    this.totalCost = this.quantity * this.unitCost;
+  }
   next();
 });
 
