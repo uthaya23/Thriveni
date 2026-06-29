@@ -305,7 +305,7 @@ const PageFooter = () => (
       return toast.error('PDF download is only available after final approval.');
     }
 
-    const t = toast.loading('Preparing Report for Print...');
+    const t = toast.loading('Generating Technical PDF...');
     try {
       // Save latest edits first
       await api.patch(`/reports/${selectedReport._id}`, editedData);
@@ -314,66 +314,83 @@ const PageFooter = () => (
       const res = await api.get(`/reports/pdf/${selectedReport._id}?format=html`, { responseType: 'text' });
       let htmlContent = res.data;
 
-      // Inject print-optimized CSS to force images and backgrounds to render
-      const printCSS = `
-        <style>
-          @media print {
-            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
-            body { margin: 0 !important; padding: 0 !important; }
-            img { max-width: 100% !important; display: inline-block !important; break-inside: avoid !important; }
-            .editable-field { border: none !important; background: none !important; padding: 0 !important; }
-          }
-          /* Also apply in screen mode for the print preview */
-          .editable-field { border: none !important; background: none !important; padding: 0 !important; }
-        </style>
-      `;
-      htmlContent = htmlContent.replace('</head>', printCSS + '</head>');
+      // Strip editable field styling for clean PDF output
+      htmlContent = htmlContent.replace(/contenteditable="true"/g, 'contenteditable="false"');
 
-      // Open in a new window
-      const printWindow = window.open('', '_blank', 'width=900,height=700');
-      if (!printWindow) {
-        toast.error('Pop-up blocked! Please allow pop-ups for this site.', { id: t });
-        return;
-      }
+      // Create a hidden container to render the HTML off-screen
+      const container = document.createElement('div');
+      container.style.cssText = 'position:fixed; left:-9999px; top:0; width:794px; background:#fff; z-index:-1;';
+      document.body.appendChild(container);
 
-      printWindow.document.open();
-      printWindow.document.write(htmlContent);
-      printWindow.document.close();
+      // Create an iframe to isolate the report styles
+      const iframe = document.createElement('iframe');
+      iframe.style.cssText = 'width:794px; height:auto; border:none;';
+      container.appendChild(iframe);
 
-      // Wait for ALL images to fully load before triggering print
-      const waitForImages = () => {
-        return new Promise((resolve) => {
-          const images = printWindow.document.querySelectorAll('img');
-          if (images.length === 0) return resolve();
-          
-          let loaded = 0;
-          const total = images.length;
-          const checkDone = () => { if (++loaded >= total) resolve(); };
-          
+      // Write HTML content into the iframe
+      const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+      iframeDoc.open();
+      iframeDoc.write(htmlContent);
+      iframeDoc.close();
+
+      // Wait for all images inside the iframe to fully load
+      await new Promise((resolve) => {
+        const checkReady = () => {
+          const images = iframeDoc.querySelectorAll('img');
+          let pending = 0;
           images.forEach(img => {
-            if (img.complete && img.naturalHeight > 0) {
-              checkDone();
-            } else {
-              img.onload = checkDone;
-              img.onerror = checkDone; // Don't block on broken images
-            }
+            if (!img.complete || img.naturalHeight === 0) pending++;
           });
+          if (pending === 0) {
+            resolve();
+          } else {
+            setTimeout(checkReady, 300);
+          }
+        };
+        setTimeout(checkReady, 1000);
+        // Safety timeout
+        setTimeout(resolve, 15000);
+      });
 
-          // Safety timeout — don't wait forever
-          setTimeout(resolve, 8000);
-        });
-      };
+      // Resize iframe to fit full content height
+      iframe.style.height = iframeDoc.body.scrollHeight + 'px';
 
-      // Give the DOM a moment to parse, then wait for images, then print
-      setTimeout(async () => {
-        await waitForImages();
-        printWindow.focus();
-        printWindow.print();
-        toast.success('Print dialog opened — choose "Save as PDF"', { id: t });
-      }, 1000);
+      // Import html2pdf dynamically
+      const html2pdf = (await import('html2pdf.js')).default;
 
+      const safeJobNo = job.jobNo ? job.jobNo.replace(/[^A-Z0-9-]/gi, '_') : 'Report';
+
+      // Generate PDF from the iframe body content
+      await html2pdf()
+        .set({
+          margin: [0, 0, 0, 0],
+          filename: `${safeJobNo}_Technical_Report.pdf`,
+          image: { type: 'jpeg', quality: 0.95 },
+          html2canvas: { 
+            scale: 2,
+            useCORS: true,
+            allowTaint: true,
+            logging: false,
+            width: 794,
+            windowWidth: 794
+          },
+          jsPDF: { 
+            unit: 'mm', 
+            format: 'a4', 
+            orientation: 'portrait' 
+          },
+          pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', 'img'] }
+        })
+        .from(iframeDoc.body)
+        .save();
+
+      // Clean up
+      document.body.removeChild(container);
+
+      toast.success('PDF Downloaded Successfully!', { id: t });
     } catch (err) {
-      toast.error(err.response?.data?.message || err.message || 'Failed to generate report', { id: t });
+      console.error('PDF generation error:', err);
+      toast.error(err.response?.data?.message || err.message || 'Failed to generate PDF', { id: t });
     }
   };
 
