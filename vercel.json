@@ -1,8 +1,8 @@
 {
   "functions": {
     "api/index.js": {
-      "includeFiles": "backend/{templates,assets}/**",
-      "memory": 1024,
+      "includeFiles": "backend/{templates,assets,node_modules/@sparticuz/**,node_modules/puppeteer-core/**}",
+      "memory": 3008,
       "maxDuration": 60
     }
   },

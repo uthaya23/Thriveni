@@ -111,25 +111,44 @@ class PdfService {
 
     let browser;
     if (process.env.VERCEL) {
-      const chromium = require('@sparticuz/chromium-min');
+      // Ensure the chromium package detects the serverless environment
+      // This triggers proper LD_LIBRARY_PATH setup for bundled shared libs (libnss3.so etc.)
+      if (!process.env.AWS_LAMBDA_FUNCTION_NAME) {
+        process.env.AWS_LAMBDA_FUNCTION_NAME = 'vercel-pdf-generator';
+      }
+      
+      const chromium = require('@sparticuz/chromium');
       const puppeteerCore = require('puppeteer-core');
       
-      // Optional: optimize chromium settings for Vercel
+      // Disable GPU for serverless
       chromium.setGraphicsMode = false;
       
       browser = await puppeteerCore.launch({
         args: chromium.args,
         defaultViewport: chromium.defaultViewport,
-        executablePath: await chromium.executablePath('https://github.com/Sparticuz/chromium/releases/download/v131.0.1/chromium-v131.0.1-pack.tar'),
+        executablePath: await chromium.executablePath(),
         headless: chromium.headless,
         ignoreHTTPSErrors: true,
       });
     } else {
-      const puppeteer = require('puppeteer');
-      browser = await puppeteer.launch({
-        headless: 'new',
-        args: ['--no-sandbox', '--disable-setuid-sandbox']
-      });
+      // Local development: use full puppeteer with bundled Chromium
+      try {
+        const puppeteer = require('puppeteer');
+        browser = await puppeteer.launch({
+          headless: 'new',
+          args: ['--no-sandbox', '--disable-setuid-sandbox']
+        });
+      } catch (e) {
+        // Fallback to puppeteer-core if full puppeteer not installed
+        const puppeteerCore = require('puppeteer-core');
+        const chromium = require('@sparticuz/chromium');
+        browser = await puppeteerCore.launch({
+          args: chromium.args,
+          defaultViewport: chromium.defaultViewport,
+          executablePath: await chromium.executablePath(),
+          headless: chromium.headless,
+        });
+      }
     }
 
     try {
