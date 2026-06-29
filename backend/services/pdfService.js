@@ -113,7 +113,8 @@ class PdfService {
     if (process.env.VERCEL) {
       const chromiumModule = await import('@sparticuz/chromium');
       const chromium = chromiumModule.default || chromiumModule;
-      const puppeteerCore = require('puppeteer-core');
+      const puppeteerCoreModule = await import('puppeteer-core');
+      const puppeteerCore = puppeteerCoreModule.default || puppeteerCoreModule;
       
       // Optional: optimize chromium settings for Vercel
       chromium.setGraphicsMode = false;
@@ -126,7 +127,8 @@ class PdfService {
         ignoreHTTPSErrors: true,
       });
     } else {
-      const puppeteer = require('puppeteer');
+      const puppeteerModule = await import('puppeteer');
+      const puppeteer = puppeteerModule.default || puppeteerModule;
       browser = await puppeteer.launch({
         headless: 'new',
         args: ['--no-sandbox', '--disable-setuid-sandbox']
