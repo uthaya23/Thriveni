@@ -18,6 +18,7 @@ const Logger = require('../utils/logger');
 const Job = require('../models/Job');
 const Report = require('../models/Report');
 const reportController = require('../controllers/reportController');
+const PdfService = require('../services/pdfService');
 
 const {
   ReportService,
