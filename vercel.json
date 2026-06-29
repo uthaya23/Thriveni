@@ -2,7 +2,7 @@
   "functions": {
     "api/index.js": {
       "includeFiles": "backend/{templates,assets,node_modules/@sparticuz/**,node_modules/puppeteer-core/**}",
-      "memory": 3008,
+      "memory": 1024,
       "maxDuration": 60
     }
   },
