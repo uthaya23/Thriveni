@@ -293,13 +293,20 @@ router.get('/pdf/:reportId', asyncHandler(async (req, res) => {
         }
       } else if (url.startsWith('http://') || url.startsWith('https://')) {
         try {
-          const response = await fetch(url);
+          const headers = {};
+          if (url.includes('vercel-storage.com') && process.env.BLOB_READ_WRITE_TOKEN) {
+            headers['Authorization'] = `Bearer ${process.env.BLOB_READ_WRITE_TOKEN}`;
+          }
+          const response = await fetch(url, { headers });
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status} - ${response.statusText}`);
+          }
           const buffer = await response.arrayBuffer();
           const ext = url.split('.').pop().split('?')[0] || 'png';
           b64 = `data:image/${ext};base64,${Buffer.from(buffer).toString('base64')}`;
         } catch (err) {
           console.warn('Failed to fetch remote image:', url, err.message);
-          b64 = url;
+          b64 = null; // Prevent injecting broken URLs into the PDF
         }
       }
 
