@@ -80,7 +80,7 @@ router.put('/jobdata/:jobId/stage/:stageNum', async (req, res) => {
     if (!job) return res.status(404).json(ApiResponse.error('Job not found'));
     
     // R-PERM-006: Read-Only After Completion Lock
-    if (job.status === 'Completed' || job.stage === 'Completed') {
+    if ((job.status === 'Completed' || job.stage === 'Completed') && req.user.role !== 'admin') {
       return res.status(403).json(ApiResponse.error('This job is completed and permanently locked.'));
     }
 
