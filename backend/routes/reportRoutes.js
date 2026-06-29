@@ -738,7 +738,7 @@ router.get('/pdf/:reportId', asyncHandler(async (req, res) => {
     user: report.generatedBy,
     logo: toBase64('../assets/logo.png', true),
     headerBar: toBase64('../../HEADER/Picture1.png', true),
-    headerLogo: toBase64('../../HEADER/Picture2.png', true),
+    headerLogo: toBase64('../assets/logo.png', true),
     today,
     rebuildDurationDays,
     totalLaborHours,

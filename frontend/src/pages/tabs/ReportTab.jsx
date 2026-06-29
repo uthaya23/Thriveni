@@ -211,7 +211,7 @@ export default function ReportTab({ jobId, job }) {
 
 const PageHeader = ({ editedData, job }) => (
   <div className="flex justify-between items-center border-b-[2px] border-[#0B132B] pb-1 w-full shrink-0 mb-6">
-    <div className="font-extrabold text-[15pt] text-[#0B132B] tracking-[0.05em]">THRIVENI</div>
+    <img src="/logo.png" alt="Thriveni" className="h-5 object-contain" />
     <div className="text-right text-[7pt] font-bold text-slate-500 uppercase tracking-[0.05em]">
       <span className="ml-4"><strong className="text-[#0B132B]">DOC:</strong> {editedData?.reportNo || 'Draft'}</span>
       <span className="ml-4"><strong className="text-[#0B132B]">JOB:</strong> {job?.jobNo}</span>
@@ -719,7 +719,7 @@ const PageFooter = () => (
             {/* 00. Cover Page Mockup (Exact PDF Match) */}
             <div className="px-14 py-10 select-none flex flex-col h-full bg-white relative overflow-hidden flex-1" style={{ background: 'radial-gradient(circle at 10% 20%, rgba(255,255,255,1) 0%, rgba(245,247,250,1) 90%)' }}>
               <div className="flex justify-between items-center mb-2">
-                <div className="font-extrabold text-3xl text-[#0B132B] tracking-[0.05em]">THRIVENI</div>
+                <img src="/logo.png" alt="Thriveni" className="h-10 object-contain" />
                 <div className="text-right text-[8pt] text-[#0B132B] font-bold leading-tight">
                   THRIVENI REBUILD CENTER<br/>
                   <span className="text-[6.5pt] font-semibold text-slate-500">HITACHI CERTIFIED REBUILD & QUALITY FACILITY</span>
