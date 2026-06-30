@@ -165,37 +165,7 @@ export default function PublicJobView() {
           </div>
         </section>
 
-        {/* ── Diagnostic Decisions (If Available) ── */}
-        {(jobData?.stage1?.inspectionDecision || job.siteComplaints) && (
-          <section className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-            <h3 className="font-black text-slate-800 mb-4 uppercase tracking-wide text-sm">Diagnostics & Findings</h3>
-            
-            {job.siteComplaints && (
-              <div className="mb-4 bg-orange-50 p-4 rounded-xl border border-orange-100">
-                <p className="text-[10px] uppercase font-bold text-orange-800 tracking-wider mb-1">Site Complaint</p>
-                <p className="text-orange-900 font-medium text-sm">{job.siteComplaints}</p>
-              </div>
-            )}
 
-            {jobData?.stage1?.inspectionDecision && (
-              <div className="mb-4">
-                <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-1">Initial Decision</p>
-                <p className="font-bold text-slate-800 bg-slate-50 p-3 rounded-lg border border-slate-100 inline-block">
-                  {jobData.stage1.inspectionDecision}
-                </p>
-              </div>
-            )}
-            
-            {jobData?.stage1?.aiSummary && (
-              <div>
-                <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-1">Inspection Overview</p>
-                <p className="text-sm text-slate-600 leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100">
-                  {jobData.stage1.aiSummary}
-                </p>
-              </div>
-            )}
-          </section>
-        )}
 
         {/* ── Lifecycle Details ── */}
         <section className="bg-slate-800 rounded-2xl shadow-sm p-6 text-white text-center">
