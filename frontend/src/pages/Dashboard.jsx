@@ -18,8 +18,6 @@ const STAGE_CONFIG = [
   { id: 'report generation',                       label: 'QA / Report',  icon: '📄', color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200' },
 ];
 
-const TABS = ['Workshop', 'Assets', 'Production', 'Quality', 'Reports', 'Analytics', 'Management'];
-
 const normalizeStage = (stage) => {
   if (!stage) return 'visual inspection & incoming assessment';
   const legacyMap = {
@@ -44,7 +42,6 @@ const getDaysOpen = (dateStr) => Math.floor((new Date() - new Date(dateStr)) / (
 export default function Dashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('Workshop');
   
   const [jobs, setJobs] = useState([]);
   const [assets, setAssets] = useState([]);
@@ -231,21 +228,6 @@ export default function Dashboard() {
               </div>
             </div>
           </div>
-        </div>
-        
-        {/* TABS */}
-        <div className="flex gap-1 overflow-x-auto no-scrollbar">
-          {TABS.map(tab => (
-            <button 
-              key={tab} 
-              onClick={() => setActiveTab(tab)}
-              className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap ${
-                activeTab === tab ? 'bg-blue-900 text-white shadow-sm' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
         </div>
       </div>
 
