@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const resolveJobId = require('../middleware/resolveJobId');
 const asyncHandler = require('express-async-handler');
 const { protect } = require('../middleware/authMiddleware');
 const AuditService = require('../services/AuditService');
@@ -53,7 +54,7 @@ router.get('/recent', asyncHandler(async (req, res) => {
 // GET /api/audit/job/:jobId
 // Full audit history for a specific job
 // ─────────────────────────────────────────────
-router.get('/job/:jobId', asyncHandler(async (req, res) => {
+router.get('/job/:jobId', resolveJobId('jobId'), asyncHandler(async (req, res) => {
   const { jobId } = req.params;
   const { jobNo } = req.query;
 

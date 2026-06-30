@@ -3,6 +3,7 @@ const router = express.Router();
 const upload = require('../middleware/uploadMiddleware');
 const Photo = require('../models/Photo');
 const { protect } = require('../middleware/authMiddleware');
+const resolveJobId = require('../middleware/resolveJobId');
 const asyncHandler = require('express-async-handler');
 const ApiResponse = require('../utils/apiResponse');
 const { uploadToBlob, deleteFromBlob } = require('../utils/vercelBlob');
@@ -10,7 +11,7 @@ const { uploadToBlob, deleteFromBlob } = require('../utils/vercelBlob');
 router.use(protect);
 
 // GET /api/photos/:jobId?stage=Received
-router.get('/:jobId', asyncHandler(async (req, res) => {
+router.get('/:jobId', resolveJobId('jobId'), asyncHandler(async (req, res) => {
   const query = { job: req.params.jobId };
   if (req.query.stage) query.stage = req.query.stage;
   const photos = await Photo.find(query).sort({ createdAt: -1 }).populate('uploadedBy', 'name');
@@ -18,7 +19,7 @@ router.get('/:jobId', asyncHandler(async (req, res) => {
 }));
 
 // POST /api/photos/:jobId — upload multiple images
-router.post('/:jobId', upload.array('photos', 20), asyncHandler(async (req, res) => {
+router.post('/:jobId', upload.array('photos', 20), resolveJobId('jobId'), asyncHandler(async (req, res) => {
   if (!req.files || req.files.length === 0)
     return res.status(400).json(ApiResponse.badRequest('No files uploaded'));
 

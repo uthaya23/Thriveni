@@ -4,6 +4,7 @@ const ComponentTemplate = require('../models/ComponentTemplate');
 const JobData = require('../models/JobData');
 const ApiResponse = require('../utils/apiResponse');
 const { protect, adminOnly } = require('../middleware/authMiddleware');
+const resolveJobId = require('../middleware/resolveJobId');
 
 // Add authentication middleware for all routes except GET (read-only for tech apps if needed, but let's protect everything)
 router.use(protect);
@@ -59,7 +60,7 @@ router.get('/:key', async (req, res) => {
 // ── JobData Routes ─────────────────────────────────────────────────
 
 // GET job data for a job
-router.get('/jobdata/:jobId', async (req, res) => {
+router.get('/jobdata/:jobId', resolveJobId('jobId'), async (req, res) => {
   try {
     let jobData = await JobData.findOne({ job: req.params.jobId });
     if (!jobData) {
@@ -73,7 +74,7 @@ router.get('/jobdata/:jobId', async (req, res) => {
 });
 
 // PUT update a specific stage's data
-router.put('/jobdata/:jobId/stage/:stageNum', async (req, res) => {
+router.put('/jobdata/:jobId/stage/:stageNum', resolveJobId('jobId'), async (req, res) => {
   try {
     const Job = require('../models/Job');
     const job = await Job.findById(req.params.jobId);

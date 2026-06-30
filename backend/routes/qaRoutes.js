@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const asyncHandler = require('express-async-handler');
 const { protect, notTechnician } = require('../middleware/authMiddleware');
+const resolveJobId = require('../middleware/resolveJobId');
 const QAReview = require('../models/QAReview');
 const Job = require('../models/Job');
 const JobData = require('../models/JobData');
@@ -29,7 +30,7 @@ router.get('/pending/list', notTechnician, asyncHandler(async (req, res) => {
 // GET /api/qa/:jobId
 // Get QA review status for a job
 // ─────────────────────────────────────────────
-router.get('/:jobId', asyncHandler(async (req, res) => {
+router.get('/:jobId', resolveJobId('jobId'), asyncHandler(async (req, res) => {
   const review = await QAReview.findOne({ job: req.params.jobId })
     .populate('submittedBy', 'name role')
     .populate('reviewedBy', 'name role')
@@ -49,7 +50,7 @@ router.get('/:jobId', asyncHandler(async (req, res) => {
 // POST /api/qa/:jobId/submit
 // Technician or manager submits Stage 3 for QA review
 // ─────────────────────────────────────────────
-router.post('/:jobId/submit', asyncHandler(async (req, res) => {
+router.post('/:jobId/submit', resolveJobId('jobId'), asyncHandler(async (req, res) => {
   const { comment } = req.body;
   const jobId = req.params.jobId;
 
@@ -115,7 +116,7 @@ router.post('/:jobId/submit', asyncHandler(async (req, res) => {
 // POST /api/qa/:jobId/approve
 // Manager approves QA — unlocks Stage 4
 // ─────────────────────────────────────────────
-router.post('/:jobId/approve', notTechnician, asyncHandler(async (req, res) => {
+router.post('/:jobId/approve', notTechnician, resolveJobId('jobId'), asyncHandler(async (req, res) => {
   const { comment } = req.body;
   const jobId = req.params.jobId;
 
@@ -201,7 +202,7 @@ router.post('/:jobId/approve', notTechnician, asyncHandler(async (req, res) => {
 // POST /api/qa/:jobId/reject
 // Manager rejects QA — job returns to Stage 3
 // ─────────────────────────────────────────────
-router.post('/:jobId/reject', notTechnician, asyncHandler(async (req, res) => {
+router.post('/:jobId/reject', notTechnician, resolveJobId('jobId'), asyncHandler(async (req, res) => {
   const { reason } = req.body;
   const jobId = req.params.jobId;
 

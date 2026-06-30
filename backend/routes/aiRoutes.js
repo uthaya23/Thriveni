@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const resolveJobId = require('../middleware/resolveJobId');
 const { protect } = require('../middleware/authMiddleware');
 
 router.use(protect);
@@ -9,7 +10,7 @@ const fs = require('fs');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const ApiResponse = require('../utils/apiResponse');
 
-router.post('/analyze-photos/:jobId', async (req, res) => {
+router.post('/analyze-photos/:jobId', resolveJobId('jobId'), async (req, res) => {
   try {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {

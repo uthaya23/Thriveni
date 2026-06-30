@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const resolveJobId = require('../middleware/resolveJobId');
 const Materials = require('../models/Materials');
 const InventoryItem = require('../models/InventoryItem');
 const InventoryTransaction = require('../models/InventoryTransaction');
@@ -13,7 +14,7 @@ router.use(protect);
 router.use(notTechnician);
 
 // GET /api/materials/:jobId
-router.get('/:jobId', asyncHandler(async (req, res) => {
+router.get('/:jobId', resolveJobId('jobId'), asyncHandler(async (req, res) => {
   const doc = await Materials.findOne({ job: req.params.jobId })
     .populate('requestedBy', 'name')
     .populate('approvedBy', 'name')
@@ -22,7 +23,7 @@ router.get('/:jobId', asyncHandler(async (req, res) => {
 }));
 
 // POST /api/materials/:jobId — create or replace
-router.post('/:jobId', asyncHandler(async (req, res) => {
+router.post('/:jobId', resolveJobId('jobId'), asyncHandler(async (req, res) => {
   const jobId = req.params.jobId;
   const jobDoc = await Job.findById(jobId);
   if (!jobDoc) return res.status(404).json(ApiResponse.notFound('Job not found'));
@@ -164,7 +165,7 @@ router.post('/:jobId', asyncHandler(async (req, res) => {
 }));
 
 // PATCH /api/materials/:jobId/item/:itemId — update single item status
-router.patch('/:jobId/item/:itemId', asyncHandler(async (req, res) => {
+router.patch('/:jobId/item/:itemId', resolveJobId('jobId'), asyncHandler(async (req, res) => {
   const jobId = req.params.jobId;
   const jobDoc = await Job.findById(jobId);
   if (!jobDoc) return res.status(404).json(ApiResponse.notFound('Job not found'));

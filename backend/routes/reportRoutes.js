@@ -13,6 +13,7 @@ const Handlebars = require('handlebars');
 const handlebars = require('handlebars');
 
 const { protect, notTechnician } = require('../middleware/authMiddleware');
+const resolveJobId = require('../middleware/resolveJobId');
 const ApiResponse = require('../utils/apiResponse');
 const Logger = require('../utils/logger');
 const Job = require('../models/Job');
@@ -48,7 +49,7 @@ router.get('/summary', asyncHandler(async (req, res) => {
 // ─────────────────────────────────────────────
 // GET /api/reports/job/:jobId
 // ─────────────────────────────────────────────
-router.get('/job/:jobId', asyncHandler(async (req, res) => {
+router.get('/job/:jobId', resolveJobId('jobId'), asyncHandler(async (req, res) => {
   const result = await ReportService.getReportsByJob(req.params.jobId);
   res.status(result.statusCode).json(result);
 }));

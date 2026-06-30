@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const resolveJobId = require('../middleware/resolveJobId');
 const inventoryController = require('../controllers/inventoryController');
 const { protect, notTechnician } = require('../middleware/authMiddleware');
 
@@ -21,6 +22,6 @@ router.route('/transaction')
 
 // Reports
 router.get('/report/monthly', inventoryController.getMonthlyConsumption);
-router.get('/report/job/:jobId', inventoryController.getJobConsumption);
+router.get('/report/job/:jobId', resolveJobId('jobId'), inventoryController.getJobConsumption);
 
 module.exports = router;
