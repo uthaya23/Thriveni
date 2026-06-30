@@ -9,6 +9,23 @@ const User = require('../models/User');
 const ProductionPlan = require('../models/ProductionPlan');
 const JobData = require('../models/JobData');
 const Asset = require('../models/Asset');
+const EquipmentFamily = require('../models/EquipmentFamily');
+
+// Helper to normalize legacy DD/MM/YYYY date strings to ISO format for Mongoose
+const normalizeDate = (dateStr) => {
+  if (!dateStr) return dateStr;
+  if (typeof dateStr === 'string' && dateStr.includes('/')) {
+    const parts = dateStr.split('/');
+    if (parts.length === 3) {
+      let [p1, p2, year] = parts;
+      if (year.length === 4) {
+        // Assume DD/MM/YYYY format
+        return `${year}-${p2.padStart(2, '0')}-${p1.padStart(2, '0')}T00:00:00.000Z`;
+      }
+    }
+  }
+  return dateStr;
+};
 const { MachineModel } = require('../models/AdminLookups');
 const generateJobNo = require('../utils/generateJobNo');
 const AssetService = require('./AssetService');
@@ -342,6 +359,14 @@ class JobService {
 
       updateData.updatedBy = updatedBy;
       updateData.updatedAt = new Date();
+
+      // Normalize date fields from legacy DD/MM/YYYY strings to prevent Mongoose CastErrors
+      const dateFields = ['dateReceived', 'disassyDate', 'assyDate', 'testingDate', 'targetDate', 'dispatchDate'];
+      for (const field of dateFields) {
+        if (updateData[field]) {
+          updateData[field] = normalizeDate(updateData[field]);
+        }
+      }
 
       // Automatically re-evaluate production plan link if match fields are updated
       const tempJob = { ...updateData };
