@@ -2,9 +2,10 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import toast from 'react-hot-toast';
-import { FiChevronLeft, FiSave, FiChevronRight } from 'react-icons/fi';
+import { FiChevronLeft, FiSave, FiChevronRight, FiPrinter, FiMaximize } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
 import useJobStore from '../store/jobStore';
+import { QRCodeSVG } from 'qrcode.react';
 
 import OverviewTab  from './tabs/OverviewTab';
 import Stage1Tab    from './tabs/Stage1Tab';
@@ -40,6 +41,7 @@ export default function JobDetailPage() {
   const [viewStage, setViewStage] = useState('Overview');
   const [savingStage, setSavingStage] = useState(false);
   const [qaReview, setQaReview] = useState(null);
+  const [showQR, setShowQR] = useState(false);
   const tabRef = useRef();
 
   const isWheelMotor = job?.componentType?.toLowerCase().includes('wheel motor') || job?.equipmentModel?.toLowerCase().includes('wm');
@@ -172,6 +174,39 @@ export default function JobDetailPage() {
     }
   };
 
+  const handlePrintQR = () => {
+    const svgHtml = document.getElementById('qr-svg-container')?.innerHTML;
+    if (!svgHtml) return;
+    
+    const printWindow = window.open('', '', 'width=600,height=600');
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Print QR - ${job.jobNo}</title>
+          <style>
+            body { font-family: system-ui, -apple-system, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; background: white; }
+            .qr-container { padding: 2.5rem; border: 2px dashed #cbd5e1; border-radius: 1.5rem; text-align: center; }
+            .job-no { font-family: monospace; font-size: 1.75rem; font-weight: 900; margin-top: 1.5rem; color: #0f172a; letter-spacing: -0.025em; }
+            .desc { font-size: 0.875rem; color: #64748b; margin-top: 0.5rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.1em; }
+          </style>
+        </head>
+        <body>
+          <div class="qr-container">
+            ${svgHtml}
+            <div class="job-no">${job.jobNo}</div>
+            <div class="desc">${job.equipmentModel || 'Thriveni TRC'}</div>
+          </div>
+          <script>
+            window.onload = () => { 
+              setTimeout(() => { window.print(); window.close(); }, 250);
+            }
+          </script>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+  };
+
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50">
       <div className="text-center">
@@ -206,6 +241,9 @@ export default function JobDetailPage() {
             </p>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+            <button onClick={() => setShowQR(true)} style={{ padding: '7px 10px', background: '#f8fafc', color: '#0f172a', border: '1px solid #e2e8f0', borderRadius: 8, fontWeight: 700, fontSize: '0.75rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap' }}>
+              <FiMaximize size={13} /> <span className="hide-on-mobile">QR Code</span>
+            </button>
             <button onClick={saveDraft} style={{ padding: '7px 10px', background: '#f1f5f9', color: '#334155', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: '0.75rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap' }}>
               <FiSave size={13} /> <span className="hide-on-mobile">Save</span>
             </button>
@@ -265,6 +303,36 @@ export default function JobDetailPage() {
         {viewStage === 'History' && <HistoryTab />}
         {viewStage === 'Completed' && <div className="text-center py-20 text-green-600 font-bold text-xl">✅ Job Completed</div>}
       </div>
+
+      {/* ── QR Code Modal ── */}
+      {showQR && (
+        <div className="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm transition-all" onClick={(e) => e.target === e.currentTarget && setShowQR(false)}>
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden flex flex-col transform transition-all scale-100">
+            <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center"><FiMaximize size={16} /></div>
+                <h2 className="font-black text-slate-800 text-sm tracking-wide uppercase">Job Identity</h2>
+              </div>
+              <button onClick={() => setShowQR(false)} className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-200 text-slate-500 hover:bg-slate-300 hover:text-slate-700 transition-colors font-bold text-lg leading-none">✕</button>
+            </div>
+            
+            <div className="p-8 flex flex-col items-center justify-center bg-white">
+              <div id="qr-svg-container" className="p-4 bg-white rounded-2xl border-2 border-slate-100 shadow-sm mb-4">
+                <QRCodeSVG value={job.jobNo} size={220} level="H" includeMargin={true} />
+              </div>
+              <p className="font-mono font-black text-2xl text-slate-800 tracking-tighter">{job.jobNo}</p>
+              <p className="text-xs text-slate-400 mt-1 uppercase tracking-widest font-bold">{job.equipmentModel || 'Thriveni TRC'}</p>
+            </div>
+            
+            <div className="p-5 border-t border-slate-100 bg-slate-50 flex gap-3">
+              <button onClick={() => setShowQR(false)} className="flex-1 py-3 rounded-xl font-bold text-sm text-slate-600 bg-white border border-slate-200 hover:bg-slate-100 transition-colors">Close</button>
+              <button onClick={handlePrintQR} className="flex-1 py-3 rounded-xl font-bold text-sm bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-600/20 transition-all flex justify-center items-center gap-2">
+                <FiPrinter size={16} /> Print Tag
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
