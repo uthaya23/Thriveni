@@ -1211,45 +1211,6 @@
                     </div>
 
 
-                    <div class="sub-section-header">2.2 Incoming Parts Checklist</div>
-                    <table style="margin-bottom: 0;">
-                        <thead>
-                            <tr>
-                                <th style="width: 45%;">Component Description</th>
-                                <th style="width: 15%; text-align: center;">Status</th>
-                                <th style="width: 40%;">Observations / Remarks</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {{#each inspection.allParts}}
-                            <tr>
-                                <td style="font-weight: 700; color: var(--secondary-blue);">{{fallback this.partName 'N/A'}}</td>
-                                <td style="text-align: center;">
-                                    {{#ifEquals this.status 'Present'}}
-                                    <span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:7.5pt;font-weight:800;background:#f0fdf4;color:#16a34a;border:1px solid #16a34a40;">PRESENT</span>
-                                    {{else}}
-                                    {{#ifEquals this.status 'Missing'}}
-                                    <span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:7.5pt;font-weight:800;background:#fef2f2;color:#dc2626;border:1px solid #dc262640;">MISSING</span>
-                                    {{else}}
-                                    {{#ifEquals this.status 'Damaged'}}
-                                    <span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:7.5pt;font-weight:800;background:#fef9c3;color:#854d0e;border:1px solid #854d0e40;">DAMAGED</span>
-                                    {{else}}
-                                    <span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:7.5pt;font-weight:800;background:#f1f5f9;color:#475569;border:1px solid #47556940;">{{fallback this.status 'N/A'}}</span>
-                                    {{/ifEquals}}
-                                    {{/ifEquals}}
-                                    {{/ifEquals}}
-                                </td>
-                                <td>{{fallback this.remarks '—'}}</td>
-                            </tr>
-                            {{/each}}
-                            {{#unless inspection.allParts}}
-                            <tr>
-                                <td colspan="3" style="text-align: center; color: var(--text-muted); font-style: italic;">No parts checklist recorded.</td>
-                            </tr>
-                            {{/unless}}
-                        </tbody>
-                    </table>
-
 
 
 
@@ -1341,52 +1302,7 @@
                         {{report.partsConditionAnalysis}}
                     </div>
                     {{/if}}
-                    <table>
-                        <thead>
-                            <tr>
-                                <th style="width: 35%;">Component Name</th>
-                                <th style="width: 45%;">Observed Condition</th>
-                                <th style="width: 20%; text-align: center;">Action Required</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {{#each dismantling.componentConditionAssessment}}
-                            <tr>
-                                <td style="font-weight: 700; color: var(--secondary-blue);">{{@key}}</td>
-                                <td>
-                                    <div><strong>Condition:</strong> {{fallback this.remark 'N/A'}}</div>
-                                    {{#if this.aiSummary}}
-                                    <div style="margin-top: 4px; font-size: 6.5pt; color: var(--text-muted);">
-                                        <strong>Technical Assessment:</strong> {{this.aiSummary}}
-                                    </div>
-                                    {{/if}}
-                                </td>
-                                <td style="text-align: center;">
-                                    {{#ifEquals this.decision 'Reuse'}}
-                                    <span class="badge-pass"
-                                        style="background-color: #f0fdf4; border: 1px solid #16a34a30; padding: 1px 6px; border-radius: 3px; font-size: 6.5pt; text-transform: uppercase;">REUSE</span>
-                                    {{else}}
-                                    {{#ifEquals this.decision 'Repair'}}
-                                    <span class="badge-pass"
-                                        style="background-color: #fffbeb; border: 1px solid #fef3c7; padding: 1px 6px; border-radius: 3px; font-size: 6.5pt; text-transform: uppercase; color: var(--accent-gold);">REPAIR</span>
-                                    {{else}}
-                                    <span class="badge-fail"
-                                        style="background-color: #fef2f2; border: 1px solid #dc262630; padding: 1px 6px; border-radius: 3px; font-size: 6.5pt; text-transform: uppercase;">REPLACE</span>
-                                    {{/ifEquals}}
-                                    {{/ifEquals}}
-                                </td>
-                            </tr>
-                            {{/each}}
-                            {{#unless dismantling.componentConditionAssessment}}
-                            <tr>
-                                <td colspan="3"
-                                    style="text-align: center; color: var(--text-muted); font-style: italic;">No
-                                    dismantling components condition data recorded.</td>
-                            </tr>
-                            {{/unless}}
-                        </tbody>
-                    </table>
-                    {{/if}}
+
 
 
 
@@ -1421,20 +1337,9 @@
                         </div>
                     </div>
 
-                    <div class="sub-section-header">5.1 Overhaul Work Executed</div>
-                    {{#if report.workPerformedList}}
-                    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid #475569;border-radius:4px;padding:8px 10px;margin-bottom:10px;">
-                        <ul style="margin: 0; padding-left: 16px; font-size: 7.5pt; color: #334155; line-height: 1.55;">
-                            {{#each report.workPerformedList}}
-                            <li style="margin-bottom: 4px;">{{this}}</li>
-                            {{/each}}
-                        </ul>
-                    </div>
-                    {{else}}
                     <div style="text-align: justify; font-size: 7.5pt; line-height: 1.45;">
                         {{{editable 'report.workPerformed' report.workPerformed 'Overhaul execution and assembly work details are not recorded.'}}}
                     </div>
-                    {{/if}}
 
 
                     <!-- ───────────────────────────────────────────────────────────────── -->
@@ -1464,34 +1369,6 @@
                         </div>
                         {{/each}}
 
-                        <div class="sub-section-header">6.2 Rebuild Labor Registry</div>
-                        <table style="margin-bottom: 0;">
-                            <thead>
-                                <tr>
-                                    <th>Overhaul Milestone Process</th>
-                                    <th style="width: 35%;">Lead Technician</th>
-                                    <th style="width: 20%; text-align: center;">Hours Logged</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {{#each assembly.assemblyChecklist}}
-                                {{#if this.checked}}
-                                <tr>
-                                    <td style="font-weight: 700; color: var(--secondary-blue);">{{@key}}</td>
-                                    <td>{{fallback ../assembly.technician 'TRC Technician'}}</td>
-                                    <td style="text-align: center; font-weight: 700;">Completed</td>
-                                </tr>
-                                {{/if}}
-                                {{/each}}
-                                {{#unless assembly.assemblyChecklist}}
-                                <tr>
-                                    <td colspan="3"
-                                        style="text-align: center; color: var(--text-muted); font-style: italic;">No
-                                        specific shop rebuild labor logged.</td>
-                                </tr>
-                                {{/unless}}
-                            </tbody>
-                        </table>
                         {{/if}}
 
 
@@ -1521,35 +1398,7 @@
                             </tbody>
                         </table>
 
-                        <div class="sub-section-header">7.2 Materials Replaced (New OEM Components)</div>
-                        <table style="margin-bottom: 0;">
-                            <thead>
-                                <tr>
-                                    <th>Component Material Description</th>
-                                    <th style="width: 20%; text-align: center;">Qty Issued</th>
-                                    <th>Procurement Notes / Traceability</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {{#each assembly.materialsUsed}}
-                                <tr>
-                                    <td style="font-weight: 700; color: var(--secondary-blue);">{{fallback this.name
-                                        'N/A'}}</td>
-                                    <td style="text-align: center; font-weight: 700; color: var(--accent-green);">
-                                        {{fallback this.quantity '0'}}</td>
-                                    <td>{{fallback this.remarks 'Released from main store.'}}</td>
-                                </tr>
-                                {{/each}}
-                                {{#unless assembly.materialsUsed}}
-                                <tr>
-                                    <td colspan="3"
-                                        style="text-align: center; color: var(--text-muted); font-style: italic;">No new
-                                        components issued from store.</td>
-                                </tr>
-                                {{/unless}}
-                            </tbody>
-                        </table>
-                        {{/if}}
+
 
                         {{#if testing.finalResistanceTests}}
                         <div class="sub-section-header">7.3 Final Winding Resistance Log</div>
@@ -1580,91 +1429,7 @@
                         </table>
                         {{/if}}
 
-                        {{#if testing.surgeTestsList}}
-                        <div class="sub-section-header">7.4 Surge Test Results</div>
-                        <table style="margin-bottom: 0;">
-                            <thead>
-                                <tr>
-                                    <th>Winding / Phase</th>
-                                    <th style="width: 25%; text-align: center;">Applied Voltage (V)</th>
-                                    <th style="width: 30%;">Waveform Assessment</th>
-                                    <th style="width: 15%; text-align: center;">Result</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {{#each testing.surgeTestsList}}
-                                <tr>
-                                    <td style="font-weight: 700; font-family: 'JetBrains Mono', monospace;">{{fallback this.winding 'N/A'}}</td>
-                                    <td style="text-align: center; font-weight: 700;">{{fallback this.appliedVoltage 'N/A'}}</td>
-                                    <td>{{fallback this.waveform 'Balanced'}}</td>
-                                    <td style="text-align: center;">
-                                        {{#ifEquals this.waveform 'Balanced'}}
-                                        <span class="badge-pass">PASS</span>
-                                        {{else}}
-                                        <span class="badge-fail">REVIEW</span>
-                                        {{/ifEquals}}
-                                    </td>
-                                </tr>
-                                {{/each}}
-                            </tbody>
-                        </table>
-                        {{/if}}
 
-                        {{#if testing.functionalTestsList}}
-                        <div class="sub-section-header">7.5 Functional Run Tests</div>
-                        <table style="margin-bottom: 0;">
-                            <thead>
-                                <tr>
-                                    <th>Test Description</th>
-                                    <th style="width: 20%; text-align: center;">Result</th>
-                                    <th>Remarks</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {{#each testing.functionalTestsList}}
-                                <tr>
-                                    <td style="font-weight: 700; color: var(--secondary-blue);">{{fallback this.name 'N/A'}}</td>
-                                    <td style="text-align: center;">
-                                        {{#ifEquals this.status 'Pass'}}
-                                        <span class="badge-pass">PASS</span>
-                                        {{else}}
-                                        <span class="badge-fail">{{fallback this.status 'FAIL'}}</span>
-                                        {{/ifEquals}}
-                                    </td>
-                                    <td>{{fallback this.remarks '—'}}</td>
-                                </tr>
-                                {{/each}}
-                            </tbody>
-                        </table>
-                        {{/if}}
-
-                        {{#if testing.sensorTestsList}}
-                        <div class="sub-section-header">7.6 Sensor / Transducer Verification</div>
-                        <table style="margin-bottom: 0;">
-                            <thead>
-                                <tr>
-                                    <th>Sensor / Device</th>
-                                    <th style="width: 25%; text-align: center;">Resistance (Ω)</th>
-                                    <th style="width: 20%; text-align: center;">Result</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {{#each testing.sensorTestsList}}
-                                <tr>
-                                    <td style="font-weight: 700; color: var(--secondary-blue);">{{fallback this.name 'N/A'}}</td>
-                                    <td style="text-align: center; font-family: monospace;">{{fallback this.resistanceValue '—'}}</td>
-                                    <td style="text-align: center;">
-                                        {{#ifEquals this.status 'Pass'}}
-                                        <span class="badge-pass">PASS</span>
-                                        {{else}}
-                                        <span class="badge-fail">{{fallback this.status 'FAIL'}}</span>
-                                        {{/ifEquals}}
-                                    </td>
-                                </tr>
-                                {{/each}}
-                            </tbody>
-                        </table>
-                        {{/if}}
 
 
 
@@ -1731,88 +1496,7 @@
                         </div>
                         {{/if}}
 
-                        {{#if cost.hasCostData}}
-                        <div class="sub-section-header">Repair Value & Business Impact</div>
-                        <table style="margin-bottom: 0;">
-                            <thead>
-                                <tr>
-                                    <th>Refurbishment Financial Metrics</th>
-                                    <th style="text-align: right; width: 25%;">Amount (INR)</th>
-                                    <th>Business Value Impact Remarks</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td class="table-label">New OEM Replacement Cost</td>
-                                    <td style="text-align: right; font-weight: 700; color: var(--text-dark);">
-                                        {{cost.newReplacementCost}}</td>
-                                    <td>Represents standard acquisition cost for a new component.</td>
-                                </tr>
-                                <tr>
-                                    <td class="table-label">Thriveni Certified Overhaul Cost</td>
-                                    <td style="text-align: right; font-weight: 700; color: var(--accent-gold);">
-                                        {{cost.repairCost}}</td>
-                                    <td>Complete re-manufacture under strict QA.</td>
-                                </tr>
-                                <tr style="background-color: #f0fdf4;">
-                                    <td class="table-label" style="color: var(--accent-green);">Net Capital Savings
-                                        Achieved
-                                    </td>
-                                    <td
-                                        style="text-align: right; font-weight: 800; color: var(--accent-green); font-size: 8.5pt;">
-                                        {{cost.savingsAchieved}}</td>
-                                    <td style="font-weight: 700; color: var(--accent-green);">71% Capital conservation
-                                        compared to direct replacement.</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        {{/if}}
 
-
-                        <div class="sub-section-header" style="margin-top: 12px;">Workshop Delivery Process Compliance
-                        </div>
-                        <table style="margin-bottom: 12px;">
-                            <thead>
-                                <tr>
-                                    <th style="width: 25%;">Process Stage</th>
-                                    <th style="width: 25%;">Standard Requirement</th>
-                                    <th style="width: 30%;">Actual Execution</th>
-                                    <th style="width: 20%; text-align: center;">Compliance</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td style="font-weight: 700;">Incoming Inspection</td>
-                                    <td>24h receipt-to-inspection window</td>
-                                    <td>Logged {{dates.inspectionDate}} with photographic documentation</td>
-                                    <td style="text-align: center;"><span class="badge-pass">COMPLIANT</span></td>
-                                </tr>
-                                <tr>
-                                    <td style="font-weight: 700;">Dismantling Protocol</td>
-                                    <td>Stage-by-stage documented teardown</td>
-                                    <td>Bearing removed, shaft measured, damage mapped with photos</td>
-                                    <td style="text-align: center;"><span class="badge-pass">COMPLIANT</span></td>
-                                </tr>
-                                <tr>
-                                    <td style="font-weight: 700;">Varnish Process</td>
-                                    <td>Dual-coat impregnation at 130-140 deg C</td>
-                                    <td>Two-stage baking and varnishing completed per OEM spec</td>
-                                    <td style="text-align: center;"><span class="badge-pass">COMPLIANT</span></td>
-                                </tr>
-                                <tr>
-                                    <td style="font-weight: 700;">Final Assembly QA</td>
-                                    <td>Air gap verification before closure</td>
-                                    <td>Air gaps verified by lead engineer</td>
-                                    <td style="text-align: center;"><span class="badge-pass">COMPLIANT</span></td>
-                                </tr>
-                                <tr>
-                                    <td style="font-weight: 700;">Quality Sign-Off</td>
-                                    <td>Dual signature: Engineer + QA Inspector</td>
-                                    <td>QA sign-off completed after IR and surge testing passed</td>
-                                    <td style="text-align: center;"><span class="badge-pass">COMPLIANT</span></td>
-                                </tr>
-                            </tbody>
-                        </table>
 
 
 
