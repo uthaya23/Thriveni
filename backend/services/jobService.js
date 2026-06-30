@@ -6,6 +6,8 @@
 const Job = require('../models/Job');
 const User = require('../models/User');
 const ProductionPlan = require('../models/ProductionPlan');
+const JobData = require('../models/JobData');
+const Asset = require('../models/Asset');
 const { MachineModel } = require('../models/AdminLookups');
 const generateJobNo = require('../utils/generateJobNo');
 const AssetService = require('./AssetService');
@@ -240,6 +242,46 @@ class JobService {
       return ApiResponse.success('Job retrieved successfully', job);
     } catch (error) {
       Logger.error('Error retrieving job by ID', error, { jobId });
+      throw error;
+    }
+  }
+
+  /**
+   * Get safe public job details for external tracking
+   */
+  static async getPublicJobDetails(jobId) {
+    try {
+      const job = await Job.findOne({ _id: jobId, isDeleted: { $ne: true } })
+        .select('jobNo serialNumber componentType equipmentMake equipmentModel receivedFrom stage status dateReceived completedAt siteComplaints description')
+        .lean();
+
+      if (!job) {
+        return ApiResponse.notFound('Job not found');
+      }
+
+      const jobData = await JobData.findOne({ job: jobId })
+        .select('stage1.status stage2.status stage3.status stage4.status stage5.status stage1.inspectionDecision stage1.aiSummary')
+        .lean();
+
+      let totalRebuildCount = 0;
+      if (job.serialNumber) {
+        const asset = await Asset.findOne({ serialNumber: job.serialNumber }).lean();
+        if (asset) {
+          totalRebuildCount = asset.totalRebuildCount || 0;
+        }
+      }
+
+      const publicData = {
+        job,
+        jobData: jobData || {},
+        asset: {
+          totalRebuildCount
+        }
+      };
+
+      return ApiResponse.success('Public job tracking details retrieved', publicData);
+    } catch (error) {
+      Logger.error('Error retrieving public job details', error, { jobId });
       throw error;
     }
   }

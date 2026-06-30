@@ -17,6 +17,9 @@ const {
   jobIdSchema
 } = require('../validations/jobValidation');
 
+// Public Tracking Route (No auth required)
+router.get('/public/:id', validateRequest(jobIdSchema, 'params'), asyncHandler(JobController.getPublicJobTracker));
+
 // Apply authentication middleware to all routes
 router.use(protect);
 

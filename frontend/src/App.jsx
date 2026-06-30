@@ -21,6 +21,7 @@ import AssetRegistry from './pages/AssetRegistry';
 import AssetDetailPage from './pages/AssetDetailPage';
 import AuditLogs from './pages/AuditLogs';
 import TemplateBuilder from './pages/TemplateBuilder';
+import PublicJobView from './pages/PublicJobView';
 
 const PrivateRoute = ({ children, adminOnly, notTechnician }) => {
   const { user } = useAuth();
@@ -44,6 +45,7 @@ export default function App() {
           }}
         />
         <Routes>
+          <Route path="/track/:id" element={<PublicJobView />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/" element={<PrivateRoute><Layout /></PrivateRoute>}>
             <Route index element={<Dashboard />} />

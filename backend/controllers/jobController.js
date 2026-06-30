@@ -46,6 +46,18 @@ class JobController {
   }
 
   /**
+   * Get public job tracking info
+   */
+  static async getPublicJobTracker(req, res, next) {
+    try {
+      const result = await JobService.getPublicJobDetails(req.params.id);
+      res.status(result.statusCode).json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
    * Update job by ID
    */
   static async updateJob(req, res, next) {

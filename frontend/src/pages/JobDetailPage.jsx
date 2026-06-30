@@ -318,7 +318,7 @@ export default function JobDetailPage() {
             
             <div className="p-8 flex flex-col items-center justify-center bg-white">
               <div id="qr-svg-container" className="p-4 bg-white rounded-2xl border-2 border-slate-100 shadow-sm mb-4">
-                <QRCodeSVG value={window.location.href} size={220} level="H" includeMargin={true} />
+                <QRCodeSVG value={`${window.location.origin}/track/${job._id}`} size={220} level="H" includeMargin={true} />
               </div>
               <p className="font-mono font-black text-2xl text-slate-800 tracking-tighter">{job.jobNo}</p>
               <p className="text-xs text-slate-400 mt-1 uppercase tracking-widest font-bold">{job.equipmentModel || 'Thriveni TRC'}</p>
