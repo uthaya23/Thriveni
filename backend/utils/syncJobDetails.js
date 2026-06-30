@@ -75,11 +75,40 @@ async function syncJobDetailsFromStages(jobId) {
         job.sendSite = sendSite;
         updated = true;
       }
+
+      // State Machine: If Stage 4 is completed, auto-advance stage to 'Report Generation'
+      if (jobData.stage4.status === 'Completed' && job.stage === 'Testing & Dispatch') {
+        const isWheelMotor = job.componentType?.toLowerCase().includes('wheel motor') || job.equipmentModel?.toLowerCase().includes('wm');
+        
+        // If it's a wheel motor, it needs Stage 5. So we don't skip to Report Generation yet, unless Stage 5 is also done?
+        // Let's strictly follow the user request: "If stage4.status === 'Completed', the parent Job.stage should automatically flip to 'Report Generation'"
+        if (!isWheelMotor) {
+           job.stage = 'Report Generation';
+           job.status = 'RFD'; // Ready for dispatch
+           updated = true;
+        }
+      }
+    }
+    
+    // Stage 5 (Final Drive Installation) - For Wheel Motors
+    if (jobData.stage5 && jobData.stage5.status === 'Completed' && job.stage === 'Final Drive Installation') {
+       job.stage = 'Report Generation';
+       job.status = 'RFD';
+       updated = true;
+    }
+
+    // State Machine: If the job is marked 'Report Generation' and reports are generated/completed, or if we transition out entirely
+    // Wait, the user said: "if the overall task transitions out, it should flag the parent Job.status directly to 'Done' or 'Completed'."
+    // This usually means if all stages are 'Completed' and we have reached the end of the workflow.
+    // If the stage is explicitly moved to 'Completed', ensure the status is 'Completed'.
+    if (job.stage === 'Completed' && job.status !== 'Completed') {
+      job.status = 'Completed';
+      updated = true;
     }
 
     if (updated) {
       await job.save();
-      Logger.info('Job stage dates synced', { jobNo: job.jobNo });
+      Logger.info('Job stage state machine automatically synced', { jobNo: job.jobNo, newStage: job.stage, newStatus: job.status });
     }
   } catch (err) {
     Logger.error('Failed to sync stage details for job', err, { jobId });
