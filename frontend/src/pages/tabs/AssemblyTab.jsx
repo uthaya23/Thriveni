@@ -97,13 +97,7 @@ const AssemblyTab = forwardRef(({ jobId, isReadOnly }, ref) => {
     { key: 'remarks', label: 'Remarks', type: 'text' }
   ];
 
-  const torqueRecordColumns = [
-    { key: 'fastenerLocation', label: 'Fastener Location', type: 'text' },
-    { key: 'fastenerSize', label: 'Size (e.g. M12)', type: 'text' },
-    { key: 'specifiedTorque', label: 'Spec Torque', type: 'text' },
-    { key: 'appliedTorque', label: 'Applied Torque', type: 'text' },
-    { key: 'remarks', label: 'Remarks', type: 'text' }
-  ];
+
 
   const handleTeamChange = (e) => {
     const teamArr = e.target.value.split(',').map(s => s.trim());
@@ -206,40 +200,7 @@ const AssemblyTab = forwardRef(({ jobId, isReadOnly }, ref) => {
         )}
       </section>
 
-      <section>
-        <div className="flex items-center gap-2 mb-4">
-          <div className="w-1.5 h-6 bg-emerald-500 rounded-full"></div>
-          <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest">Critical Torque Tightening Records</h3>
-        </div>
-        {data.torqueRecords?.length > 0 ? (
-          <div className="overflow-x-auto rounded-xl border border-slate-200 shadow-sm">
-            <table className="w-full text-left border-collapse">
-              <thead className="bg-slate-50 border-b border-slate-200">
-                <tr>
-                  <th className="p-4 text-[10px] font-bold text-slate-500 uppercase">Fastener Location</th>
-                  <th className="p-4 text-[10px] font-bold text-slate-500 uppercase">Size</th>
-                  <th className="p-4 text-[10px] font-bold text-slate-500 uppercase">Spec Torque</th>
-                  <th className="p-4 text-[10px] font-bold text-slate-500 uppercase">Applied Torque</th>
-                  <th className="p-4 text-[10px] font-bold text-slate-500 uppercase">Remarks</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {data.torqueRecords.map((t, i) => (
-                  <tr key={i} className="hover:bg-slate-50/50 transition-all">
-                    <td className="p-4 text-xs font-bold text-slate-700">{t.fastenerLocation}</td>
-                    <td className="p-4 text-xs text-slate-600 font-mono">{t.fastenerSize}</td>
-                    <td className="p-4 text-xs font-bold text-blue-600">{t.specifiedTorque}</td>
-                    <td className="p-4 text-xs font-bold text-emerald-600">{t.appliedTorque}</td>
-                    <td className="p-4 text-[10px] text-slate-500 italic">{t.remarks}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <div className="p-8 text-center bg-slate-50 rounded-xl border border-dashed border-slate-200 text-slate-400 text-xs italic">No torque records logged for this assembly.</div>
-        )}
-      </section>
+
     </div>
   );
 
@@ -341,20 +302,7 @@ const AssemblyTab = forwardRef(({ jobId, isReadOnly }, ref) => {
             </div>
           </section>
 
-          {/* SECTION 3.5: Torque Records */}
-          <section className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-            <div className="px-8 py-4 bg-slate-50 border-b border-slate-200 flex items-center gap-3">
-              <span className="text-lg">🔧</span>
-              <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest">Critical Torque Tightening Records</h3>
-            </div>
-            <div className="p-6">
-              <DynamicTable 
-                columns={torqueRecordColumns} 
-                data={data.torqueRecords || []} 
-                onChange={v => setData({...data, torqueRecords: v})} 
-              />
-            </div>
-          </section>
+
 
           {/* SECTION 4: Progress Photos */}
           <section className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">

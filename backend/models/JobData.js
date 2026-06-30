@@ -59,8 +59,7 @@ const jobDataSchema = new mongoose.Schema({
     preAssemblyChecklist: { type: mongoose.Schema.Types.Mixed, default: {} },
     // { 'Armature Installed': { checked: true, date: '2024-01-06' } }
     assemblyChecklist: { type: mongoose.Schema.Types.Mixed, default: {} },
-    // { 'Exciter Pole': { actual: 310, status: 'Pass' } }
-    torqueVerifications: { type: mongoose.Schema.Types.Mixed, default: {} },
+
     materialsUsed: [{
       name: String,
       quantity: String,

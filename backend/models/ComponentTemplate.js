@@ -25,12 +25,7 @@ const measurementSchema = new mongoose.Schema({
   unit: { type: String, default: 'mm' }
 }, { _id: false });
 
-const torqueSchema = new mongoose.Schema({
-  name: String,
-  min: Number,
-  max: Number,
-  unit: { type: String, default: 'lb.ft' }
-}, { _id: false });
+
 
 const sensorTestSchema = new mongoose.Schema({
   name: String,
@@ -53,8 +48,7 @@ const stage2Schema = new mongoose.Schema({
 
 const stage3Schema = new mongoose.Schema({
   preAssemblyChecklist: [String],
-  assemblyChecklist: [String],
-  torqueVerifications: [torqueSchema]
+  assemblyChecklist: [String]
 }, { _id: false });
 
 const stage4Schema = new mongoose.Schema({

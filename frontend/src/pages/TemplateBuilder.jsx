@@ -6,7 +6,7 @@ import { FiPlus, FiSettings, FiCheckCircle, FiFileText, FiTrash2, FiList, FiSlid
 
 const EMPTY_STAGE_1 = { incomingChecklist: [], electricalTests: [], partsChecklist: [], surgeTests: [], sensorTests: [] };
 const EMPTY_STAGE_2 = { dismantlingChecklist: [], dimensionalMeasurements: [], componentConditionList: [] };
-const EMPTY_STAGE_3 = { preAssemblyChecklist: [], assemblyChecklist: [], torqueVerifications: [] };
+const EMPTY_STAGE_3 = { preAssemblyChecklist: [], assemblyChecklist: [] };
 const EMPTY_STAGE_4 = { electricalTests: [], functionalTests: [], sensorTests: [], surgeTests: [], dispatchChecklist: [] };
 
 // ── Generic Schemas for Table Editors ──
@@ -346,7 +346,7 @@ export default function TemplateBuilder() {
                   <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
                     <StringListEditor title="Pre-Assembly Checklist" items={formData.stage3.preAssemblyChecklist} onChange={v => updateStageArr('stage3', 'preAssemblyChecklist', v)} />
                     <StringListEditor title="Assembly Checklist" items={formData.stage3.assemblyChecklist} onChange={v => updateStageArr('stage3', 'assemblyChecklist', v)} />
-                    <GenericObjectListEditor title="Torque Verifications" schema={SCHEMAS.measurement} items={formData.stage3.torqueVerifications} onChange={v => updateStageArr('stage3', 'torqueVerifications', v)} />
+
                   </div>
                 )}
 

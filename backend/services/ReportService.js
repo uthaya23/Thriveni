@@ -285,7 +285,6 @@ function generateFallbackDraft(job, stage1, stage2, stage3, stage4) {
       `[AI unavailable — engineer review required.]`,
 
     assemblyDescription:
-      `Torque verifications: ${Object.keys(stage3?.torqueVerifications || {}).length} point(s). ` +
       `Assembly checklist items: ${Object.keys(stage3?.assemblyChecklist || {}).length}. ` +
       `[AI unavailable — engineer review required.]`,
 
@@ -401,8 +400,7 @@ class ReportService {
         .filter(([, v]) => v?.checked).map(([k]) => k),
       assemblyChecklist: Object.entries(stage3.assemblyChecklist || {})
         .filter(([, v]) => v?.checked).map(([k]) => k),
-      torqueVerifications: Object.entries(stage3.torqueVerifications || {})
-        .map(([k, v]) => `${k}: ${v?.actual || ''} ${v?.status || ''}`),
+
       materialsUsed: (stage3.materialsUsed || []).map(m => `${m.name} x${m.quantity} ${m.unit || ''}`),
       completionDate: stage3.completionDate
     } : 'No assembly data recorded.';

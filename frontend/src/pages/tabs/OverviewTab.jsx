@@ -471,10 +471,9 @@ export default function OverviewTab({ job, onUpdate, isReadOnly, setViewStage })
                   </div>
                 ) : effectiveStage === 'Pre-Assembly & Assembly' ? (
                   <div className="space-y-3">
-                    <div className="flex justify-between items-center"><span className="text-xs font-semibold text-slate-500">Assembly Torque Logs:</span><span className="font-bold text-slate-800">{jobData.stage3?.torqueVerifications ? Object.keys(jobData.stage3.torqueVerifications).length : 0} points verified</span></div>
                     <div className="flex justify-between items-center"><span className="text-xs font-semibold text-slate-500">BOM Materials Allocated:</span><span className="font-bold text-slate-800">{jobData.stage3?.materialsUsed?.length || 0} items</span></div>
                     <div className="flex justify-between items-center"><span className="text-xs font-semibold text-slate-500">BOM Consumables Consumed:</span><span className="font-bold text-slate-800">{jobData.stage3?.consumablesUsed?.length || 0} items</span></div>
-                    <p className="text-xs text-slate-400 italic pt-2 mt-2 border-t border-slate-100">"Component rebuild is underway with direct tracking of torque values and replacement parts."</p>
+                    <p className="text-xs text-slate-400 italic pt-2 mt-2 border-t border-slate-100">"Component rebuild is underway with tracking of replacement parts."</p>
                   </div>
                 ) : effectiveStage === 'Testing & Dispatch' ? (
                   <div className="space-y-3">

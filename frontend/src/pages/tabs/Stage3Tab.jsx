@@ -84,14 +84,7 @@ const Stage3Tab = forwardRef(({ jobId, job, template }, ref) => {
     });
   };
 
-  const setTorque = (name, field, value) => {
-    setData(prev => {
-      const def = template?.stage3?.torqueVerifications?.find(t => t.name === name);
-      const updated = { ...(prev.torqueVerifications?.[name] || {}), [field]: value };
-      if (field === 'actual' && def) updated.status = evalNumeric(value, def);
-      return { ...prev, torqueVerifications: { ...(prev.torqueVerifications || {}), [name]: updated } };
-    });
-  };
+
 
 
 
@@ -101,7 +94,7 @@ const Stage3Tab = forwardRef(({ jobId, job, template }, ref) => {
   const s3 = template?.stage3 || {};
   const preChecklist = s3.preAssemblyChecklist || [];
   const asmChecklist = s3.assemblyChecklist || [];
-  const torques = s3.torqueVerifications || [];
+
 
   if (isSummaryMode) {
     return (
@@ -231,46 +224,7 @@ const Stage3Tab = forwardRef(({ jobId, job, template }, ref) => {
       {/* Assembly Checklist */}
       {asmChecklist.length > 0 && renderChecklist(asmChecklist, 'assemblyChecklist', 'Assembly Checklist')}
 
-      {/* Torque Verifications */}
-      {torques.length > 0 && (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-          <h3 className="font-black text-slate-800 text-sm uppercase tracking-widest mb-4">Torque Verification</h3>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-slate-200">
-                  <th className="text-left py-2 pr-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Parameter</th>
-                  <th className="text-center py-2 pr-4 text-xs font-bold text-slate-500 uppercase tracking-widest">OEM Min</th>
-                  <th className="text-center py-2 pr-4 text-xs font-bold text-slate-500 uppercase tracking-widest">OEM Max</th>
-                  <th className="text-center py-2 pr-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Unit</th>
-                  <th className="text-center py-2 pr-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Actual</th>
-                  <th className="text-center py-2 text-xs font-bold text-slate-500 uppercase tracking-widest">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {torques.map((t, i) => {
-                  const row = data.torqueVerifications?.[t.name] || {};
-                  return (
-                    <tr key={i} className="hover:bg-slate-50">
-                      <td className="py-2.5 pr-4 font-semibold text-slate-700">{t.name}</td>
-                      <td className="py-2.5 pr-4 text-center text-xs text-slate-500">{t.min}</td>
-                      <td className="py-2.5 pr-4 text-center text-xs text-slate-500">{t.max}</td>
-                      <td className="py-2.5 pr-4 text-center text-xs text-slate-400">{t.unit}</td>
-                      <td className="py-2.5 pr-4 text-center">
-                        <input type="number" step="any" className="w-24 px-2 py-1 text-xs border border-slate-200 rounded-lg outline-none text-center"
-                          placeholder="—" value={row.actual || ''} onChange={e => setTorque(t.name, 'actual', e.target.value)} />
-                      </td>
-                      <td className="py-2.5 text-center">
-                        <span className={`px-2 py-1 rounded-full text-xs font-bold ${STATUS_BADGE[row.status || '']}`}>{row.status || '—'}</span>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+
 
       {/* Remarks */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
