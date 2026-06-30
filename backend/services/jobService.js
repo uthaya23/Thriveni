@@ -446,10 +446,16 @@ class JobService {
       }
 
       // Soft delete - never permanently destroy job data
-      job.isDeleted = true;
-      job.deletedAt = new Date();
-      job.deletedBy = deletedBy;
-      await job.save();
+      await Job.updateOne(
+        { _id: job._id },
+        { 
+          $set: { 
+            isDeleted: true, 
+            deletedAt: new Date(),
+            deletedBy: deletedBy 
+          }
+        }
+      );
 
       await AuditService.log({
         entityType: 'Job',
