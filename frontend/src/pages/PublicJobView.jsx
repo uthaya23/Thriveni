@@ -75,11 +75,7 @@ export default function PublicJobView() {
       {/* ── Public Header ── */}
       <header className="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-30 px-4 py-4 flex justify-between items-center">
         <div>
-          <h1 className="font-black text-xl text-slate-900 tracking-tight flex items-center gap-2">
-            <FiSettings className="text-blue-600" />
-            Thriveni TRC
-          </h1>
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-0.5">Public Tracking Portal</p>
+          <img src="/logo.png" alt="Thriveni TRC Logo" className="h-10 object-contain" />
         </div>
         <div className={`px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider ${isCompleted ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
           {job.status || 'Active'}
