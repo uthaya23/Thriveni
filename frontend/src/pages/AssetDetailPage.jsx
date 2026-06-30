@@ -84,7 +84,7 @@ export default function AssetDetailPage() {
           asset.jobs.map((job, idx) => (
             <div 
               key={job._id} 
-              onClick={() => navigate(`/jobs/${job.jobNo.replace(/\\//g, '-')}`)}
+              onClick={() => navigate(`/jobs/${job.jobNo.replaceAll('/', '-')}`)}
               className="bg-white border border-slate-200 rounded-xl p-5 hover:border-blue-400 hover:shadow-md transition-all cursor-pointer flex flex-col md:flex-row justify-between md:items-center gap-4 group"
             >
               <div className="flex items-center gap-4">

@@ -394,7 +394,7 @@ export default function Dashboard() {
             <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest mb-4 flex items-center gap-2"><FiAlertCircle className="text-red-600" /> Priority Queue</h3>
             <div className="space-y-3">
               {criticalJobs.length > 0 ? criticalJobs.map(job => (
-                <div key={job._id} onClick={() => navigate(`/jobs/${job.jobNo.replace(/\\//g, '-')}`)} className="p-3 border border-red-100 rounded-lg bg-red-50 hover:bg-red-100 cursor-pointer transition-colors border-l-4 border-l-red-500">
+                <div key={job._id} onClick={() => navigate(`/jobs/${job.jobNo.replaceAll('/', '-')}`)} className="p-3 border border-red-100 rounded-lg bg-red-50 hover:bg-red-100 cursor-pointer transition-colors border-l-4 border-l-red-500">
                   <div className="flex justify-between items-center mb-1">
                     <span className="text-sm font-black text-red-900">{job.jobNo}</span>
                     <span className="text-[10px] font-black uppercase text-red-700 bg-red-200 px-2 py-0.5 rounded-full">{getDaysOpen(job.createdAt)} Days</span>

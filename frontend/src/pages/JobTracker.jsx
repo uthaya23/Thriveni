@@ -371,7 +371,7 @@ export default function JobTracker() {
               return (
                 <div
                   key={job._id}
-                  onClick={() => navigate(`/jobs/${job.jobNo.replace(/\\//g, '-')}`)}
+                  onClick={() => navigate(`/jobs/${job.jobNo.replaceAll('/', '-')}`)}
                   className="i-card animate-fade-in flex flex-col justify-between"
                   style={{ borderLeft: `4px solid ${STAGE_COLORS[effectiveStage] || '#64748b'}`, cursor: 'pointer', height: '100%', padding: '16px' }}
                 >

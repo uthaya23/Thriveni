@@ -273,7 +273,7 @@ export default function ReportsPageImpl() {
                     <tr key={j._id || i} className="hover:bg-blue-50/50 transition-colors">
                       <td className="px-3 py-2 text-center sticky left-0 z-10 bg-white border-r border-slate-100 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
                         <button 
-                          onClick={() => navigate(`/jobs/${j.jobNo.replace(/\\//g, '-')}`)}
+                          onClick={() => navigate(`/jobs/${j.jobNo.replaceAll('/', '-')}`)}
                           className="p-1.5 text-slate-400 hover:text-blue-700 hover:bg-blue-50 rounded transition-all"
                           title="Edit Job"
                         >
