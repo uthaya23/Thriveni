@@ -51,12 +51,12 @@ export function WorkDetailsPage() {
                   <td><span style={{background:'#dbeafe',color:'#2563eb',padding:'0.15rem 0.55rem',borderRadius:20,fontSize:'0.7rem',fontWeight:700}}>{r.workType}</span></td>
                   <td style={{maxWidth:180,whiteSpace:'normal',fontSize:'0.78rem',color:'#475569'}}>{r.description||'—'}</td>
                   <td style={{fontSize:'0.8rem'}}>{r.technicianName||'—'}</td>
-                  <td style={{fontFamily:'JetBrains Mono,monospace',fontSize:'0.78rem',color:'#64748b'}}>{r.date||'—'}</td>
+                  <td style={{fontFamily:'JetBrains Mono,monospace',fontSize:'0.78rem',color:'#64748b'}}>{r.date ? r.date.split('T')[0] : '—'}</td>
                   <td style={{fontFamily:'JetBrains Mono,monospace',fontSize:'0.78rem'}}>{r.hoursSpent||'—'}</td>
                   <td><span style={{background:r.status==='Completed'?'#dcfce7':'#dbeafe',color:r.status==='Completed'?'#16a34a':'#2563eb',padding:'0.15rem 0.55rem',borderRadius:20,fontSize:'0.7rem',fontWeight:700}}>{r.status}</span></td>
                   <td style={{fontSize:'0.78rem',color:'#64748b'}}>{r.images?.length?`📷 ${r.images.length}`:'—'}</td>
                   <td><div style={{display:'flex',gap:'0.3rem'}}>
-                    <button onClick={()=>{setEditId(r._id);setForm({...r});setShowModal(true);}} style={{width:26,height:26,borderRadius:5,border:'1px solid #e2e8f0',background:'transparent',cursor:'pointer',fontSize:'0.75rem'}}>✏️</button>
+                    <button onClick={()=>{setEditId(r._id);setForm({...r, date: r.date ? r.date.split('T')[0] : ''});setShowModal(true);}} style={{width:26,height:26,borderRadius:5,border:'1px solid #e2e8f0',background:'transparent',cursor:'pointer',fontSize:'0.75rem'}}>✏️</button>
                     <button onClick={()=>del(r._id)} style={{width:26,height:26,borderRadius:5,border:'1px solid #e2e8f0',background:'transparent',cursor:'pointer',fontSize:'0.75rem'}}>🗑️</button>
                   </div></td>
                 </tr>

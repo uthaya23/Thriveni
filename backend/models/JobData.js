@@ -38,7 +38,7 @@ const jobDataSchema = new mongoose.Schema({
     // { 'Drive Ring Removed': { checked: true, date: '2024-01-02' } }
     dismantlingChecklist: { type: mongoose.Schema.Types.Mixed, default: {} },
     // { 'NDE Bearing Seat': { actual: 129.98, status: 'Pass' } }
-    dimensionalMeasurements: { type: mongoose.Schema.Types.Mixed, default: {} },
+
     // { 'Armature': { decision: 'Reuse', remark: '' } }
     componentConditionAssessment: { type: mongoose.Schema.Types.Mixed, default: {} },
     overallRemarks: String,

@@ -47,7 +47,7 @@ const stage1Schema = new mongoose.Schema({
 
 const stage2Schema = new mongoose.Schema({
   dismantlingChecklist: [String],
-  dimensionalMeasurements: [measurementSchema],
+
   componentConditionList: [String]
 }, { _id: false });
 

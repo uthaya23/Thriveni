@@ -125,8 +125,8 @@ export default function DismantlingSummaryView({ job, data, template, onEdit }) 
         </div>
       )}
 
-      {/* Checklist + Measurements */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Checklist */}
+      <div className="grid grid-cols-1 gap-6">
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
           <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-4 border-b border-slate-100 pb-2">Completed Dismantling Checklist</h3>
           {completedChecklist.length > 0 ? (
@@ -147,42 +147,7 @@ export default function DismantlingSummaryView({ job, data, template, onEdit }) 
           )}
         </div>
 
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-          <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-4 border-b border-slate-100 pb-2">Dimensional Measurements</h3>
-          {measurements.length > 0 ? (
-            <div className="overflow-x-auto max-h-72">
-              <table className="w-full text-xs">
-                <thead>
-                  <tr className="border-b border-slate-200">
-                    <th className="text-left pb-2 font-bold text-slate-500 uppercase tracking-wider">Parameter</th>
-                    <th className="text-center pb-2 font-bold text-slate-500">OEM Range</th>
-                    <th className="text-center pb-2 font-bold text-slate-500">Actual</th>
-                    <th className="text-center pb-2 font-bold text-slate-500">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {measurements.map((m, i) => {
-                    const row = data.dimensionalMeasurements?.[m.name] || {};
-                    if (!row.actual) return null;
-                    const badge = { Pass: 'bg-green-100 text-green-700', Fail: 'bg-red-100 text-red-700', Attention: 'bg-yellow-100 text-yellow-700' };
-                    return (
-                      <tr key={i} className="hover:bg-slate-50">
-                        <td className="py-2 font-semibold text-slate-700">{m.name}</td>
-                        <td className="py-2 text-center text-slate-500">{m.min}–{m.max} {m.unit}</td>
-                        <td className="py-2 text-center font-bold text-slate-800">{row.actual} {m.unit}</td>
-                        <td className="py-2 text-center">
-                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${badge[row.status] || 'bg-slate-100 text-slate-400'}`}>{row.status || '—'}</span>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <p className="text-xs text-slate-400 italic">No dimensional measurements recorded.</p>
-          )}
-        </div>
+
       </div>
 
       {/* Component Condition Assessment + AI */}

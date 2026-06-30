@@ -32,7 +32,7 @@ export default function DismantlingPage() {
 
   const openView = (r) => {
     setEditId(r._id);
-    setForm({...r});
+    setForm({...r, date: r.date ? r.date.split('T')[0] : ''});
     setIsEditMode(false);
     setShowModal(true);
   };
@@ -71,10 +71,10 @@ export default function DismantlingPage() {
                   <td style={{fontWeight:600}}>{r.component||'—'}</td>
                   <td><span style={{background:r.condition==='Good'?'#dcfce7':r.condition==='Replace'?'#fee2e2':'#fef3c7',color:r.condition==='Good'?'#16a34a':r.condition==='Replace'?'#dc2626':'#d97706',padding:'0.15rem 0.55rem',borderRadius:20,fontSize:'0.7rem',fontWeight:700}}>{r.condition}</span></td>
                   <td style={{fontSize:'0.8rem'}}>{r.technicianName||'—'}</td>
-                  <td style={{fontFamily:'JetBrains Mono,monospace',fontSize:'0.78rem',color:'#64748b'}}>{r.date||'—'}</td>
+                  <td style={{fontFamily:'JetBrains Mono,monospace',fontSize:'0.78rem',color:'#64748b'}}>{r.date ? r.date.split('T')[0] : '—'}</td>
                   <td style={{maxWidth:200,whiteSpace:'normal',fontSize:'0.78rem',color:'#475569'}}>{r.findings||'—'}</td>
                   <td><div style={{display:'flex',gap:'0.3rem'}} onClick={e=>e.stopPropagation()}>
-                    <button title="Edit" onClick={()=>{setEditId(r._id);setForm({...r});setIsEditMode(true);setShowModal(true);}} style={{width:26,height:26,borderRadius:5,border:'1px solid #e2e8f0',background:'transparent',cursor:'pointer',fontSize:'0.75rem'}}>✏️</button>
+                    <button title="Edit" onClick={()=>{setEditId(r._id);setForm({...r, date: r.date ? r.date.split('T')[0] : ''});setIsEditMode(true);setShowModal(true);}} style={{width:26,height:26,borderRadius:5,border:'1px solid #e2e8f0',background:'transparent',cursor:'pointer',fontSize:'0.75rem'}}>✏️</button>
                     <button title="Delete" onClick={()=>del(r._id)} style={{width:26,height:26,borderRadius:5,border:'1px solid #e2e8f0',background:'transparent',cursor:'pointer',fontSize:'0.75rem'}}>🗑️</button>
                   </div></td>
                 </tr>

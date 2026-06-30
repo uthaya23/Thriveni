@@ -720,7 +720,7 @@ export default function ReportTab({ jobId, job }) {
                 <img src="/logo.png" alt="Thriveni" className="h-10 object-contain" />
                 <div className="text-right text-[8pt] text-[#0B132B] font-bold leading-tight">
                   THRIVENI REBUILD CENTER<br />
-                  <span className="text-[6.5pt] font-semibold text-slate-500">HITACHI CERTIFIED REBUILD & QUALITY FACILITY</span>
+                  <span className="text-[6.5pt] font-semibold text-slate-500">REBUILD & QUALITY FACILITY</span>
                 </div>
               </div>
               <div className="border-b-[4px] border-[#E58200] mb-12"></div>

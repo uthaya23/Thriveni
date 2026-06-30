@@ -393,8 +393,6 @@ class ReportService {
         .filter(([, v]) => v?.checked).map(([k]) => k),
       componentConditionAssessment: Object.entries(stage2.componentConditionAssessment || {})
         .map(([k, v]) => `${k}: ${v?.condition || 'N/A'} (Decision: ${v?.decision || 'N/A'}) - ${v?.findings || ''}`),
-      dimensionalMeasurements: Object.entries(stage2.dimensionalMeasurements || {})
-        .map(([k, v]) => `${k}: ${v?.actual || ''} ${v?.status || ''}`),
       overallRemarks: stage2.overallRemarks
     } : 'No dismantling data recorded.';
 

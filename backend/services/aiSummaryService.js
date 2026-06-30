@@ -491,11 +491,6 @@ STRICT RULES:
     const dismantlingTechnician = stage2.technician || 'Assigned technician';
     const dismantlingRemarks = stage2.overallRemarks || '';
 
-    const measurementKeys = Object.keys(stage2.dimensionalMeasurements || {});
-    const measurementSummary = measurementKeys.length > 0
-      ? `${measurementKeys.length} dimensional measurement(s) recorded including ${measurementKeys.slice(0, 3).join(', ')}.`
-      : 'Dimensional measurements recorded.';
-
     const componentKeys = Object.keys(stage2.componentConditionAssessment || {});
     const componentSummary = componentKeys.length > 0
       ? `Component condition assessed for: ${componentKeys.slice(0, 4).join(', ')}.`
@@ -503,7 +498,6 @@ STRICT RULES:
 
     const dismantlingSummary =
       `Dismantling performed by ${dismantlingTechnician}. ` +
-      `${measurementSummary} ` +
       `${componentSummary} ` +
       `${dismantlingRemarks ? 'Remarks: ' + dismantlingRemarks : ''} ` +
       `[AI unavailable — engineer review required for this section.]`.trim();

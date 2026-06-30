@@ -65,7 +65,7 @@ export default function EquipmentOverview() {
     } catch(e){ toast.error(e.response?.data?.message||'Error'); }
   };
   const del = async id => { if(!window.confirm('Delete?'))return; await api.delete(`/equipment/${id}`); toast.success('Deleted'); fetch_(); };
-  const open = (eq=null)=>{ setEditId(eq?._id||null); setForm(eq ? { ...eq } : {
+  const open = (eq=null)=>{ setEditId(eq?._id||null); setForm(eq ? { ...eq, lastService: eq.lastService ? eq.lastService.split('T')[0] : '' } : {
     type: machineModels[0]?.name || '',
     equipNo: '',
     name: '',
@@ -108,7 +108,7 @@ export default function EquipmentOverview() {
                 <div><span className="text-muted" style={{ fontSize: '0.7rem', display: 'block', textTransform: 'uppercase' }}>Site</span><span style={{ fontWeight: 600 }}>{eq.site || '-'}</span></div>
                 <div><span className="text-muted" style={{ fontSize: '0.7rem', display: 'block', textTransform: 'uppercase' }}>Serial</span><span style={{ fontWeight: 600 }}>{eq.serialNo || '-'}</span></div>
                 <div><span className="text-muted" style={{ fontSize: '0.7rem', display: 'block', textTransform: 'uppercase' }}>Life Hrs</span><span style={{ fontWeight: 600 }}>{eq.totalLifeHrs || '-'}</span></div>
-                <div><span className="text-muted" style={{ fontSize: '0.7rem', display: 'block', textTransform: 'uppercase' }}>Last Service</span><span style={{ fontWeight: 600 }}>{eq.lastService || '-'}</span></div>
+                <div><span className="text-muted" style={{ fontSize: '0.7rem', display: 'block', textTransform: 'uppercase' }}>Last Service</span><span style={{ fontWeight: 600 }}>{eq.lastService ? eq.lastService.split('T')[0] : '-'}</span></div>
               </div>
               <div className="flex gap-2 mt-4 pt-4" style={{ borderTop: '1px solid var(--border)' }}>
                 <button className="btn btn-secondary flex-1" onClick={()=>open(eq)}>Edit</button>

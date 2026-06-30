@@ -339,7 +339,6 @@ export default function TemplateBuilder() {
                   <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
                     <StringListEditor title="Dismantling Action Checklist" items={formData.stage2.dismantlingChecklist} onChange={v => updateStageArr('stage2', 'dismantlingChecklist', v)} />
                     <StringListEditor title="Component Condition Checklist" items={formData.stage2.componentConditionList} onChange={v => updateStageArr('stage2', 'componentConditionList', v)} />
-                    <GenericObjectListEditor title="Dimensional Measurements" schema={SCHEMAS.measurement} items={formData.stage2.dimensionalMeasurements} onChange={v => updateStageArr('stage2', 'dimensionalMeasurements', v)} />
                   </div>
                 )}
 

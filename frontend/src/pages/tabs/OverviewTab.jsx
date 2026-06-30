@@ -455,7 +455,6 @@ export default function OverviewTab({ job, onUpdate, isReadOnly, setViewStage })
                 ) : effectiveStage === 'Dismantling & Analysis' ? (
                   <div className="space-y-3">
                     <div className="flex justify-between items-center"><span className="text-xs font-semibold text-slate-500">Dismantled Components Logged:</span><span className="font-bold text-slate-800">{jobData.stage2?.componentConditionAssessment ? Object.keys(jobData.stage2.componentConditionAssessment).length : 0} assessed</span></div>
-                    <div className="flex justify-between items-center"><span className="text-xs font-semibold text-slate-500">Dimensional Measurements:</span><span className="font-bold text-slate-800">{jobData.stage2?.dimensionalMeasurements ? Object.keys(jobData.stage2.dimensionalMeasurements).length : 0} logged</span></div>
                     <div className="flex justify-between items-center"><span className="text-xs font-semibold text-slate-500">Pending Findings (Reclaim/Replace):</span><span className="font-bold text-amber-600">{getPendingFindingsCount()} components</span></div>
                     <p className="text-xs text-slate-400 italic pt-2 mt-2 border-t border-slate-100">"Components are being measured, cleaned, and evaluated for failure roots."</p>
                   </div>

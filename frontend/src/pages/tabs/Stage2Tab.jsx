@@ -259,48 +259,6 @@ const Stage2Tab = forwardRef(({ jobId, job, template }, ref) => {
         </div>
       )}
 
-      {/* Dimensional Measurements */}
-      {measurements.length > 0 && (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-          <h3 className="font-black text-slate-800 text-sm uppercase tracking-widest mb-4">Dimensional Measurements</h3>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-slate-200">
-                  <th className="text-left py-2 pr-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Measurement</th>
-                  <th className="text-center py-2 pr-4 text-xs font-bold text-slate-500 uppercase tracking-widest">OEM Min</th>
-                  <th className="text-center py-2 pr-4 text-xs font-bold text-slate-500 uppercase tracking-widest">OEM Max</th>
-                  <th className="text-center py-2 pr-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Unit</th>
-                  <th className="text-center py-2 pr-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Actual</th>
-                  <th className="text-center py-2 text-xs font-bold text-slate-500 uppercase tracking-widest">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {measurements.map((m, i) => {
-                  const row = data.dimensionalMeasurements?.[m.name] || {};
-                  return (
-                    <tr key={i} className="hover:bg-slate-50">
-                      <td className="py-2.5 pr-4 font-semibold text-slate-700">{m.name}</td>
-                      <td className="py-2.5 pr-4 text-center text-xs text-slate-500">{m.min}</td>
-                      <td className="py-2.5 pr-4 text-center text-xs text-slate-500">{m.max}</td>
-                      <td className="py-2.5 pr-4 text-center text-xs text-slate-400">{m.unit}</td>
-                      <td className="py-2.5 pr-4 text-center">
-                        <input type="number" step="any" className="w-24 px-2 py-1 text-xs border border-slate-200 rounded-lg outline-none text-center"
-                          placeholder="—" value={row.actual || ''} onChange={e => setMeasurement(m.name, 'actual', e.target.value)} />
-                      </td>
-                      <td className="py-2.5 text-center">
-                        <span className={`px-2 py-1 rounded-full text-xs font-bold ${STATUS_BADGE[row.status || '']}`}>
-                          {row.status || '—'}
-                        </span>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
 
       {/* Component Condition */}
       {conditionList.length > 0 && (
