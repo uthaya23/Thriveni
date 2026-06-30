@@ -3,6 +3,7 @@
  * Business logic for Job operations
  */
 
+const mongoose = require('mongoose');
 const Job = require('../models/Job');
 const User = require('../models/User');
 const ProductionPlan = require('../models/ProductionPlan');
@@ -230,7 +231,15 @@ class JobService {
    */
   static async getJobById(jobId) {
     try {
-      const job = await Job.findOne({ _id: jobId, isDeleted: { $ne: true } })
+      let query = { isDeleted: { $ne: true } };
+      if (mongoose.Types.ObjectId.isValid(jobId) && String(jobId).length === 24) {
+        query._id = jobId;
+      } else {
+        // Assume it's a URL-friendly jobNo slug (e.g. J-TRC-00021 -> J/TRC/00021)
+        query.jobNo = jobId.replace(/-/g, '/');
+      }
+
+      const job = await Job.findOne(query)
         .populate('createdBy', 'name email')
         .populate('updatedBy', 'name email')
         .lean();
@@ -251,7 +260,14 @@ class JobService {
    */
   static async getPublicJobDetails(jobId) {
     try {
-      const job = await Job.findOne({ _id: jobId, isDeleted: { $ne: true } })
+      let query = { isDeleted: { $ne: true } };
+      if (mongoose.Types.ObjectId.isValid(jobId) && String(jobId).length === 24) {
+        query._id = jobId;
+      } else {
+        query.jobNo = jobId.replace(/-/g, '/');
+      }
+
+      const job = await Job.findOne(query)
         .select('jobNo serialNumber componentType equipmentMake equipmentModel receivedFrom stage status dateReceived completedAt siteComplaints description')
         .lean();
 
@@ -293,9 +309,22 @@ class JobService {
     try {
       Logger.info('Updating job', { jobId, updatedBy });
 
+      let query = {};
+      if (mongoose.Types.ObjectId.isValid(jobId) && String(jobId).length === 24) {
+        query._id = jobId;
+      } else {
+        query.jobNo = jobId.replace(/-/g, '/');
+      }
+
+      // Find the job to get its real _id
+      const currentJob = await Job.findOne(query);
+      if (!currentJob) {
+        return ApiResponse.notFound('Job not found');
+      }
+      const realJobId = currentJob._id;
+
       // R-LIFE-004: On Hold Rule
       if (updateData.status === 'On Hold') {
-        const currentJob = await Job.findById(jobId);
         const finalReason = updateData.delayReason !== undefined ? updateData.delayReason : currentJob?.delayReason;
         if (!finalReason || finalReason.trim() === '') {
           return ApiResponse.badRequest('A delay reason is mandatory when placing a job On Hold.');
@@ -317,25 +346,22 @@ class JobService {
       // Automatically re-evaluate production plan link if match fields are updated
       const tempJob = { ...updateData };
       if (tempJob.dateReceived || tempJob.equipmentMake || tempJob.equipmentModel || tempJob.componentType || tempJob.scopeOfWork) {
-        const currentJob = await Job.findById(jobId);
-        if (currentJob) {
-          const mergedFields = {
-            dateReceived: tempJob.dateReceived || currentJob.dateReceived,
-            equipmentMake: tempJob.equipmentMake || currentJob.equipmentMake,
-            subAssemblyMake: tempJob.subAssemblyMake || currentJob.subAssemblyMake,
-            equipmentModel: tempJob.equipmentModel || currentJob.equipmentModel,
-            componentType: tempJob.componentType || currentJob.componentType,
-            description: tempJob.description || currentJob.description,
-            scopeOfWork: tempJob.scopeOfWork || currentJob.scopeOfWork,
-          };
-          await linkJobToProductionPlan(mergedFields);
-          updateData.productionPlan = mergedFields.productionPlan || null;
-        }
+        const mergedFields = {
+          dateReceived: tempJob.dateReceived || currentJob.dateReceived,
+          equipmentMake: tempJob.equipmentMake || currentJob.equipmentMake,
+          subAssemblyMake: tempJob.subAssemblyMake || currentJob.subAssemblyMake,
+          equipmentModel: tempJob.equipmentModel || currentJob.equipmentModel,
+          componentType: tempJob.componentType || currentJob.componentType,
+          description: tempJob.description || currentJob.description,
+          scopeOfWork: tempJob.scopeOfWork || currentJob.scopeOfWork,
+        };
+        await linkJobToProductionPlan(mergedFields);
+        updateData.productionPlan = mergedFields.productionPlan || null;
       }
 
-      const existingJob = await Job.findById(jobId);
+      const existingJob = currentJob;
       const job = await Job.findByIdAndUpdate(
-        jobId,
+        realJobId,
         updateData,
         { new: true, runValidators: true }
       ).populate('createdBy', 'name email')
@@ -381,7 +407,14 @@ class JobService {
     try {
       Logger.info('Deleting job', { jobId });
 
-      const job = await Job.findById(jobId);
+      let query = {};
+      if (mongoose.Types.ObjectId.isValid(jobId) && String(jobId).length === 24) {
+        query._id = jobId;
+      } else {
+        query.jobNo = jobId.replace(/-/g, '/');
+      }
+
+      const job = await Job.findOne(query);
 
       if (!job) {
         return ApiResponse.notFound('Job not found');

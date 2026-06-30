@@ -83,7 +83,7 @@ export default function CreateJobPage() {
       console.log(draftForm);
       const res = await api.post('/jobs', draftForm);
       toast.success('Job saved as draft');
-      navigate(`/jobs/${res.data._id}`);
+      navigate(`/jobs/${res.data.jobNo.replace(/\\//g, '-')}`);
     } catch (err) {
       toast.error('Failed to save draft');
     } finally {
@@ -105,7 +105,7 @@ export default function CreateJobPage() {
       console.log(finalForm);
       const res = await api.post('/jobs', finalForm);
       toast.success('Job created successfully');
-      navigate(`/jobs/${res.data._id}`);
+      navigate(`/jobs/${res.data.jobNo.replace(/\\//g, '-')}`);
     } catch (err) {
       console.error(err);
       toast.error(err.response?.data?.message || 'Failed to create job');

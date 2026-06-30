@@ -70,7 +70,7 @@ const jobQuerySchema = Joi.object({
 });
 
 const jobIdSchema = Joi.object({
-  id: Joi.string().hex().length(24).required()
+  id: Joi.string().required() // Relaxed to allow both ObjectIds and JobNo slugs
 });
 
 module.exports = {
