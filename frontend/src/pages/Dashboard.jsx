@@ -103,8 +103,8 @@ export default function Dashboard() {
     let dept = {
       wheelMotor: { active: 0, status: 'green' },
       alternator: { active: 0, status: 'green' },
-      engine: { active: 0, status: 'green' },
-      transmission: { active: 0, status: 'green' }
+      gbm: { active: 0, status: 'green' },
+      mbm: { active: 0, status: 'green' }
     };
     let techs = {};
     let equip = {};
@@ -136,10 +136,10 @@ export default function Dashboard() {
 
         // Dept Status mapping based on component type or description
         const comp = (job.componentType || job.description || '').toLowerCase();
-        if (comp.includes('motor')) dept.wheelMotor.active++;
-        else if (comp.includes('alt')) dept.alternator.active++;
-        else if (comp.includes('engine')) dept.engine.active++;
-        else dept.transmission.active++;
+        if (comp.includes('alt')) dept.alternator.active++;
+        else if (comp.includes('gbm') || comp.includes('grid blower')) dept.gbm.active++;
+        else if (comp.includes('mbm') || comp.includes('main blower')) dept.mbm.active++;
+        else dept.wheelMotor.active++;
 
         // Tech Workload
         const techName = job.leadTechnician || 'Unassigned';
@@ -161,10 +161,10 @@ export default function Dashboard() {
     // Assess Dept Health
     if (dept.wheelMotor.active > 15) dept.wheelMotor.status = 'yellow';
     if (dept.alternator.active > 15) dept.alternator.status = 'yellow';
-    if (dept.engine.active > 10) dept.engine.status = 'yellow';
-    if (dept.transmission.active > 5) {
-      dept.transmission.status = 'red';
-      dept.transmission.text = 'Bottleneck';
+    if (dept.gbm.active > 10) dept.gbm.status = 'yellow';
+    if (dept.mbm.active > 5) {
+      dept.mbm.status = 'red';
+      dept.mbm.text = 'Bottleneck';
     }
 
     const sortedTechs = Object.entries(techs).map(([name, data]) => ({ name, ...data })).sort((a,b) => b.count - a.count).slice(0, 4);
@@ -271,8 +271,8 @@ export default function Dashboard() {
               {[
                 { name: 'Wheel Motor', data: departmentStatus.wheelMotor },
                 { name: 'Alternator', data: departmentStatus.alternator },
-                { name: 'Engine', data: departmentStatus.engine },
-                { name: 'Transmission', data: departmentStatus.transmission }
+                { name: 'Grid Blower Motor', data: departmentStatus.gbm },
+                { name: 'Main Blower Motor', data: departmentStatus.mbm }
               ].map(dept => (
                 <div key={dept.name} className="flex justify-between items-center p-2 rounded-lg hover:bg-slate-50 transition-colors">
                   <div className="flex flex-col">
