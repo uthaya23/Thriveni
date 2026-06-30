@@ -4,36 +4,30 @@ import imageCompression from 'browser-image-compression';
 
 export { getImageUrl };
 
+import useJobStore from '../../store/jobStore';
+
 /**
  * Shared hook for all Stage tabs.
- * Loads and saves data from /api/templates/jobdata/:jobId/stage/:stageNum
+ * Loads and saves data using Zustand global store.
  */
 export function useStageData(jobId, stageNum) {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const { jobData, loading, saving, fetchJobData, setStageData, saveStageData, activeJobId } = useJobStore();
 
-  const load = useCallback(async () => {
-    if (!jobId) return;
-    try {
-      const { data: jd } = await api.get(`/templates/jobdata/${jobId}`);
-      setData(jd[`stage${stageNum}`] || {});
-    } catch (err) {
-      console.error('Failed to load stage data', err);
-      setData({});
-    } finally { setLoading(false); }
-  }, [jobId, stageNum]);
+  useEffect(() => {
+    if (jobId && activeJobId !== jobId) {
+      fetchJobData(jobId);
+    }
+  }, [jobId, activeJobId, fetchJobData]);
 
-  useEffect(() => { load(); }, [load]);
+  const data = jobData ? (jobData[`stage${stageNum}`] || {}) : null;
+
+  const setData = useCallback((updateFnOrData) => {
+    setStageData(stageNum, updateFnOrData);
+  }, [stageNum, setStageData]);
 
   const save = useCallback(async (overrideData) => {
-    const payload = overrideData || data;
-    if (!payload) return;
-    setSaving(true);
-    try {
-      await api.put(`/templates/jobdata/${jobId}/stage/${stageNum}`, payload);
-    } finally { setSaving(false); }
-  }, [jobId, stageNum, data]);
+    await saveStageData(stageNum, overrideData);
+  }, [stageNum, saveStageData]);
 
   return { data, setData, loading, saving, save };
 }

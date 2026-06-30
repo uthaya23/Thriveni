@@ -4,6 +4,7 @@ import api from '../utils/api';
 import toast from 'react-hot-toast';
 import { FiChevronLeft, FiSave, FiChevronRight } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
+import useJobStore from '../store/jobStore';
 
 import OverviewTab  from './tabs/OverviewTab';
 import Stage1Tab    from './tabs/Stage1Tab';
@@ -33,7 +34,7 @@ export default function JobDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [job, setJob] = useState(null);
-  const [jobData, setJobData] = useState(null);
+  const { jobData, fetchJobData } = useJobStore();
   const [template, setTemplate] = useState(null);
   const [loading, setLoading] = useState(true);
   const [viewStage, setViewStage] = useState('Overview');
@@ -76,8 +77,7 @@ export default function JobDetailPage() {
       setJob(data);
 
       try {
-        const { data: jd } = await api.get(`/templates/jobdata/${id}`);
-        setJobData(jd);
+        await fetchJobData(id);
       } catch (err) {
         console.error('Failed to load job data', err);
       }
