@@ -275,7 +275,7 @@ class JobService {
         return ApiResponse.notFound('Job not found');
       }
 
-      const jobData = await JobData.findOne({ job: jobId })
+      const jobData = await JobData.findOne({ job: job._id })
         .select('stage1.status stage2.status stage3.status stage4.status stage5.status stage1.inspectionDecision stage1.aiSummary')
         .lean();
 
