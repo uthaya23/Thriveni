@@ -10,8 +10,9 @@ const aiSummaryService = require('./aiSummaryService');
  */
 class ReportGenerationService {
   constructor() {
-    this.reportsDir = path.join(__dirname, '../generated-reports');
-    this.uploadsDir = path.join(__dirname, '../uploads');
+    const isVercel = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production';
+    this.reportsDir = isVercel ? path.join('/tmp', 'generated-reports') : path.join(__dirname, '../generated-reports');
+    this.uploadsDir = isVercel ? path.join('/tmp', 'uploads') : path.join(__dirname, '../uploads');
     this._ensureDirectories();
   }
 
