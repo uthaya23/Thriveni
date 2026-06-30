@@ -14,8 +14,7 @@ const STAGE_CONFIG = [
   { id: 'visual inspection & incoming assessment', label: 'Inspection', icon: '🔍', color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-200' },
   { id: 'dismantling & analysis',                  label: 'Dismantling',icon: '🔧', color: 'text-red-600', bg: 'bg-red-50', border: 'border-red-200' },
   { id: 'pre-assembly & assembly',                 label: 'Assembly',   icon: '⚙️', color: 'text-purple-600', bg: 'bg-purple-50', border: 'border-purple-200' },
-  { id: 'testing & dispatch',                      label: 'Testing',    icon: '⚡', color: 'text-sky-600', bg: 'bg-sky-50', border: 'border-sky-200' },
-  { id: 'report generation',                       label: 'QA / Report',  icon: '📄', color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200' },
+  { id: 'testing & dispatch',                      label: 'Testing / Dispatch',    icon: '⚡', color: 'text-sky-600', bg: 'bg-sky-50', border: 'border-sky-200' },
 ];
 
 const normalizeStage = (stage) => {
@@ -248,8 +247,8 @@ export default function Dashboard() {
             <div className="text-3xl font-black text-purple-600 mt-2">{metrics.underRebuild}</div>
           </div>
           <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm flex flex-col justify-between">
-            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Waiting QA</span>
-            <div className="text-3xl font-black text-emerald-600 mt-2">{metrics.waitingQA}</div>
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Ready Dispatch</span>
+            <div className="text-3xl font-black text-emerald-600 mt-2">{metrics.readyDispatch}</div>
           </div>
           <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm flex flex-col justify-between">
             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Avg Turnaround</span>
@@ -300,9 +299,9 @@ export default function Dashboard() {
                 <div className="text-[10px] font-black text-emerald-700 uppercase tracking-widest">Completed Today</div>
                 <div className="text-xl font-black text-emerald-700">{metrics.completedToday}</div>
               </div>
-              <div className="bg-amber-50 p-3 rounded-lg border border-amber-100">
-                <div className="text-[10px] font-black text-amber-700 uppercase tracking-widest">Waiting QA</div>
-                <div className="text-xl font-black text-amber-700">{metrics.waitingQA}</div>
+              <div className="bg-sky-50 p-3 rounded-lg border border-sky-100">
+                <div className="text-[10px] font-black text-sky-700 uppercase tracking-widest">Ready Dispatch</div>
+                <div className="text-xl font-black text-sky-700">{metrics.readyDispatch}</div>
               </div>
               <div className="bg-red-50 p-3 rounded-lg border border-red-100">
                 <div className="text-[10px] font-black text-red-700 uppercase tracking-widest">Low Parts Alert</div>
@@ -333,16 +332,7 @@ export default function Dashboard() {
                   </div>
                 </div>
               )}
-              {metrics.waitingQA > 0 && (
-                <div className="flex items-start gap-3 p-3 bg-blue-50 border border-blue-100 rounded-lg">
-                  <div className="w-2 h-2 mt-1.5 rounded-full bg-blue-500 shrink-0"></div>
-                  <div>
-                    <div className="text-xs font-bold text-blue-900">{metrics.waitingQA} QA Approvals Pending</div>
-                    <div className="text-[10px] font-medium text-blue-700 mt-0.5">Reports generated, waiting for technical sign-off.</div>
-                  </div>
-                </div>
-              )}
-              {metrics.delayed === 0 && lowInventoryItems.length === 0 && metrics.waitingQA === 0 && (
+              {metrics.delayed === 0 && lowInventoryItems.length === 0 && (
                 <div className="text-sm font-bold text-emerald-600 text-center py-4 flex flex-col items-center gap-2">
                   <FiCheckCircle size={24} />
                   All operations normal. No critical alerts.
@@ -514,7 +504,7 @@ export default function Dashboard() {
               </div>
               <div>
                 <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Tomorrow</div>
-                <div className="text-lg font-black text-blue-300">{metrics.waitingQA} Reviews</div>
+                <div className="text-lg font-black text-blue-300">{metrics.underRebuild} Rebuilds</div>
               </div>
               <div>
                 <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Incoming</div>
@@ -534,7 +524,7 @@ export default function Dashboard() {
               { icon: <FiBox />, label: 'Register Asset', link: '/inventory' },
               { icon: <FiTruck />, label: 'Receive Item', link: '/jobs' },
               { icon: <FiSearch />, label: 'Start Inspect', link: '/jobs?stage=Visual%20Inspection%20%26%20Incoming%20Assessment' },
-              { icon: <FiFileText />, label: 'Gen Report', link: '/jobs?stage=Report%20Generation' },
+              { icon: <FiActivity />, label: 'Test Job', link: '/jobs?stage=Testing%20%26%20Dispatch' },
               { icon: <FiGrid />, label: 'Search Asset', link: '/inventory' },
               { icon: <FiActivity />, label: 'Search Job', link: '/jobs' },
               { icon: <FiSettings />, label: 'Master Data', link: '/production-planning' },
