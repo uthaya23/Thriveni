@@ -172,6 +172,17 @@ export default function OverviewTab({ job, onUpdate, isReadOnly, setViewStage })
 
   const allPhotos = getAllPhotos();
 
+    const formatDate = (dateString) => {
+      if (!dateString) return null;
+      try {
+        const d = new Date(dateString);
+        if (isNaN(d.getTime())) return dateString;
+        return d.toLocaleDateString('en-GB'); // formats to DD/MM/YYYY
+      } catch (e) {
+        return dateString;
+      }
+    };
+
   if (editing) return (
     <div className="p-6 bg-white">
       <div className="flex justify-between items-center mb-6 border-b border-slate-200 pb-4">
@@ -593,10 +604,10 @@ export default function OverviewTab({ job, onUpdate, isReadOnly, setViewStage })
             </div>
             <div className="p-5">
               <Row label="Received From"       value={job.receivedFrom||job.recSite} />
-              <Row label="Date Received"       value={job.dateReceived||job.recDate} mono />
-              <Row label="Disassembly Date"    value={job.disassyDate} mono />
-              <Row label="Assembly Date"       value={job.assyDate} mono />
-              <Row label="Sending Date"         value={job.sendDate} mono />
+              <Row label="Date Received"       value={formatDate(job.dateReceived||job.recDate)} mono />
+              <Row label="Disassembly Date"    value={formatDate(job.disassyDate)} mono />
+              <Row label="Assembly Date"       value={formatDate(job.assyDate)} mono />
+              <Row label="Sending Date"         value={formatDate(job.sendDate)} mono />
               <Row label="Sending Site"         value={job.sendSite} />
               <Row label="Running Hours"       value={(job.previousRunningHours||job.lifeHrs) ? `${job.previousRunningHours||job.lifeHrs} hrs` : null} mono />
               <Row label="Repeat Job"          value={job.repeatDetails} />
@@ -610,9 +621,9 @@ export default function OverviewTab({ job, onUpdate, isReadOnly, setViewStage })
             </div>
             <div className="p-5">
               <Row label="Installed Hour"     value={job.installedHour} />
-              <Row label="Installed Date"     value={job.installedDate} mono />
+              <Row label="Installed Date"     value={formatDate(job.installedDate)} mono />
               <Row label="Removal Hour"       value={job.removalHour} />
-              <Row label="Removal Date"       value={job.removalDate} mono />
+              <Row label="Removal Date"       value={formatDate(job.removalDate)} mono />
               <Row label="Life Hour"          value={job.lifeHour} />
             </div>
           </div>
@@ -663,7 +674,7 @@ export default function OverviewTab({ job, onUpdate, isReadOnly, setViewStage })
               <Row label="Current Stage"   value={job.stage||'Received'} />
               <Row label="Status"          value={job.status} />
               <Row label="Current Location" value={job.curLocation} />
-              <Row label="RFD Date"         value={job.rfdDate}  mono />
+              <Row label="RFD Date"         value={formatDate(job.rfdDate)}  mono />
               {job.delayReason && (
                 <div className="py-2.5 border-b border-slate-100 hover:bg-slate-50 transition-colors px-2 -mx-2 rounded">
                   <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Delay Reason</div>
@@ -671,7 +682,7 @@ export default function OverviewTab({ job, onUpdate, isReadOnly, setViewStage })
                 </div>
               )}
               <Row label="Created By"       value={job.createdBy?.name || job.createdBy} />
-              <Row label="Created At"       value={job.createdAt ? new Date(job.createdAt).toLocaleDateString('en-IN') : null} mono />
+              <Row label="Created At"       value={formatDate(job.createdAt)} mono />
             </div>
           </div>
         </div>
