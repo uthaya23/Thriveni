@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../utils/api';
 import { FiCheckCircle, FiClock, FiSettings, FiAlertCircle, FiChevronRight, FiMapPin } from 'react-icons/fi';
 
 const STAGES = [
@@ -21,9 +21,8 @@ export default function PublicJobView() {
   useEffect(() => {
     const fetchPublicData = async () => {
       try {
-        const backendUrl = process.env.REACT_APP_API_URL || 'http://localhost:5005/api';
-        const res = await axios.get(`${backendUrl}/jobs/public/${id}`);
-        setData(res.data.data);
+        const res = await api.get(`/jobs/public/${id}`);
+        setData(res.data);
       } catch (err) {
         console.error(err);
         setError(true);
