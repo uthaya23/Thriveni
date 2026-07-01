@@ -1021,81 +1021,75 @@ export default function ReportTab({ jobId, job }) {
                   </p>
                 )}
 
-                <div>
-                  <h3 style={{ fontFamily: "'Montserrat','Inter',sans-serif", fontSize: "8.5pt", fontWeight: 700, color: "#1C2541", margin: "14px 0 6px 0", textTransform: "uppercase", letterSpacing: "0.03em", borderBottom: "1px dashed #E2E8F0", paddingBottom: "2px" }}>3.2 Initial Insulation Resistance (IR) Profile</h3>
-                  <table className="w-full border border-slate-200 text-left" style={{ fontSize: "7.5pt", fontFamily: "'Inter', sans-serif" }}>
-                    <thead className="bg-slate-100">
-                      <tr>
-                        <th className="p-2 font-bold text-slate-600">Terminal Pair</th>
-                        <th className="p-2 font-bold text-slate-600 text-center">Applied Volts</th>
-                        <th className="p-2 font-bold text-slate-600 text-center">Std Value</th>
-                        <th className="p-2 font-bold text-slate-600">IR Value</th>
-                        <th className="p-2 font-bold text-slate-600">Unit</th>
-                        <th className="p-2 font-bold text-slate-600">Remarks / Assessment</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-200">
-                      {initialIrList.map((t, idx) => (
-                        <React.Fragment key={idx}>
-                          {t.groupHeader && (
-                            <tr className="bg-slate-50 font-bold">
-                              <td colSpan={6} className="p-2 text-slate-700 uppercase tracking-wide">{t.groupHeader}</td>
-                            </tr>
-                          )}
-                          <tr>
-                            <td className="p-2 pl-6 font-mono">{t.terminalDisplay || t.terminal}</td>
-                            <td className="p-2 text-center">{t.appliedVoltage || '—'}</td>
-                            <td className="p-2 text-center font-semibold">&gt; 1</td>
-                            <td className="p-2 text-red-600 font-bold">{t.irValue || 'N/A'}</td>
-                            <td className="p-2">{t.unit || 'MΩ'}</td>
-                            <td className="p-2 text-slate-500">{t.remarks || 'Requires clean & re-varnish.'}</td>
-                          </tr>
-                        </React.Fragment>
-                      ))}
-                      {initialIrList.length === 0 && (
+                {initialIrList.length > 0 && (
+                  <div>
+                    <h3 style={{ fontFamily: "'Montserrat','Inter',sans-serif", fontSize: "8.5pt", fontWeight: 700, color: "#1C2541", margin: "14px 0 6px 0", textTransform: "uppercase", letterSpacing: "0.03em", borderBottom: "1px dashed #E2E8F0", paddingBottom: "2px" }}>3.2 Initial Insulation Resistance (IR) Profile</h3>
+                    <table className="w-full border border-slate-200 text-left" style={{ fontSize: "7.5pt", fontFamily: "'Inter', sans-serif" }}>
+                      <thead className="bg-slate-100">
                         <tr>
-                          <td colSpan={6} className="p-4 text-center text-slate-400 italic">No initial IR test data recorded.</td>
+                          <th className="p-2 font-bold text-slate-600">Terminal Pair</th>
+                          <th className="p-2 font-bold text-slate-600 text-center">Applied Volts</th>
+                          <th className="p-2 font-bold text-slate-600 text-center">Std Value</th>
+                          <th className="p-2 font-bold text-slate-600">IR Value</th>
+                          <th className="p-2 font-bold text-slate-600">Unit</th>
+                          <th className="p-2 font-bold text-slate-600">Remarks / Assessment</th>
                         </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody className="divide-y divide-slate-200">
+                        {initialIrList.map((t, idx) => (
+                          <React.Fragment key={idx}>
+                            {t.groupHeader && (
+                              <tr className="bg-slate-50 font-bold">
+                                <td colSpan={6} className="p-2 text-slate-700 uppercase tracking-wide">{t.groupHeader}</td>
+                              </tr>
+                            )}
+                            <tr>
+                              <td className="p-2 pl-6 font-mono">{t.terminalDisplay || t.terminal}</td>
+                              <td className="p-2 text-center">{t.appliedVoltage || '—'}</td>
+                              <td className="p-2 text-center font-semibold">&gt; 1</td>
+                              <td className="p-2 text-red-600 font-bold">{t.irValue || 'N/A'}</td>
+                              <td className="p-2">{t.unit || 'MΩ'}</td>
+                              <td className="p-2 text-slate-500">{t.remarks || 'Requires clean & re-varnish.'}</td>
+                            </tr>
+                          </React.Fragment>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
 
-                <div>
-                  <h3 style={{ fontFamily: "'Montserrat','Inter',sans-serif", fontSize: "8.5pt", fontWeight: 700, color: "#1C2541", margin: "14px 0 6px 0", textTransform: "uppercase", letterSpacing: "0.03em", borderBottom: "1px dashed #E2E8F0", paddingBottom: "2px" }}>3.2 Initial Winding Resistance Log</h3>
-                  <table className="w-full border border-slate-200 text-left" style={{ fontSize: "7.5pt", fontFamily: "'Inter', sans-serif" }}>
-                    <thead className="bg-slate-100">
-                      <tr>
-                        <th className="p-2 font-bold text-slate-600">Terminal Group</th>
-                        <th className="p-2 font-bold text-slate-600">Std Value</th>
-                        <th className="p-2 font-bold text-slate-600">Measured (Ω)</th>
-                        <th className="p-2 font-bold text-slate-600">Remarks</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-200">
-                      {initialWrList.map((t, idx) => (
-                        <React.Fragment key={idx}>
-                          {t.groupHeader && (
-                            <tr className="bg-slate-50 font-bold">
-                              <td colSpan={4} className="p-2 text-slate-700 uppercase tracking-wide">{t.groupHeader}</td>
-                            </tr>
-                          )}
-                          <tr>
-                            <td className="p-2 pl-6 font-mono">{t.terminalDisplay}</td>
-                            <td className="p-2">{t.standardValue}</td>
-                            <td className="p-2 font-semibold text-slate-800">{t.value}</td>
-                            <td className="p-2 text-slate-500">{t.remarks}</td>
-                          </tr>
-                        </React.Fragment>
-                      ))}
-                      {initialWrList.length === 0 && (
+                {initialWrList.length > 0 && (
+                  <div>
+                    <h3 style={{ fontFamily: "'Montserrat','Inter',sans-serif", fontSize: "8.5pt", fontWeight: 700, color: "#1C2541", margin: "14px 0 6px 0", textTransform: "uppercase", letterSpacing: "0.03em", borderBottom: "1px dashed #E2E8F0", paddingBottom: "2px" }}>3.3 Initial Winding Resistance Log</h3>
+                    <table className="w-full border border-slate-200 text-left" style={{ fontSize: "7.5pt", fontFamily: "'Inter', sans-serif" }}>
+                      <thead className="bg-slate-100">
                         <tr>
-                          <td colSpan={4} className="p-4 text-center text-slate-400 italic">No initial winding resistance data recorded.</td>
+                          <th className="p-2 font-bold text-slate-600">Terminal Group</th>
+                          <th className="p-2 font-bold text-slate-600">Std Value</th>
+                          <th className="p-2 font-bold text-slate-600">Measured (Ω)</th>
+                          <th className="p-2 font-bold text-slate-600">Remarks</th>
                         </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody className="divide-y divide-slate-200">
+                        {initialWrList.map((t, idx) => (
+                          <React.Fragment key={idx}>
+                            {t.groupHeader && (
+                              <tr className="bg-slate-50 font-bold">
+                                <td colSpan={4} className="p-2 text-slate-700 uppercase tracking-wide">{t.groupHeader}</td>
+                              </tr>
+                            )}
+                            <tr>
+                              <td className="p-2 pl-6 font-mono">{t.terminalDisplay}</td>
+                              <td className="p-2">{t.standardValue}</td>
+                              <td className="p-2 font-semibold text-slate-800">{t.value}</td>
+                              <td className="p-2 text-slate-500">{t.remarks}</td>
+                            </tr>
+                          </React.Fragment>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
 
               {/* 04. DISMANTLING OBSERVATIONS */}
@@ -1285,21 +1279,56 @@ export default function ReportTab({ jobId, job }) {
                   </p>
                 )}
 
-                <div>
-                  <h3 style={{ fontFamily: "'Montserrat','Inter',sans-serif", fontSize: "8.5pt", fontWeight: 700, color: "#1C2541", margin: "14px 0 6px 0", textTransform: "uppercase", letterSpacing: "0.03em", borderBottom: "1px dashed #E2E8F0", paddingBottom: "2px" }}>7.1 IR Comparison (Before vs. After)</h3>
-                  <table className="w-full border border-slate-200 text-left" style={{ fontSize: "7.5pt", fontFamily: "'Inter', sans-serif" }}>
-                    <thead className="bg-slate-100">
-                      <tr>
-                        <th className="p-2 font-bold text-slate-600">Terminal</th>
-                        <th className="p-2 font-bold text-slate-600">As-Received IR</th>
-                        <th className="p-2 font-bold text-slate-600">Rebuilt IR</th>
-                        <th className="p-2 font-bold text-slate-600">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-200">
-                      {finalIrList.map((t, idx) => {
-                        const preTest = initialIrList.find(i => i.terminalDisplay === t.terminalDisplay && i.groupHeader === t.groupHeader);
-                        return (
+                {finalIrList.length > 0 && (
+                  <div>
+                    <h3 style={{ fontFamily: "'Montserrat','Inter',sans-serif", fontSize: "8.5pt", fontWeight: 700, color: "#1C2541", margin: "14px 0 6px 0", textTransform: "uppercase", letterSpacing: "0.03em", borderBottom: "1px dashed #E2E8F0", paddingBottom: "2px" }}>7.1 IR Comparison (Before vs. After)</h3>
+                    <table className="w-full border border-slate-200 text-left" style={{ fontSize: "7.5pt", fontFamily: "'Inter', sans-serif" }}>
+                      <thead className="bg-slate-100">
+                        <tr>
+                          <th className="p-2 font-bold text-slate-600">Terminal</th>
+                          <th className="p-2 font-bold text-slate-600">As-Received IR</th>
+                          <th className="p-2 font-bold text-slate-600">Rebuilt IR</th>
+                          <th className="p-2 font-bold text-slate-600">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-200">
+                        {finalIrList.map((t, idx) => {
+                          const preTest = initialIrList.find(i => i.terminalDisplay === t.terminalDisplay && i.groupHeader === t.groupHeader);
+                          return (
+                            <React.Fragment key={idx}>
+                              {t.groupHeader && (
+                                <tr className="bg-slate-50 font-bold">
+                                  <td colSpan={4} className="p-2 text-slate-700 uppercase tracking-wide">{t.groupHeader}</td>
+                                </tr>
+                              )}
+                              <tr>
+                                <td className="p-2 pl-6 font-mono">{t.terminalDisplay}</td>
+                                <td className="p-2 text-red-500 font-bold">{preTest?.irValue || '—'}</td>
+                                <td className="p-2 text-emerald-600 font-black">{t.irValue}</td>
+                                <td className="p-2"><span className="text-[10px] font-bold bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded border border-emerald-200">PASS</span></td>
+                              </tr>
+                            </React.Fragment>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+
+                {finalWrList.length > 0 && (
+                  <div>
+                    <h3 style={{ fontFamily: "'Montserrat','Inter',sans-serif", fontSize: "8.5pt", fontWeight: 700, color: "#1C2541", margin: "14px 0 6px 0", textTransform: "uppercase", letterSpacing: "0.03em", borderBottom: "1px dashed #E2E8F0", paddingBottom: "2px" }}>7.2 Final Winding Resistance Log</h3>
+                    <table className="w-full border border-slate-200 text-left" style={{ fontSize: "7.5pt", fontFamily: "'Inter', sans-serif" }}>
+                      <thead className="bg-slate-100">
+                        <tr>
+                          <th className="p-2 font-bold text-slate-600">Terminal Group</th>
+                          <th className="p-2 font-bold text-slate-600">Std Value</th>
+                          <th className="p-2 font-bold text-slate-600">Measured (Ω)</th>
+                          <th className="p-2 font-bold text-slate-600 font-mono">Remarks</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-200">
+                        {finalWrList.map((t, idx) => (
                           <React.Fragment key={idx}>
                             {t.groupHeader && (
                               <tr className="bg-slate-50 font-bold">
@@ -1308,57 +1337,16 @@ export default function ReportTab({ jobId, job }) {
                             )}
                             <tr>
                               <td className="p-2 pl-6 font-mono">{t.terminalDisplay}</td>
-                              <td className="p-2 text-red-500 font-bold">{preTest?.irValue || '—'}</td>
-                              <td className="p-2 text-emerald-600 font-black">{t.irValue}</td>
-                              <td className="p-2"><span className="text-[10px] font-bold bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded border border-emerald-200">PASS</span></td>
+                              <td className="p-2">{t.standardValue}</td>
+                              <td className="p-2 font-bold text-slate-800">{t.value}</td>
+                              <td className="p-2 text-slate-500">{t.remarks}</td>
                             </tr>
                           </React.Fragment>
-                        );
-                      })}
-                      {finalIrList.length === 0 && (
-                        <tr>
-                          <td colSpan={4} className="p-4 text-center text-slate-400 italic">No final IR comparison available.</td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-
-                <div>
-                  <h3 style={{ fontFamily: "'Montserrat','Inter',sans-serif", fontSize: "8.5pt", fontWeight: 700, color: "#1C2541", margin: "14px 0 6px 0", textTransform: "uppercase", letterSpacing: "0.03em", borderBottom: "1px dashed #E2E8F0", paddingBottom: "2px" }}>7.2 Final Winding Resistance Log</h3>
-                  <table className="w-full border border-slate-200 text-left" style={{ fontSize: "7.5pt", fontFamily: "'Inter', sans-serif" }}>
-                    <thead className="bg-slate-100">
-                      <tr>
-                        <th className="p-2 font-bold text-slate-600">Terminal Group</th>
-                        <th className="p-2 font-bold text-slate-600">Std Value</th>
-                        <th className="p-2 font-bold text-slate-600">Measured (Ω)</th>
-                        <th className="p-2 font-bold text-slate-600 font-mono">Remarks</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-200">
-                      {finalWrList.map((t, idx) => (
-                        <React.Fragment key={idx}>
-                          {t.groupHeader && (
-                            <tr className="bg-slate-50 font-bold">
-                              <td colSpan={4} className="p-2 text-slate-700 uppercase tracking-wide">{t.groupHeader}</td>
-                            </tr>
-                          )}
-                          <tr>
-                            <td className="p-2 pl-6 font-mono">{t.terminalDisplay}</td>
-                            <td className="p-2">{t.standardValue}</td>
-                            <td className="p-2 font-bold text-slate-800">{t.value}</td>
-                            <td className="p-2 text-slate-500">{t.remarks}</td>
-                          </tr>
-                        </React.Fragment>
-                      ))}
-                      {finalWrList.length === 0 && (
-                        <tr>
-                          <td colSpan={4} className="p-4 text-center text-slate-400 italic">No final winding resistance data recorded.</td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
 
               {/* 08. PERFORMANCE & DISPATCH */}
