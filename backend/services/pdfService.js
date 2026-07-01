@@ -24,6 +24,16 @@ class PdfService {
     handlebars.registerHelper('ifEquals', function(arg1, arg2, options) {
       return (arg1 == arg2) ? options.fn(this) : options.inverse(this);
     });
+    handlebars.registerHelper('formatDate', function(dateStr) {
+      if (!dateStr) {
+        return new Date().toLocaleDateString();
+      }
+      try {
+        return new Date(dateStr).toLocaleDateString();
+      } catch (e) {
+        return 'N/A';
+      }
+    });
     handlebars.registerHelper('editable', function(fieldPath, value, defaultVal) {
       return new handlebars.SafeString(value || defaultVal || '');
     });

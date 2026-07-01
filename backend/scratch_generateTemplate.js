@@ -1,0 +1,675 @@
+const fs = require('fs');
+const path = require('path');
+
+const templatePath = path.join(__dirname, 'templates', 'reportTemplate.html');
+
+const templateContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Thriveni Rebuild Center Technical Overhaul Report</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        body {
+            font-family: 'Inter', 'Roboto', Arial, sans-serif;
+            background-color: #ffffff;
+            -webkit-print-color-adjust: exact;
+            margin: 0;
+            padding: 0;
+        }
+
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            background-color: #ffffff;
+            position: relative;
+            box-sizing: border-box;
+            page-break-after: always;
+            margin: 0 auto;
+        }
+
+        .page:last-child {
+            page-break-after: auto;
+        }
+
+        .bg-cover-page {
+            background: radial-gradient(circle at 10% 20%, rgba(255,255,255,1) 0%, rgba(245,247,250,1) 90%);
+        }
+
+        table {
+            border-collapse: collapse;
+        }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #0B132B;
+            padding-bottom: 3px;
+            margin-bottom: 20px;
+        }
+        
+        .page-footer {
+            margin-top: auto;
+            border-top: 1px solid #E2E8F0;
+            padding-top: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 7pt;
+            color: #94A3B8;
+        }
+    </style>
+</head>
+<body class="text-slate-800 text-[8pt]">
+
+    <!-- PAGE 1: COVER -->
+    <div class="page bg-cover-page flex flex-col px-14 py-10" style="padding-top: 40px; padding-bottom: 40px;">
+        <div class="flex justify-between items-center mb-2">
+            <!-- For logo, we use an absolute URL or inline base64 if it's broken, but standard /logo.png won't work in puppeteer without base URL. So we will just use a generic or empty logo space if not found, or use the actual URL if provided -->
+            <div style="font-size: 16pt; font-weight: 800; color: #D97706; font-family: 'Montserrat', sans-serif;">THRIVENI</div>
+            <div class="text-right text-[8pt] text-[#0B132B] font-bold leading-tight">
+                THRIVENI REBUILD CENTER<br />
+                <span class="text-[6.5pt] font-semibold text-slate-500">REBUILD & QUALITY FACILITY</span>
+            </div>
+        </div>
+        <div class="border-b-[4px] border-[#E58200] mb-12"></div>
+
+        <div class="text-center mb-4 text-[14pt] font-semibold text-[#D97706] uppercase tracking-[0.08em]" style="font-family: 'Montserrat', 'Inter', sans-serif">Technical Overhaul Report</div>
+        <div class="text-center mb-3 text-[28pt] font-extrabold text-[#0B132B] leading-tight" style="font-family: 'Montserrat', 'Inter', sans-serif">Industrial Rebuild Report</div>
+        <div class="text-center mb-8 text-[12pt] font-medium text-slate-500 uppercase tracking-[0.03em]" style="font-family: 'Inter', sans-serif">
+            {{fallback job.equipmentModel "N/A"}} — {{fallback job.description "N/A"}}
+        </div>
+
+        <div class="mx-auto w-[500px] mb-8 border border-slate-200 rounded-lg p-1 bg-white h-[350px] relative flex items-center justify-center overflow-hidden">
+            {{#if report.headerLogo}}
+                <img src="{{report.headerLogo}}" alt="Equipment Preview" class="max-w-full max-h-full object-contain" />
+            {{else}}
+                <div class="text-slate-400 italic text-sm">No initial equipment image available</div>
+            {{/if}}
+        </div>
+
+        <div class="mx-auto w-[600px] border border-slate-200 rounded-lg py-3 px-4 bg-white shadow-sm mt-auto mb-10">
+            <div class="font-extrabold text-[9pt] text-[#0B132B] mb-1.5 uppercase">Job & Report Registry</div>
+            <div class="border-b-[2px] border-[#E58200] mb-3"></div>
+            <table class="w-full text-[8.5pt]">
+                <tbody>
+                    <tr>
+                        <td class="w-1/2 pb-3">
+                            <div class="text-slate-500 text-[7pt] font-semibold uppercase mb-0.5">Job Reference No</div>
+                            <div class="font-extrabold text-[#0B132B] text-[9pt]">{{fallback job.jobNo "N/A"}}</div>
+                        </td>
+                        <td class="w-1/2 pb-3">
+                            <div class="text-slate-500 text-[7pt] font-semibold uppercase mb-0.5">Report Number</div>
+                            <div class="font-extrabold text-[#0B132B] text-[9pt]">{{fallback report.reportNo "N/A"}}</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="w-1/2 pb-3">
+                            <div class="text-slate-500 text-[7pt] font-semibold uppercase mb-0.5">Component Serial No</div>
+                            <div class="font-extrabold text-[#0B132B] text-[9pt]">{{fallback job.serialNumber "N/A"}}</div>
+                        </td>
+                        <td class="w-1/2 pb-3">
+                            <div class="text-slate-500 text-[7pt] font-semibold uppercase mb-0.5">Model / Part No</div>
+                            <div class="font-extrabold text-[#0B132B] text-[9pt]">{{fallback job.partNumber "N/A"}}</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="w-1/2 pb-3">
+                            <div class="text-slate-500 text-[7pt] font-semibold uppercase mb-0.5">Received Date</div>
+                            <div class="font-extrabold text-[#0B132B] text-[9pt]">{{formatDate report.createdAt}}</div>
+                        </td>
+                        <td class="w-1/2 pb-3">
+                            <div class="text-slate-500 text-[7pt] font-semibold uppercase mb-0.5">Dispatch / Release Date</div>
+                            <div class="font-extrabold text-[#0B132B] text-[9pt]">Pending QA Signoff</div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- PAGE 2: EXECUTIVE SUMMARY & JOB INFO -->
+    <div class="page flex flex-col px-10 py-8" style="padding-top: 32px; padding-bottom: 32px;">
+        <div class="page-header">
+            <div>
+                <span style="font-weight: 800; color: #0B132B; font-size: 11pt; letter-spacing: 0.05em; margin-right: 12px;">THRIVENI</span>
+                <span style="color: #64748B; font-weight: 600; font-size: 7.5pt; text-transform: uppercase;">Technical Overhaul Report</span>
+            </div>
+            <div style="text-align: right; font-size: 7.5pt;">
+                <div style="font-weight: 800; color: #0B132B;">{{fallback job.jobNo "N/A"}}</div>
+                <div style="color: #64748B;">{{fallback report.reportNo "N/A"}}</div>
+            </div>
+        </div>
+
+        <div class="space-y-8 flex-1">
+            <!-- 01. EXECUTIVE SUMMARY -->
+            <div>
+                <div class="border-b-2 border-amber-600 pb-1 mb-4">
+                    <h2 style="font-family: 'Montserrat','Inter',sans-serif; font-size: 13.5pt; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: #0B132B;">01. Executive Summary</h2>
+                </div>
+                <p style="font-size: 8pt; text-align: justify; line-height: 1.6; background: #F8FAFC; padding: 10px 12px; border-radius: 4px; border: 1px solid #E2E8F0; white-space: pre-line; color: #1E293B;">{{fallback report.executiveSummary "No executive summary details recorded."}}</p>
+            </div>
+
+            <!-- 02. JOB INFORMATION -->
+            <div class="space-y-4">
+                <div class="border-b-2 border-amber-600 pb-1">
+                    <h2 style="font-family: 'Montserrat','Inter',sans-serif; font-size: 13.5pt; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: #0B132B;">02. Job Information</h2>
+                </div>
+
+                <!-- 2.1 Component Technical Registry -->
+                <div>
+                    <h3 style="font-family: 'Montserrat','Inter',sans-serif; font-size: 8.5pt; font-weight: 700; color: #1C2541; margin: 14px 0 6px 0; text-transform: uppercase; letter-spacing: 0.03em; border-bottom: 1px dashed #E2E8F0; padding-bottom: 2px;">2.1 Component Technical Registry</h3>
+                    <table class="w-full border border-slate-200" style="font-size: 7.5pt; font-family: 'Inter', sans-serif">
+                        <tbody class="divide-y divide-slate-200">
+                            <tr>
+                                <td class="p-2 font-bold bg-slate-50 text-slate-600 w-1/4">Description</td>
+                                <td class="p-2 font-medium text-slate-800 w-1/4">{{fallback job.description "N/A"}}</td>
+                                <td class="p-2 font-bold bg-slate-50 text-slate-600 w-1/4">Serial Number</td>
+                                <td class="p-2 font-medium text-slate-800 w-1/4">{{fallback job.serialNumber "N/A"}}</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 font-bold bg-slate-50 text-slate-600">Equipment Model</td>
+                                <td class="p-2 font-medium text-slate-800">{{fallback job.equipmentModel "N/A"}}</td>
+                                <td class="p-2 font-bold bg-slate-50 text-slate-600">Part Number</td>
+                                <td class="p-2 font-medium text-slate-800">{{fallback job.partNumber "N/A"}}</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 font-bold bg-slate-50 text-slate-600">Sub Assembly Make</td>
+                                <td class="p-2 font-medium text-slate-800">{{fallback job.subAssemblyMake "N/A"}}</td>
+                                <td class="p-2 font-bold bg-slate-50 text-slate-600">Purchase Order (PO)</td>
+                                <td class="p-2 font-medium text-slate-800">{{fallback job.orderNumber "N/A"}}</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 font-bold bg-slate-50 text-slate-600">Received From</td>
+                                <td class="p-2 font-medium text-slate-800">{{fallback job.receivedFrom "N/A"}}</td>
+                                <td class="p-2 font-bold bg-slate-50 text-slate-600">Date Received</td>
+                                <td class="p-2 font-medium text-slate-800">{{fallback job.dateReceived "N/A"}}</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 font-bold bg-slate-50 text-slate-600">Site Complaints</td>
+                                <td colspan="3" class="p-2 font-semibold text-red-700">{{fallback job.siteComplaints "No site complaints recorded."}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 2.2 Component Hours & Installation Details -->
+                <div>
+                    <h3 style="font-family: 'Montserrat','Inter',sans-serif; font-size: 8.5pt; font-weight: 700; color: #1C2541; margin: 14px 0 6px 0; text-transform: uppercase; letter-spacing: 0.03em; border-bottom: 1px dashed #E2E8F0; padding-bottom: 2px;">2.2 Component Hours &amp; Installation Details</h3>
+                    <table class="w-full border border-slate-200" style="font-size: 7.5pt; font-family: 'Inter', sans-serif">
+                        <tbody class="divide-y divide-slate-200">
+                            <tr>
+                                <td class="p-2 font-bold bg-slate-50 text-slate-600 w-1/4">Installed Hour</td>
+                                <td class="p-2 font-medium text-slate-800 w-1/4">{{fallback job.installedHour "—"}}</td>
+                                <td class="p-2 font-bold bg-slate-50 text-slate-600 w-1/4">Installed Date</td>
+                                <td class="p-2 font-medium text-slate-800 w-1/4">{{fallback job.installedDate "—"}}</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 font-bold bg-slate-50 text-slate-600">Removal Hour</td>
+                                <td class="p-2 font-medium text-slate-800">{{fallback job.removalHour "—"}}</td>
+                                <td class="p-2 font-bold bg-slate-50 text-slate-600">Removal Date</td>
+                                <td class="p-2 font-medium text-slate-800">{{fallback job.removalDate "—"}}</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 font-bold bg-slate-50 text-slate-600">Life Hours</td>
+                                <td colspan="3" class="p-2 font-medium text-slate-800">{{fallback job.lifeHour "—"}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                {{#if isWheelMotor}}
+                <div>
+                    <h3 style="font-family: 'Montserrat','Inter',sans-serif; font-size: 8.5pt; font-weight: 700; color: #1C2541; margin: 14px 0 6px 0; text-transform: uppercase; letter-spacing: 0.03em; border-bottom: 1px dashed #E2E8F0; padding-bottom: 2px;">2.3 Wheel Motor Technical Registry</h3>
+                    <table class="w-full border border-slate-200" style="font-size: 7.5pt; font-family: 'Inter', sans-serif">
+                        <tbody class="divide-y divide-slate-200 text-slate-800">
+                            <tr>
+                                <td class="p-2 font-bold bg-slate-50 text-slate-600 w-1/4">Final Drive Number</td>
+                                <td class="p-2 font-medium w-1/4">{{fallback job.finalDriveNo "—"}}</td>
+                                <td class="p-2 font-bold bg-slate-50 text-slate-600 w-1/4">Final Drive Model</td>
+                                <td class="p-2 font-medium w-1/4">{{fallback job.finalDriveModel "—"}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                {{/if}}
+
+                <!-- 2.4 Repair Scope Summary -->
+                <div>
+                    <h3 style="font-family: 'Montserrat','Inter',sans-serif; font-size: 8.5pt; font-weight: 700; color: #1C2541; margin: 14px 0 6px 0; text-transform: uppercase; letter-spacing: 0.03em; border-bottom: 1px dashed #E2E8F0; padding-bottom: 2px;">2.4 Repair Scope Summary</h3>
+                    <table class="w-full border border-slate-200" style="font-size: 7.5pt; font-family: 'Inter', sans-serif">
+                        <thead class="bg-slate-100">
+                            <tr>
+                                <th class="p-2 font-bold text-slate-600 text-left w-1/4">Scope Area</th>
+                                <th class="p-2 font-bold text-slate-600 text-left">Work Description</th>
+                                <th class="p-2 font-bold text-slate-600 text-center w-20">Status</th>
+                                <th class="p-2 font-bold text-slate-600 text-center w-24">Completion</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200">
+                            <tr>
+                                <td class="p-2 font-bold text-blue-900">Mechanical Overhaul</td>
+                                <td class="p-2 text-slate-700">Shaft journal reclamation, bearing replacement, housing cleaning and alignment</td>
+                                <td class="p-2 text-center"><span class="text-[10px] font-bold bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded border border-emerald-200">COMPLETE</span></td>
+                                <td class="p-2 text-center font-medium text-slate-600">{{formatDate job.assyDate}}</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 font-bold text-blue-900">Electrical Reconditioning</td>
+                                <td class="p-2 text-slate-700">Thermal baking, double-dip varnish impregnation, winding re-varnishing and high-temp curing</td>
+                                <td class="p-2 text-center"><span class="text-[10px] font-bold bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded border border-emerald-200">COMPLETE</span></td>
+                                <td class="p-2 text-center font-medium text-slate-600">{{formatDate job.assyDate}}</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 font-bold text-blue-900">Insulation Resistance Testing</td>
+                                <td class="p-2 text-slate-700">Pre and post-overhaul IR testing across all terminal pairs — all values exceed 1 MΩ minimum</td>
+                                <td class="p-2 text-center"><span class="text-[10px] font-bold bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded border border-emerald-200">PASSED</span></td>
+                                <td class="p-2 text-center font-medium text-slate-600">{{formatDate job.sendDate}}</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 font-bold text-blue-900">Quality Certification</td>
+                                <td class="p-2 text-slate-700">Final dimensional checks, air gap verification, load test sign-off by QA Inspector</td>
+                                <td class="p-2 text-center"><span class="text-[10px] font-bold bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded border border-blue-200">CERTIFIED</span></td>
+                                <td class="p-2 text-center font-medium text-slate-600">{{formatDate job.sendDate}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="page-footer">
+            <div><strong>Thriveni Rebuild Center</strong> - Proprietary & Confidential</div>
+            <div>Generated {{formatDate ""}}</div>
+        </div>
+    </div>
+
+    <!-- PAGE 3: AS RECEIVED CONDITION -->
+    <div class="page flex flex-col px-10 py-8" style="padding-top: 32px; padding-bottom: 32px;">
+        <div class="page-header">
+            <div>
+                <span style="font-weight: 800; color: #0B132B; font-size: 11pt; letter-spacing: 0.05em; margin-right: 12px;">THRIVENI</span>
+                <span style="color: #64748B; font-weight: 600; font-size: 7.5pt; text-transform: uppercase;">Technical Overhaul Report</span>
+            </div>
+            <div style="text-align: right; font-size: 7.5pt;">
+                <div style="font-weight: 800; color: #0B132B;">{{fallback job.jobNo "N/A"}}</div>
+                <div style="color: #64748B;">{{fallback report.reportNo "N/A"}}</div>
+            </div>
+        </div>
+
+        <div class="space-y-8 flex-1">
+            <!-- 03. AS RECEIVED CONDITION -->
+            <div class="space-y-6">
+                <div class="border-b-2 border-amber-600 pb-1">
+                    <h2 style="font-family: 'Montserrat','Inter',sans-serif; font-size: 13.5pt; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: #0B132B;">03. As Received Condition</h2>
+                </div>
+
+                <p style="font-size: 8pt; text-align: justify; line-height: 1.6; background: #F8FAFC; padding: 10px 12px; border-radius: 4px; border: 1px solid #E2E8F0; color: #1E293B;">
+                    {{fallback report.visualInspectionSummary "No visual inspection summary recorded."}}
+                </p>
+
+                <div>
+                    <h3 style="font-family: 'Montserrat','Inter',sans-serif; font-size: 8.5pt; font-weight: 700; color: #1C2541; margin: 14px 0 6px 0; text-transform: uppercase; letter-spacing: 0.03em; border-bottom: 1px dashed #E2E8F0; padding-bottom: 2px;">3.2 Initial Insulation Resistance (IR) Profile</h3>
+                    <table class="w-full border border-slate-200 text-left" style="font-size: 7.5pt; font-family: 'Inter', sans-serif">
+                        <thead class="bg-slate-100">
+                            <tr>
+                                <th class="p-2 font-bold text-slate-600">Terminal Pair</th>
+                                <th class="p-2 font-bold text-slate-600 text-center">Applied Volts</th>
+                                <th class="p-2 font-bold text-slate-600 text-center">Std Value</th>
+                                <th class="p-2 font-bold text-slate-600">IR Value</th>
+                                <th class="p-2 font-bold text-slate-600">Unit</th>
+                                <th class="p-2 font-bold text-slate-600">Remarks / Assessment</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200">
+                            {{#each inspection.initialIrTests}}
+                            {{#if this.groupHeader}}
+                            <tr class="bg-slate-50 font-bold">
+                                <td colspan="6" class="p-2 text-slate-700 uppercase tracking-wide">{{this.groupHeader}}</td>
+                            </tr>
+                            {{/if}}
+                            <tr>
+                                <td class="p-2 pl-6 font-mono">{{or this.terminalDisplay this.terminal}}</td>
+                                <td class="p-2 text-center">{{fallback this.appliedVoltage "—"}}</td>
+                                <td class="p-2 text-center font-semibold">&gt; 1</td>
+                                <td class="p-2 text-red-600 font-bold">{{fallback this.irValue "N/A"}}</td>
+                                <td class="p-2">{{fallback this.unit "MΩ"}}</td>
+                                <td class="p-2 text-slate-500">{{fallback this.remarks "Requires clean & re-varnish."}}</td>
+                            </tr>
+                            {{else}}
+                            <tr>
+                                <td colspan="6" class="p-4 text-center text-slate-400 italic">No initial IR test data recorded.</td>
+                            </tr>
+                            {{/each}}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div>
+                    <h3 style="font-family: 'Montserrat','Inter',sans-serif; font-size: 8.5pt; font-weight: 700; color: #1C2541; margin: 14px 0 6px 0; text-transform: uppercase; letter-spacing: 0.03em; border-bottom: 1px dashed #E2E8F0; padding-bottom: 2px;">3.3 Initial Winding Resistance Log</h3>
+                    <table class="w-full border border-slate-200 text-left" style="font-size: 7.5pt; font-family: 'Inter', sans-serif">
+                        <thead class="bg-slate-100">
+                            <tr>
+                                <th class="p-2 font-bold text-slate-600">Terminal Group</th>
+                                <th class="p-2 font-bold text-slate-600">Std Value</th>
+                                <th class="p-2 font-bold text-slate-600">Measured (Ω)</th>
+                                <th class="p-2 font-bold text-slate-600">Remarks</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200">
+                            {{#each inspection.initialWrTests}}
+                            {{#if this.groupHeader}}
+                            <tr class="bg-slate-50 font-bold">
+                                <td colspan="4" class="p-2 text-slate-700 uppercase tracking-wide">{{this.groupHeader}}</td>
+                            </tr>
+                            {{/if}}
+                            <tr>
+                                <td class="p-2 pl-6 font-mono">{{this.terminalDisplay}}</td>
+                                <td class="p-2">{{this.standardValue}}</td>
+                                <td class="p-2 font-semibold text-slate-800">{{this.value}}</td>
+                                <td class="p-2 text-slate-500">{{this.remarks}}</td>
+                            </tr>
+                            {{else}}
+                            <tr>
+                                <td colspan="4" class="p-4 text-center text-slate-400 italic">No initial winding resistance data recorded.</td>
+                            </tr>
+                            {{/each}}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 04. DISMANTLING OBSERVATIONS -->
+            <div class="space-y-6">
+                <div class="border-b-2 border-amber-600 pb-1">
+                    <h2 style="font-family: 'Montserrat','Inter',sans-serif; font-size: 13.5pt; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: #0B132B;">04. Dismantling Observations</h2>
+                </div>
+
+                <p style="font-size: 8pt; text-align: justify; line-height: 1.6; background: #F8FAFC; padding: 10px 12px; border-radius: 4px; border: 1px solid #E2E8F0; white-space: pre-line; color: #1E293B;">
+                    {{fallback report.partsConditionAnalysis "No dismantling parts analysis recorded."}}
+                </p>
+
+                {{#if dismantlingChecklist}}
+                <div>
+                    <h3 style="font-family: 'Montserrat','Inter',sans-serif; font-size: 8.5pt; font-weight: 700; color: #1C2541; margin: 14px 0 6px 0; text-transform: uppercase; letter-spacing: 0.03em; border-bottom: 1px dashed #E2E8F0; padding-bottom: 2px;">4.1 Dismantling Checklist Processed</h3>
+                    <div class="grid grid-cols-2 gap-2 bg-slate-50 p-4 rounded-lg border border-slate-200">
+                        {{#each dismantlingChecklist}}
+                        <div class="flex items-center gap-2 text-xs font-medium text-slate-700">
+                            <span class="text-emerald-500">✓</span>
+                            <span>{{this}}</span>
+                        </div>
+                        {{/each}}
+                    </div>
+                </div>
+                {{/if}}
+            </div>
+        </div>
+        <div class="page-footer">
+            <div><strong>Thriveni Rebuild Center</strong> - Proprietary & Confidential</div>
+            <div>Generated {{formatDate ""}}</div>
+        </div>
+    </div>
+
+    <!-- PAGE 4: ASSESSMENT & TESTING -->
+    <div class="page flex flex-col px-10 py-8" style="padding-top: 32px; padding-bottom: 32px;">
+        <div class="page-header">
+            <div>
+                <span style="font-weight: 800; color: #0B132B; font-size: 11pt; letter-spacing: 0.05em; margin-right: 12px;">THRIVENI</span>
+                <span style="color: #64748B; font-weight: 600; font-size: 7.5pt; text-transform: uppercase;">Technical Overhaul Report</span>
+            </div>
+            <div style="text-align: right; font-size: 7.5pt;">
+                <div style="font-weight: 800; color: #0B132B;">{{fallback job.jobNo "N/A"}}</div>
+                <div style="color: #64748B;">{{fallback report.reportNo "N/A"}}</div>
+            </div>
+        </div>
+
+        <div class="space-y-8 flex-1">
+            <!-- 05. ENGINEERING ASSESSMENT -->
+            <div class="space-y-6">
+                <div class="border-b-2 border-amber-600 pb-1">
+                    <h2 style="font-family: 'Montserrat','Inter',sans-serif; font-size: 13.5pt; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: #0B132B;">05. Engineering Assessment</h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-red-50/50 p-4 rounded-xl border border-red-100">
+                        <div class="text-[10px] font-bold text-red-700 uppercase tracking-widest mb-1">Root Cause</div>
+                        <div class="text-xs font-medium text-slate-700">{{fallback report.failureAnalysis.rootCause "Root cause details not analyzed."}}</div>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                        <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Observed Evidence</div>
+                        <div class="text-xs font-medium text-slate-700">{{fallback report.failureAnalysis.evidence "No visual evidence recorded."}}</div>
+                    </div>
+                    <div class="bg-amber-50/50 p-4 rounded-xl border border-amber-100">
+                        <div class="text-[10px] font-bold text-amber-800 uppercase tracking-widest mb-1">Operational Impact</div>
+                        <div class="text-xs font-medium text-slate-700">{{fallback report.failureAnalysis.impact "Operational impact not defined."}}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 06. REBUILD & ASSEMBLY -->
+            <div class="space-y-6">
+                <div class="border-b-2 border-amber-600 pb-1">
+                    <h2 style="font-family: 'Montserrat','Inter',sans-serif; font-size: 13.5pt; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: #0B132B;">06. Rebuild &amp; Assembly</h2>
+                </div>
+
+                <p style="font-size: 8pt; text-align: justify; line-height: 1.6; background: #F8FAFC; padding: 10px 12px; border-radius: 4px; border: 1px solid #E2E8F0; white-space: pre-line; color: #1E293B;">
+                    {{fallback report.assemblyDescription "No rebuild & assembly overview recorded."}}
+                </p>
+
+                {{#if assemblyChecklist}}
+                <div>
+                    <h3 style="font-family: 'Montserrat','Inter',sans-serif; font-size: 8.5pt; font-weight: 700; color: #1C2541; margin: 14px 0 6px 0; text-transform: uppercase; letter-spacing: 0.03em; border-bottom: 1px dashed #E2E8F0; padding-bottom: 2px;">6.1 Rebuild Milestones Timeline</h3>
+                    <div class="grid grid-cols-2 gap-2 bg-slate-50 p-4 rounded-lg border border-slate-200">
+                        {{#each assemblyChecklist}}
+                        <div class="flex items-center gap-2 text-xs font-medium text-slate-700">
+                            <span class="text-emerald-500">✓</span>
+                            <span>{{this}}</span>
+                        </div>
+                        {{/each}}
+                    </div>
+                </div>
+                {{/if}}
+            </div>
+
+            <!-- 07. TEST RESULTS -->
+            <div class="space-y-6">
+                <div class="border-b-2 border-amber-600 pb-1">
+                    <h2 style="font-family: 'Montserrat','Inter',sans-serif; font-size: 13.5pt; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: #0B132B;">07. Test Results</h2>
+                </div>
+
+                <p style="font-size: 8pt; text-align: justify; line-height: 1.6; background: #F8FAFC; padding: 10px 12px; border-radius: 4px; border: 1px solid #E2E8F0; white-space: pre-line; color: #1E293B;">
+                    {{fallback report.testingSummary "No final testing summary details recorded."}}
+                </p>
+
+                <div>
+                    <h3 style="font-family: 'Montserrat','Inter',sans-serif; font-size: 8.5pt; font-weight: 700; color: #1C2541; margin: 14px 0 6px 0; text-transform: uppercase; letter-spacing: 0.03em; border-bottom: 1px dashed #E2E8F0; padding-bottom: 2px;">7.1 IR Comparison (Before vs. After)</h3>
+                    <table class="w-full border border-slate-200 text-left" style="font-size: 7.5pt; font-family: 'Inter', sans-serif">
+                        <thead class="bg-slate-100">
+                            <tr>
+                                <th class="p-2 font-bold text-slate-600">Terminal</th>
+                                <th class="p-2 font-bold text-slate-600">As-Received IR</th>
+                                <th class="p-2 font-bold text-slate-600">Rebuilt IR</th>
+                                <th class="p-2 font-bold text-slate-600 text-center">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200">
+                            {{{renderTestingComparisonTable inspection.initialIrTests testing.finalIrTests}}}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div>
+                    <h3 style="font-family: 'Montserrat','Inter',sans-serif; font-size: 8.5pt; font-weight: 700; color: #1C2541; margin: 14px 0 6px 0; text-transform: uppercase; letter-spacing: 0.03em; border-bottom: 1px dashed #E2E8F0; padding-bottom: 2px;">7.2 Final Winding Resistance Log</h3>
+                    <table class="w-full border border-slate-200 text-left" style="font-size: 7.5pt; font-family: 'Inter', sans-serif">
+                        <thead class="bg-slate-100">
+                            <tr>
+                                <th class="p-2 font-bold text-slate-600">Terminal Group</th>
+                                <th class="p-2 font-bold text-slate-600">Std Value</th>
+                                <th class="p-2 font-bold text-slate-600">Measured (Ω)</th>
+                                <th class="p-2 font-bold text-slate-600 font-mono">Remarks</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200">
+                            {{#each testing.finalWrTests}}
+                            {{#if this.groupHeader}}
+                            <tr class="bg-slate-50 font-bold">
+                                <td colspan="4" class="p-2 text-slate-700 uppercase tracking-wide">{{this.groupHeader}}</td>
+                            </tr>
+                            {{/if}}
+                            <tr>
+                                <td class="p-2 pl-6 font-mono">{{this.terminalDisplay}}</td>
+                                <td class="p-2">{{this.standardValue}}</td>
+                                <td class="p-2 font-bold text-slate-800">{{this.value}}</td>
+                                <td class="p-2 text-slate-500">{{this.remarks}}</td>
+                            </tr>
+                            {{else}}
+                            <tr>
+                                <td colspan="4" class="p-4 text-center text-slate-400 italic">No final winding resistance data recorded.</td>
+                            </tr>
+                            {{/each}}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="page-footer">
+            <div><strong>Thriveni Rebuild Center</strong> - Proprietary & Confidential</div>
+            <div>Generated {{formatDate ""}}</div>
+        </div>
+    </div>
+
+    <!-- PAGE 5: PERFORMANCE, DISPATCH & CONCLUSION -->
+    <div class="page flex flex-col px-10 py-8" style="padding-top: 32px; padding-bottom: 32px;">
+        <div class="page-header">
+            <div>
+                <span style="font-weight: 800; color: #0B132B; font-size: 11pt; letter-spacing: 0.05em; margin-right: 12px;">THRIVENI</span>
+                <span style="color: #64748B; font-weight: 600; font-size: 7.5pt; text-transform: uppercase;">Technical Overhaul Report</span>
+            </div>
+            <div style="text-align: right; font-size: 7.5pt;">
+                <div style="font-weight: 800; color: #0B132B;">{{fallback job.jobNo "N/A"}}</div>
+                <div style="color: #64748B;">{{fallback report.reportNo "N/A"}}</div>
+            </div>
+        </div>
+
+        <div class="space-y-8 flex-1">
+            <!-- 08. PERFORMANCE & DISPATCH -->
+            <div class="space-y-6">
+                <div class="border-b-2 border-amber-600 pb-1">
+                    <h2 style="font-family: 'Montserrat','Inter',sans-serif; font-size: 13.5pt; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: #0B132B;">08. Performance &amp; Dispatch</h2>
+                </div>
+
+                <p style="font-size: 8pt; text-align: justify; line-height: 1.6; background: #F8FAFC; padding: 10px 12px; border-radius: 4px; border: 1px solid #E2E8F0; white-space: pre-line; color: #1E293B;">
+                    {{fallback report.workPerformed "No overhaul execution summary logged."}}
+                </p>
+
+                <div class="flex gap-4" style="height: 200px;">
+                    <div class="flex-1 border border-slate-200 rounded-lg overflow-hidden bg-slate-50 flex flex-col">
+                        <div class="bg-slate-100 p-2 font-bold text-center text-xs text-blue-900 uppercase">As-Received Condition</div>
+                        <div class="flex-1 flex items-center justify-center bg-white p-2">
+                            {{#if inspectionPhoto}}
+                                <img src="{{inspectionPhoto}}" alt="Initial State" class="max-h-full max-w-full object-contain" />
+                            {{else}}
+                                <span class="text-slate-400 text-xs italic">No photo available</span>
+                            {{/if}}
+                        </div>
+                    </div>
+                    <div class="flex-1 border border-slate-200 rounded-lg overflow-hidden bg-slate-50 flex flex-col">
+                        <div class="bg-slate-100 p-2 font-bold text-center text-xs text-blue-900 uppercase">Rebuilt & Certified State</div>
+                        <div class="flex-1 flex items-center justify-center bg-white p-2">
+                            {{#if testingPhoto}}
+                                <img src="{{testingPhoto}}" alt="Certified State" class="max-h-full max-w-full object-contain" />
+                            {{else}}
+                                <span class="text-slate-400 text-xs italic">No photo available</span>
+                            {{/if}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 09. CONCLUSION & RECOMMENDATIONS -->
+            <div class="space-y-6 mt-8">
+                <div class="border-b-2 border-amber-600 pb-1">
+                    <h2 style="font-family: 'Montserrat','Inter',sans-serif; font-size: 13.5pt; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: #0B132B;">09. Conclusion &amp; Recommendations</h2>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="bg-emerald-50/50 border border-emerald-200 rounded-xl p-6">
+                        <div class="mb-2">
+                            <h3 class="text-xs font-black text-emerald-800 uppercase tracking-wider">Official Technical Verdict</h3>
+                        </div>
+                        <p class="text-xs font-semibold text-emerald-800 leading-relaxed whitespace-pre-line">{{fallback report.finalConclusion "Conclusion verdict not generated yet."}}</p>
+                    </div>
+
+                    <div class="bg-amber-50/50 border border-amber-200 rounded-xl p-6">
+                        <div class="mb-2">
+                            <h3 class="text-xs font-black text-amber-800 uppercase tracking-wider">Preventive Maintenance Recommendations</h3>
+                        </div>
+                        <p class="text-xs font-semibold text-amber-800 leading-relaxed whitespace-pre-line">{{fallback report.recommendations "No recommendations recorded."}}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-12 flex justify-between px-10">
+                <div class="text-center">
+                    <div class="w-48 border-b border-slate-400 mb-2 h-10"></div>
+                    <div class="font-bold text-slate-800">Technician</div>
+                </div>
+                <div class="text-center">
+                    <div class="w-48 border-b border-slate-400 mb-2 h-10"></div>
+                    <div class="font-bold text-slate-800">QA Inspector</div>
+                </div>
+                <div class="text-center">
+                    <div class="w-48 border-b border-slate-400 mb-2 h-10"></div>
+                    <div class="font-bold text-slate-800">Service Manager</div>
+                </div>
+            </div>
+        </div>
+        <div class="page-footer">
+            <div><strong>Thriveni Rebuild Center</strong> - Proprietary & Confidential</div>
+            <div>Generated {{formatDate ""}}</div>
+        </div>
+    </div>
+
+    <!-- PHOTO GALLERY PAGES (Optional) -->
+    {{#if report.categorizedPhotos}}
+    <div class="page flex flex-col px-10 py-8" style="padding-top: 32px; padding-bottom: 32px;">
+        <div class="page-header">
+            <div>
+                <span style="font-weight: 800; color: #0B132B; font-size: 11pt; letter-spacing: 0.05em; margin-right: 12px;">THRIVENI</span>
+                <span style="color: #64748B; font-weight: 600; font-size: 7.5pt; text-transform: uppercase;">Technical Overhaul Report</span>
+            </div>
+            <div style="text-align: right; font-size: 7.5pt;">
+                <div style="font-weight: 800; color: #0B132B;">{{fallback job.jobNo "N/A"}}</div>
+                <div style="color: #64748B;">{{fallback report.reportNo "N/A"}}</div>
+            </div>
+        </div>
+
+        <div class="space-y-6 flex-1">
+            <div class="border-b-2 border-amber-600 pb-1">
+                <h2 style="font-family: 'Montserrat','Inter',sans-serif; font-size: 13.5pt; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: #0B132B;">10. Photo Documentation</h2>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+                {{#each report.categorizedPhotos}}
+                <div class="border border-slate-200 rounded p-2 text-center page-break-inside-avoid">
+                    <img src="{{this.url}}" class="w-full h-48 object-cover mb-2 rounded" />
+                    <div class="text-[9pt] font-bold text-slate-700 uppercase">{{this.category}}</div>
+                    <div class="text-[7.5pt] text-slate-500">{{this.description}}</div>
+                </div>
+                {{/each}}
+            </div>
+        </div>
+        <div class="page-footer">
+            <div><strong>Thriveni Rebuild Center</strong> - Proprietary & Confidential</div>
+            <div>Generated {{formatDate ""}}</div>
+        </div>
+    </div>
+    {{/if}}
+
+</body>
+</html>`;
+
+fs.writeFileSync(templatePath, templateContent);
+console.log('Template generated at ' + templatePath);

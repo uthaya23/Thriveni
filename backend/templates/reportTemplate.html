@@ -1,1695 +1,667 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <title>Thriveni Rebuild Center Technical Overhaul Report</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap');
-
-        :root {
-            --primary-navy: #0B132B;
-            --secondary-blue: #1C2541;
-            --accent-gold: #D97706;
-            --accent-red: #B91C1C;
-            --accent-green: #047857;
-            --text-dark: #1E293B;
-            --text-muted: #64748B;
-            --border-color: #E2E8F0;
-            --bg-light: #F8FAFC;
-        }
-
-        @page {
-            size: A4;
-            margin-top: 10mm;
-            margin-bottom: 15mm;
-            margin-left: 0;
-            margin-right: 0;
-            @bottom-right {
-                content: "Page " counter(page);
-                font-family: 'Inter', sans-serif;
-                font-size: 8px;
-                font-weight: 500;
-                color: #64748B;
-                padding-right: 15mm;
-            }
-        }
-
-        @page :first {
-            margin-top: 0;
-            margin-bottom: 0;
-            @bottom-right {
-                content: "";
-            }
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
         body {
             font-family: 'Inter', 'Roboto', Arial, sans-serif;
-            color: var(--text-dark);
-            font-size: 8pt;
-            margin: 0;
-            padding: 0 15mm;
-            /* 🔥 Forces left and right margins directly on the body */
             background-color: #ffffff;
             -webkit-print-color-adjust: exact;
-            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
-        .report-table-wrapper {
-            width: 100%;
-            max-width: 100%;
-            border-collapse: collapse;
-        }
-
-        /* ── A4 BOX MODEL PAGE CONTAINER ── */
-        .page-container {
-            width: 100%;
-            height: 276.5mm;
-            /* ✅ Adjusted height to perfectly fit within the @page margins */
-            padding: 14mm 0 12mm 0;
-            /* Left/Right padding handled by body */
-            position: relative;
-            page-break-after: always;
-            box-sizing: border-box;
-            overflow: hidden;
+        .page {
+            width: 210mm;
+            min-height: 297mm;
             background-color: #ffffff;
-        }
-
-
-        .page-container:last-child {
-            page-break-after: avoid;
-        }
-
-        /* ── REPORT HEADER ── */
-        .report-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 2px solid var(--primary-navy);
-            padding-bottom: 3px;
-        }
-
-        .header-logo {
-            height: 24px;
-            display: block;
-        }
-
-        .header-meta {
-            text-align: right;
-            font-size: 7pt;
-            font-weight: 700;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .header-meta span {
-            margin-left: 15px;
-            display: inline-block;
-        }
-
-        .header-meta strong {
-            color: var(--primary-navy);
-        }
-
-        /* ── REPORT FOOTER ── */
-        .report-footer {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-top: 1px solid var(--border-color);
-            padding-top: 5px;
-            font-size: 6.5pt;
-            color: var(--text-muted);
-        }
-
-        /* ── SECTION HEADER ── */
-        .section-header {
-            font-family: 'Montserrat', 'Inter', 'Roboto', sans-serif;
-            color: var(--primary-navy);
-            padding: 0 0 4px 0;
-            font-weight: 800;
-            font-size: 13.5pt;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-            margin: 20px 0 10px 0;
-            border-bottom: 2px solid var(--accent-gold);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            page-break-inside: avoid;
-            page-break-after: avoid !important;
-            break-after: avoid !important;
-        }
-
-        /* Optional: If a section header is the very first thing on a page, remove the extra top margin so it aligns perfectly with the top edge */
-        .page-container>.section-header:first-child {
-            margin-top: 0;
-        }
-
-        .section-header span {
-            color: var(--text-muted);
-            font-size: 7pt;
-            font-weight: 500;
-        }
-
-        .sub-section-header {
-            font-family: 'Montserrat', 'Inter', 'Roboto', sans-serif;
-            font-weight: 700;
-            font-size: 8.5pt;
-            color: var(--secondary-blue);
-            margin: 14px 0 6px 0;
-            text-transform: uppercase;
-            letter-spacing: 0.03em;
-            border-bottom: 1px dashed var(--border-color);
-            padding-bottom: 2px;
-            page-break-inside: avoid;
-            page-break-after: avoid !important;
-            break-after: avoid !important;
-        }
-
-        .section-header,
-        table:not(.magic-table),
-        .assessment-container {
-            page-break-inside: avoid;
-        }
-
-        /* ── TABLES ── */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 12px;
-            table-layout: fixed;
-        }
-
-        th,
-        td {
-            border: 1px solid var(--border-color);
-            padding: 4px 6px;
-            text-align: left;
-            vertical-align: middle;
-            font-size: 7.5pt;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-        }
-
-        th {
-            background-color: var(--secondary-blue);
-            color: #ffffff;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.03em;
-        }
-
-        tr:nth-child(even) {
-            background-color: var(--bg-light);
-        }
-
-        .table-label {
-            width: 25%;
-            font-weight: 700;
-            background-color: var(--bg-light);
-            color: var(--secondary-blue);
-        }
-
-        .table-data {
-            font-weight: 600;
-        }
-
-        /* ── EXECUTIVE SUMMARY DASHBOARD ── */
-        .summary-dashboard {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin-bottom: 25px;
-            /* ✅ Increased spacing */
-        }
-
-        .dashboard-card {
-            background: #ffffff;
-            border: 1px solid var(--border-color);
-            border-left: 3px solid var(--accent-gold);
-            border-radius: 4px;
-            padding: 6px 8px;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
-        }
-
-        .dashboard-card.col-span-3 {
-            grid-column: span 3;
-        }
-
-        .dashboard-label {
-            font-size: 6pt;
-            font-weight: 700;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.03em;
-            margin-bottom: 2px;
-        }
-
-        .dashboard-val {
-            font-size: 8pt;
-            font-weight: 800;
-            color: var(--primary-navy);
-        }
-
-        .dashboard-val.badge-status {
-            color: var(--accent-green);
-        }
-
-        /* ── KPI GRID ── */
-        .kpi-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-bottom: 25px;
-            /* ✅ Increased spacing */
-        }
-
-        .kpi-card {
-            flex: 1 1 15%;
-            min-width: 90px;
-            background: var(--bg-light);
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            padding: 5px 6px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.01);
-        }
-
-        .kpi-card.highlight {
-            border-left: 3px solid var(--accent-gold);
-            background: #fffdf5;
-        }
-
-        .kpi-label {
-            font-size: 5.5pt;
-            font-weight: 700;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.02em;
-            margin-bottom: 2px;
-        }
-
-        .kpi-val {
-            font-size: 7.5pt;
-            font-weight: 800;
-            color: var(--primary-navy);
-        }
-
-        /* ── PHOTO GRID (BULLETPROOF PDF LAYOUT) ── */
-        .photo-grid {
-            display: block;
-            /* Removed flexbox */
-            width: 100%;
-            font-size: 0;
-            /* Removes microscopic spaces between inline blocks */
-            margin-bottom: 15px;
-        }
-
-        .photo-card {
-            display: inline-block;
-            vertical-align: top;
-            font-size: 7pt;
-            /* Restores font size */
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            background: #ffffff;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
-            margin-right: 1.5%;
-            margin-bottom: 12px;
+            position: relative;
             box-sizing: border-box;
-            page-break-inside: avoid;
-            /* 🔥 Stops images from slicing in half across pages */
-            overflow: hidden;
-        }
-
-        .photo-card.size-large {
-            width: 48%;
-            height: 380px;
-        }
-
-        .photo-card.size-medium {
-            width: 31%;
-            height: 350px;
-        }
-
-        .photo-card.size-portrait {
-            width: 31%;
-            height: 380px;
-        }
-
-        .photo-frame {
-            width: 100%;
-            height: calc(100% - 24px);
-            /* Reserves exact height for the caption below */
-            display: block;
-            background: #f0f0f0;
-            overflow: hidden;
-        }
-
-        .photo-frame img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            /* Ensures the image fills the box without stretching */
-            display: block;
-        }
-
-        .photo-caption {
-            height: 24px;
-            line-height: 24px;
-            padding: 0 4px;
-            font-weight: 700;
-            color: var(--text-muted);
-            text-align: center;
-            text-transform: uppercase;
-            letter-spacing: 0.02em;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            background: #ffffff;
-            border-top: 1px solid var(--border-color);
-            display: block;
-        }
-
-        /* ── FAILURE ASSESSMENT BLOCKS ── */
-        .assessment-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-bottom: 10px;
-        }
-
-        .assessment-card {
-            border-radius: 4px;
-            padding: 8px 10px;
-            display: flex;
-            flex-direction: column;
-            border: 1px solid var(--border-color);
-            min-height: 110px;
-            /* Force identical visual heights */
-        }
-
-        .assessment-card.root-cause {
-            background-color: #FEF2F2;
-            border-left: 4px solid var(--accent-red);
-            border-color: #FCA5A5;
-        }
-
-        .assessment-card.evidence {
-            background-color: #F0F9FF;
-            border-left: 4px solid #0284C7;
-            border-color: #93C5FD;
-        }
-
-        .assessment-card.impact {
-            background-color: #FFFBEB;
-            border-left: 4px solid var(--accent-gold);
-            border-color: #FCD34D;
-        }
-
-        .assessment-card.action {
-            background-color: #F0FDF4;
-            border-left: 4px solid var(--accent-green);
-            border-color: #6EE7B7;
-        }
-
-        .assessment-title {
-            font-size: 7.5pt;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.03em;
-            margin-bottom: 4px;
-        }
-
-        .assessment-card.root-cause .assessment-title {
-            color: #991B1B;
-        }
-
-        .assessment-card.evidence .assessment-title {
-            color: #075985;
-        }
-
-        .assessment-card.impact .assessment-title {
-            color: #92400E;
-        }
-
-        .assessment-card.action .assessment-title {
-            color: #166534;
-        }
-
-        .assessment-body {
-            font-size: 7pt;
-            color: var(--text-dark);
-            margin: 0;
-        }
-
-        /* ── TIMELINE ── */
-        .timeline {
-            position: relative;
-            margin: 10px 0;
-            padding-left: 24px;
-            border-left: 2px solid var(--border-color);
-        }
-
-        .timeline-item {
-            position: relative;
-            margin-bottom: 8px;
-        }
-
-        .timeline-item:last-child {
-            margin-bottom: 0;
-        }
-
-        .timeline-marker {
-            position: absolute;
-            left: -31px;
-            top: 2px;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background-color: var(--accent-gold);
-            border: 2px solid #ffffff;
-            box-shadow: 0 0 0 2px var(--border-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 7pt;
-            color: white;
-            font-weight: bold;
-        }
-
-        .timeline-item.active .timeline-marker {
-            background-color: var(--accent-green);
-            box-shadow: 0 0 0 2px var(--accent-green);
-        }
-
-        .timeline-marker::after {
-            content: "✓";
-            display: block;
-            margin-top: -1px;
-        }
-
-        .timeline-content {
-            background: var(--bg-light);
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            padding: 5px 8px;
-        }
-
-        .timeline-title {
-            font-weight: 700;
-            font-size: 7.5pt;
-            color: var(--primary-navy);
-            margin: 0 0 1px 0;
-        }
-
-        .timeline-desc {
-            font-size: 7pt;
-            color: var(--text-dark);
-            margin: 0;
-        }
-
-        /* ── CONCLUSION & RECOMMENDATIONS BOXES ── */
-        .conclusion-box {
-            background-color: #ECFDF5;
-            border: 1px solid #A7F3D0;
-            border-left: 5px solid var(--accent-green);
-            border-radius: 4px;
-            padding: 10px;
-            margin-bottom: 10px;
-        }
-
-        .conclusion-title {
-            font-size: 8pt;
-            font-weight: 800;
-            color: var(--accent-green);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin: 0 0 4px 0;
-        }
-
-        .recommendation-box {
-            background-color: #FFFBEB;
-            border: 1px solid #FEF3C7;
-            border-left: 5px solid var(--accent-gold);
-            border-radius: 4px;
-            padding: 10px;
-            margin-bottom: 10px;
-        }
-
-        .recommendation-title {
-            font-size: 8pt;
-            font-weight: 800;
-            color: var(--accent-gold);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin: 0 0 4px 0;
-        }
-
-        .badge-fail {
-            color: var(--accent-red);
-            font-weight: 800;
-        }
-
-        .badge-pass {
-            color: var(--accent-green);
-            font-weight: 800;
-        }
-
-        .bullet-list {
-            margin: 0;
-            padding-left: 15px;
-        }
-
-        .bullet-list li {
-            margin-bottom: 3px;
-        }
-
-        /* ── COVER PAGE SPECIFIC ── */
-        .cover-top {
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 4px solid var(--accent-gold);
-            padding-bottom: 12px;
-        }
-
-        .cover-logo-main {
-            height: 38px;
-        }
-
-        .cover-org-info {
-            text-align: right;
-            font-size: 8pt;
-            font-weight: 800;
-            color: var(--primary-navy);
-            letter-spacing: 0.08em;
-        }
-
-        .cover-org-sub {
-            font-size: 6.5pt;
-            color: var(--text-muted);
-            letter-spacing: 0.05em;
-        }
-
-        .cover-middle {
-            width: 100%;
-            text-align: center;
-            margin: 20px 0;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .cover-title {
-            font-size: 19pt;
-            font-weight: 800;
-            color: var(--primary-navy);
-            letter-spacing: -0.02em;
-            line-height: 1.15;
-            margin-bottom: 4px;
-        }
-
-        .cover-subtitle {
-            font-size: 9.5pt;
-            font-weight: 600;
-            color: var(--accent-gold);
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            margin-bottom: 15px;
-        }
-
-        .cover-img-container {
-            width: 100%;
-            max-width: 460px;
-            height: 230px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            background: #ffffff;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            margin: 0 auto 15px auto;
-        }
-
-        .cover-img-container img {
-            max-width: 95%;
-            max-height: 95%;
-            object-fit: contain;
-        }
-
-        .cover-no-img {
-            color: var(--text-muted);
-            font-size: 8pt;
-            font-weight: 500;
-            font-style: italic;
-        }
-
-        .cover-card {
-            width: 100%;
-            max-width: 480px;
-            background: #ffffff;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+            page-break-after: always;
             margin: 0 auto;
         }
 
-        .cover-card-title {
-            font-size: 8pt;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--secondary-blue);
-            border-bottom: 1.5px solid var(--accent-gold);
-            padding-bottom: 3px;
-            margin-bottom: 8px;
-            text-align: left;
+        .page:last-child {
+            page-break-after: auto;
         }
 
-        .cover-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            text-align: left;
+        .bg-cover-page {
+            background: radial-gradient(circle at 10% 20%, rgba(255,255,255,1) 0%, rgba(245,247,250,1) 90%);
         }
 
-        .cover-item {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .cover-item-label {
-            font-size: 6.5pt;
-            font-weight: 700;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            margin-bottom: 1px;
-        }
-
-        .cover-item-value {
-            font-size: 8pt;
-            font-weight: 700;
-            color: var(--primary-navy);
-        }
-
-        .cover-bottom-layout {
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            border-top: 1px solid var(--border-color);
-            padding-top: 12px;
-        }
-
-        .cover-bottom-text {
-            font-size: 6.5pt;
-            font-weight: 600;
-            color: var(--text-muted);
-            letter-spacing: 0.03em;
-            text-align: left;
-            line-height: 1.3;
-        }
-
-        .cover-bottom-text strong {
-            color: var(--primary-navy);
-        }
-
-        .cover-qr-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-size: 5.5pt;
-            font-weight: 700;
-            color: var(--text-muted);
-            text-transform: uppercase;
-        }
-
-        .cover-qr-img {
-            width: 48px;
-            height: 48px;
-            margin-bottom: 2px;
-            border: 1px solid var(--border-color);
-            border-radius: 3px;
-            padding: 1px;
-            background: #fff;
-        }
-
-        /* ── CERTIFICATE SPECIFIC ── */
-        .cert-border {
-            width: 100%;
-            height: 100%;
-            border: 8px double var(--primary-navy);
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: center;
-            text-align: center;
-            position: relative;
-        }
-
-        .cert-header {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .cert-logo {
-            height: 30px;
-            margin-bottom: 8px;
-        }
-
-        .cert-org {
-            font-size: 10pt;
-            font-weight: 800;
-            color: var(--primary-navy);
-            letter-spacing: 0.05em;
-            margin-bottom: 2px;
-        }
-
-        .cert-facility {
-            font-size: 7.5pt;
-            font-weight: 600;
-            color: var(--text-muted);
-            letter-spacing: 0.03em;
-        }
-
-        .cert-title-block {
-            margin: 15px 0;
-        }
-
-        .cert-main-title {
-            font-size: 16pt;
-            font-weight: 800;
-            color: var(--primary-navy);
-            letter-spacing: 0.08em;
-            border-bottom: 2px solid var(--accent-gold);
-            padding-bottom: 4px;
-            display: inline-block;
-        }
-
-        .cert-sub-title {
-            font-size: 8pt;
-            font-weight: 700;
-            color: var(--accent-gold);
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            margin-top: 4px;
-        }
-
-        .cert-body-text {
-            font-size: 9pt;
-            line-height: 1.5;
-            color: var(--text-dark);
-            max-width: 500px;
-            margin: 10px auto;
-        }
-
-        .cert-details-table {
-            width: 100%;
-            max-width: 440px;
-            margin: 10px auto;
+        table {
             border-collapse: collapse;
         }
-
-        .cert-details-table td {
-            border: 1px solid var(--border-color);
-            padding: 5px 8px;
-            font-size: 7.5pt;
-        }
-
-        .cert-details-table td.label {
-            font-weight: 700;
-            background-color: var(--bg-light);
-            color: var(--secondary-blue);
-            width: 40%;
-            text-align: right;
-        }
-
-        .cert-details-table td.val {
-            font-weight: 700;
-            color: var(--primary-navy);
-            text-align: left;
-        }
-
-        .cert-status-badge {
-            display: inline-block;
-            background-color: #d1fae5;
-            color: #065f46;
-            border: 1.5px solid #34d399;
-            border-radius: 3px;
-            font-size: 9pt;
-            font-weight: 800;
-            padding: 4px 12px;
-            letter-spacing: 0.05em;
-            margin: 10px 0;
-            text-transform: uppercase;
-        }
-
-        .cert-signatures {
-            width: 100%;
+        
+        .page-header {
             display: flex;
             justify-content: space-between;
-            margin-top: 15px;
-            padding: 0 10px;
-        }
-
-        .cert-sig-box {
-            width: 130px;
-            display: flex;
-            flex-direction: column;
             align-items: center;
+            border-bottom: 2px solid #0B132B;
+            padding-bottom: 3px;
+            margin-bottom: 20px;
         }
-
-        .cert-sig-line {
-            width: 100%;
-            border-top: 1px solid var(--text-muted);
-            margin-bottom: 3px;
-        }
-
-        .cert-sig-title {
-            font-weight: 800;
+        
+        .page-footer {
+            margin-top: auto;
+            border-top: 1px solid #E2E8F0;
+            padding-top: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             font-size: 7pt;
-            color: var(--primary-navy);
-        }
-
-        .cert-sig-dept {
-            font-size: 6pt;
-            color: var(--text-muted);
-        }
-
-        .cert-badge-floating {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .cert-badge-qr {
-            width: 40px;
-            height: 40px;
-            border: 1px dashed var(--border-color);
-            padding: 1px;
-            margin-bottom: 2px;
+            color: #94A3B8;
         }
     </style>
 </head>
+<body class="text-slate-800 text-[8pt]">
 
-<body>
-
-    <!-- ───────────────────────────────────────────────────────────────── -->
-    <!-- PAGE 1: COVER PAGE -->
-    <!-- ───────────────────────────────────────────────────────────────── -->
-    <div class="page-container"
-        style="background: radial-gradient(circle at 10% 20%, rgba(255,255,255,1) 0%, rgba(245,247,250,1) 90%);">
-        <div class="cover-page">
-            <div class="cover-top"
-                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                {{#if headerLogo}}
-                <img src="{{headerLogo}}" style="height:45px;" alt="Logo">
-                {{else}}
-                <div style="font-weight:800; font-size:24pt; color:var(--primary-navy); letter-spacing:0.05em;">THRIVENI
-                </div>
-                {{/if}}
-                <div
-                    style="text-align: right; font-size: 8pt; color: var(--primary-navy); font-weight: 700; line-height: 1.2;">
-                    THRIVENI REBUILD CENTER<br>
-                    <span style="font-size: 6.5pt; font-weight: 600; color: var(--text-muted);">REBUILD & QUALITY FACILITY</span>
-                </div>
+    <!-- PAGE 1: COVER -->
+    <div class="page bg-cover-page flex flex-col px-14 py-10" style="padding-top: 40px; padding-bottom: 40px;">
+        <div class="flex justify-between items-center mb-2">
+            <!-- For logo, we use an absolute URL or inline base64 if it's broken, but standard /logo.png won't work in puppeteer without base URL. So we will just use a generic or empty logo space if not found, or use the actual URL if provided -->
+            <div style="font-size: 16pt; font-weight: 800; color: #D97706; font-family: 'Montserrat', sans-serif;">THRIVENI</div>
+            <div class="text-right text-[8pt] text-[#0B132B] font-bold leading-tight">
+                THRIVENI REBUILD CENTER<br />
+                <span class="text-[6.5pt] font-semibold text-slate-500">REBUILD & QUALITY FACILITY</span>
             </div>
-            <div style="border-bottom: 4px solid #E58200; margin-bottom: 36px;"></div>
+        </div>
+        <div class="border-b-[4px] border-[#E58200] mb-12"></div>
 
-            <div class="cover-main-title"
-                style="margin-bottom:16px; font-size:14pt; font-weight:600; color:#D97706; text-align:center; text-transform:uppercase; letter-spacing:0.08em; font-family: 'Montserrat', 'Inter', sans-serif;">
-                Technical Overhaul Report</div>
-            <div class="cover-title"
-                style="margin-bottom:12px; font-size:28pt; font-weight:800; color:var(--primary-navy); text-align:center; line-height: 1.15; font-family: 'Montserrat', 'Inter', sans-serif;">
-                Industrial Rebuild Report</div>
-            <div class="cover-subtitle"
-                style="font-size:12pt; font-weight:500; color:var(--text-muted); margin-bottom:32px; text-transform:uppercase; letter-spacing:0.03em; text-align:center; font-family: 'Inter', sans-serif;">
-                {{fallback job.equipmentModel 'N/A'}} — {{fallback job.description 'N/A'}}
-            </div>
+        <div class="text-center mb-4 text-[14pt] font-semibold text-[#D97706] uppercase tracking-[0.08em]" style="font-family: 'Montserrat', 'Inter', sans-serif">Technical Overhaul Report</div>
+        <div class="text-center mb-3 text-[28pt] font-extrabold text-[#0B132B] leading-tight" style="font-family: 'Montserrat', 'Inter', sans-serif">Industrial Rebuild Report</div>
+        <div class="text-center mb-8 text-[12pt] font-medium text-slate-500 uppercase tracking-[0.03em]" style="font-family: 'Inter', sans-serif">
+            {{fallback job.equipmentModel "N/A"}} — {{fallback job.description "N/A"}}
+        </div>
 
-            <div class="cover-img-container"
-                style="margin:0 auto; width:500px; margin-bottom:24px; border: 1px solid var(--border-color); border-radius: 8px; padding: 4px; background: #fff; height: 350px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
-                {{#if beforePhoto}}
-                <img src="{{beforePhoto}}" alt="Equipment Preview"
-                    style="max-width:100%; max-height:100%; object-fit:contain;">
-                {{else}}
-                <div class="cover-no-img">No initial equipment image available</div>
-                {{/if}}
-            </div>
-
-            <div class="cover-card"
-                style="border: 1px solid var(--border-color); border-radius: 8px; padding: 12px 16px; margin: 0 auto; width: 600px; background: #fff;">
-                <div
-                    style="font-weight:800; font-size: 9pt; color: var(--primary-navy); margin-bottom:6px; text-transform: uppercase;">
-                    Job & Report Registry</div>
-                <div style="border-bottom: 2px solid #E58200; margin-bottom: 12px;"></div>
-                <table style="width:100%; border-collapse:collapse; font-size: 8.5pt;">
-                    <tr>
-                        <td style="width: 50%; padding-bottom: 12px; border: none;">
-                            <div
-                                style="color: var(--text-muted); font-size: 7pt; font-weight: 600; text-transform: uppercase; margin-bottom: 2px;">
-                                Job Reference No</div>
-                            <div style="font-weight: 800; color: var(--primary-navy); font-size: 9pt;">{{job.jobNo}}
-                            </div>
-                        </td>
-                        <td style="width: 50%; padding-bottom: 12px; border: none;">
-                            <div
-                                style="color: var(--text-muted); font-size: 7pt; font-weight: 600; text-transform: uppercase; margin-bottom: 2px;">
-                                Report Number</div>
-                            <div style="font-weight: 800; color: var(--primary-navy); font-size: 9pt;">
-                                {{report.reportNo}}</div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="width: 50%; padding-bottom: 12px; border: none;">
-                            <div
-                                style="color: var(--text-muted); font-size: 7pt; font-weight: 600; text-transform: uppercase; margin-bottom: 2px;">
-                                Component Serial No</div>
-                            <div style="font-weight: 800; color: var(--primary-navy); font-size: 9pt;">{{fallback
-                                job.serialNumber 'N/A'}}</div>
-                        </td>
-                        <td style="width: 50%; padding-bottom: 12px; border: none;">
-                            <div
-                                style="color: var(--text-muted); font-size: 7pt; font-weight: 600; text-transform: uppercase; margin-bottom: 2px;">
-                                Model / Part No</div>
-                            <div style="font-weight: 800; color: var(--primary-navy); font-size: 9pt;">{{fallback
-                                job.equipmentModel 'N/A'}} / {{fallback job.partNumber 'N/A'}}</div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="width: 50%; border: none;">
-                            <div
-                                style="color: var(--text-muted); font-size: 7pt; font-weight: 600; text-transform: uppercase; margin-bottom: 2px;">
-                                Customer / Site</div>
-                            <div style="font-weight: 800; color: var(--primary-navy); font-size: 9pt;">{{fallback
-                                job.receivedFrom 'N/A'}}</div>
-                        </td>
-                        <td style="width: 50%; border: none;">
-                            <div
-                                style="color: var(--text-muted); font-size: 7pt; font-weight: 600; text-transform: uppercase; margin-bottom: 2px;">
-                                Revision / Date</div>
-                            <div style="font-weight: 800; color: var(--primary-navy); font-size: 9pt;">Rev.
-                                {{revisionNo}} / {{today}}</div>
-                        </td>
-                    </tr>
-                </table>
-            </div>
-
-
-            {{#if qrCode}}
-            <div style="text-align:center;">
-                <img src="{{qrCode}}" alt="QR Code" style="width:45px; height:auto; margin-bottom: 2px;" />
-                <div style="font-size:5.5pt; font-weight: 700; color: var(--primary-navy);">SCAN JOB HISTORY</div>
-            </div>
+        <div class="mx-auto w-[500px] mb-8 border border-slate-200 rounded-lg p-1 bg-white h-[350px] relative flex items-center justify-center overflow-hidden">
+            {{#if report.headerLogo}}
+                <img src="{{report.headerLogo}}" alt="Equipment Preview" class="max-w-full max-h-full object-contain" />
+            {{else}}
+                <div class="text-slate-400 italic text-sm">No initial equipment image available</div>
             {{/if}}
         </div>
-        <!-- FOOTER -->
-        <div class="report-footer" style="border-top: none; position: absolute; bottom: 12mm; left: 15mm; right: 15mm; font-family: 'Inter', sans-serif; font-size: 8px; font-weight: 500;">
-            <span>CONFIDENTIAL • THRIVENI EARTHMOVERS &amp; INFRA PRIVATE LIMITED</span>
+
+        <div class="mx-auto w-[600px] border border-slate-200 rounded-lg py-3 px-4 bg-white shadow-sm mt-auto mb-10">
+            <div class="font-extrabold text-[9pt] text-[#0B132B] mb-1.5 uppercase">Job & Report Registry</div>
+            <div class="border-b-[2px] border-[#E58200] mb-3"></div>
+            <table class="w-full text-[8.5pt]">
+                <tbody>
+                    <tr>
+                        <td class="w-1/2 pb-3">
+                            <div class="text-slate-500 text-[7pt] font-semibold uppercase mb-0.5">Job Reference No</div>
+                            <div class="font-extrabold text-[#0B132B] text-[9pt]">{{fallback job.jobNo "N/A"}}</div>
+                        </td>
+                        <td class="w-1/2 pb-3">
+                            <div class="text-slate-500 text-[7pt] font-semibold uppercase mb-0.5">Report Number</div>
+                            <div class="font-extrabold text-[#0B132B] text-[9pt]">{{fallback report.reportNo "N/A"}}</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="w-1/2 pb-3">
+                            <div class="text-slate-500 text-[7pt] font-semibold uppercase mb-0.5">Component Serial No</div>
+                            <div class="font-extrabold text-[#0B132B] text-[9pt]">{{fallback job.serialNumber "N/A"}}</div>
+                        </td>
+                        <td class="w-1/2 pb-3">
+                            <div class="text-slate-500 text-[7pt] font-semibold uppercase mb-0.5">Model / Part No</div>
+                            <div class="font-extrabold text-[#0B132B] text-[9pt]">{{fallback job.partNumber "N/A"}}</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="w-1/2 pb-3">
+                            <div class="text-slate-500 text-[7pt] font-semibold uppercase mb-0.5">Received Date</div>
+                            <div class="font-extrabold text-[#0B132B] text-[9pt]">{{formatDate report.createdAt}}</div>
+                        </td>
+                        <td class="w-1/2 pb-3">
+                            <div class="text-slate-500 text-[7pt] font-semibold uppercase mb-0.5">Dispatch / Release Date</div>
+                            <div class="font-extrabold text-[#0B132B] text-[9pt]">Pending QA Signoff</div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
-    <!-- ───────────────────────────────────────────────────────────────── -->
-    <!-- CONTINUOUS FLOW CONTENT (PAGES 2-11) -->
-    <!-- ───────────────────────────────────────────────────────────────── -->
-    <table class="magic-table" style="width: 100%; border: none; border-collapse: collapse; margin: 0; padding: 0;">
-        <thead style="display: table-header-group;">
-            <tr>
-                <td style="border: none; padding: 0 0 10mm 0; background: transparent;">
-                    <div class="report-header">
-                        {{#if headerLogo}}
-                        <img src="{{headerLogo}}" class="header-logo">
-                        {{else}}
-                        <div style="font-weight: 800; font-size: 11pt; color: var(--primary-navy);">THRIVENI RC</div>
-                        {{/if}}
-                        <div class="header-meta">
-                            <span>JOB NO: <strong>{{job.jobNo}}</strong></span>
-                            <span>REPORT: <strong>{{report.reportNo}}</strong></span>
-                            <span>REV: <strong>{{revisionNo}}</strong></span>
-                        </div>
-                    </div>
-                </td>
-            </tr>
-        </thead>
-        <tfoot style="display: table-footer-group;">
-            <tr>
-                <td style="border: none; padding: 10mm 0 0 0; background: transparent;">
-                    <div class="report-footer">
-                        <span>CONFIDENTIAL • THRIVENI EARTHMOVERS & INFRA PRIVATE LIMITED</span>
-                    </div>
-                </td>
-            </tr>
-        </tfoot>
-        <tbody style="display: table-row-group;">
-            <tr>
-                <td style="border: none; padding: 0; background: transparent;">
-                    <!-- ───────────────────────────────────────────────────────────────── -->
-                    <!-- PAGE 2: JOB OVERVIEW & EXECUTIVE SUMMARY -->
-                    <!-- ───────────────────────────────────────────────────────────────── -->
+    <!-- PAGE 2: EXECUTIVE SUMMARY & JOB INFO -->
+    <div class="page flex flex-col px-10 py-8" style="padding-top: 32px; padding-bottom: 32px;">
+        <div class="page-header">
+            <div>
+                <span style="font-weight: 800; color: #0B132B; font-size: 11pt; letter-spacing: 0.05em; margin-right: 12px;">THRIVENI</span>
+                <span style="color: #64748B; font-weight: 600; font-size: 7.5pt; text-transform: uppercase;">Technical Overhaul Report</span>
+            </div>
+            <div style="text-align: right; font-size: 7.5pt;">
+                <div style="font-weight: 800; color: #0B132B;">{{fallback job.jobNo "N/A"}}</div>
+                <div style="color: #64748B;">{{fallback report.reportNo "N/A"}}</div>
+            </div>
+        </div>
 
+        <div class="space-y-8 flex-1">
+            <!-- 01. EXECUTIVE SUMMARY -->
+            <div>
+                <div class="border-b-2 border-amber-600 pb-1 mb-4">
+                    <h2 style="font-family: 'Montserrat','Inter',sans-serif; font-size: 13.5pt; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: #0B132B;">01. Executive Summary</h2>
+                </div>
+                <p style="font-size: 8pt; text-align: justify; line-height: 1.6; background: #F8FAFC; padding: 10px 12px; border-radius: 4px; border: 1px solid #E2E8F0; white-space: pre-line; color: #1E293B;">{{fallback report.executiveSummary "No executive summary details recorded."}}</p>
+            </div>
 
-                    <div class="section-header">
-                        01. Executive Summary
-                    </div>
+            <!-- 02. JOB INFORMATION -->
+            <div class="space-y-4">
+                <div class="border-b-2 border-amber-600 pb-1">
+                    <h2 style="font-family: 'Montserrat','Inter',sans-serif; font-size: 13.5pt; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: #0B132B;">02. Job Information</h2>
+                </div>
 
-                    <div style="text-align: justify; margin-bottom: 12px; font-size: 8pt; background: var(--bg-light); padding: 10px 12px; border-radius: 4px; border: 1px solid var(--border-color); line-height: 1.6;">
-                        {{{editable 'report.executiveSummary' report.executiveSummary 'Executive summary details are not recorded.'}}}
-                    </div>
-                    <div class="section-header" style="margin-top: 14px;">
-                        02. Job Information
-                    </div>
-
-                    <div class="sub-section-header">2.1 Component Technical Registry</div>
-                    <table style="margin-bottom: 0;">
-                        <tr>
-                            <td class="table-label">Description</td>
-                            <td class="table-data">{{fallback job.description 'N/A'}}</td>
-                            <td class="table-label">Serial Number</td>
-                            <td class="table-data">{{fallback job.serialNumber 'N/A'}}</td>
-                        </tr>
-                        <tr>
-                            <td class="table-label">Equipment Model</td>
-                            <td class="table-data">{{fallback job.equipmentModel 'N/A'}}</td>
-                            <td class="table-label">Part Number</td>
-                            <td class="table-data">{{fallback job.partNumber 'N/A'}}</td>
-                        </tr>
-                        <tr>
-                            <td class="table-label">Sub Assembly Make</td>
-                            <td class="table-data">{{fallback job.subAssemblyMake 'N/A'}}</td>
-                            <td class="table-label">Purchase Order (PO)</td>
-                            <td class="table-data">{{fallback job.orderNumber 'N/A'}}</td>
-                        </tr>
-                        <tr>
-                            <td class="table-label">Initial Site Complaints</td>
-                            <td colspan="3" class="table-data" style="color: var(--accent-red); font-weight: 700;">
-                                {{fallback job.siteComplaints 'No site complaints recorded.'}}</td>
-                        </tr>
-                    </table>
-
-                    <div class="sub-section-header" style="margin-top: 8px;">2.2 Component Hours & Installation
-                        Details</div>
-                    <table style="margin-bottom: 0;">
-                        <tr>
-                            <td class="table-label">Installed Hour</td>
-                            <td class="table-data">{{fallback job.installedHour 'N/A'}}</td>
-                            <td class="table-label">Installed Date</td>
-                            <td class="table-data">{{fallback job.installedDate 'N/A'}}</td>
-                        </tr>
-                        <tr>
-                            <td class="table-label">Removal Hour</td>
-                            <td class="table-data">{{fallback job.removalHour 'N/A'}}</td>
-                            <td class="table-label">Removal Date</td>
-                            <td class="table-data">{{fallback job.removalDate 'N/A'}}</td>
-                        </tr>
-                        <tr>
-                            <td class="table-label">Life Hour</td>
-                            <td colspan="3" class="table-data">{{fallback job.lifeHour 'N/A'}}</td>
-                        </tr>
-                    </table>
-
-                    {{#if isWheelMotor}}
-                    <div class="sub-section-header" style="margin-top: 8px;">2.3 Wheel Motor Technical Registry</div>
-                    <table style="margin-bottom: 0;">
-                        <tr>
-                            <td class="table-label">Final Drive Number</td>
-                            <td class="table-data">{{fallback job.finalDriveNo 'N/A'}}</td>
-                            <td class="table-label">Final Drive Model</td>
-                            <td class="table-data">{{fallback job.finalDriveModel 'N/A'}}</td>
-                        </tr>
-                    </table>
-                    {{/if}}
-
-                    <div class="sub-section-header" style="margin-top: 8px;">2.4 Repair Scope Summary</div>
-                    <table style="margin-bottom: 0;">
-                        <thead>
+                <!-- 2.1 Component Technical Registry -->
+                <div>
+                    <h3 style="font-family: 'Montserrat','Inter',sans-serif; font-size: 8.5pt; font-weight: 700; color: #1C2541; margin: 14px 0 6px 0; text-transform: uppercase; letter-spacing: 0.03em; border-bottom: 1px dashed #E2E8F0; padding-bottom: 2px;">2.1 Component Technical Registry</h3>
+                    <table class="w-full border border-slate-200" style="font-size: 7.5pt; font-family: 'Inter', sans-serif">
+                        <tbody class="divide-y divide-slate-200">
                             <tr>
-                                <th style="width: 28%;">Scope Area</th>
-                                <th style="width: 38%;">Work Description</th>
-                                <th style="width: 14%; text-align: center;">Status</th>
-                                <th style="width: 20%; text-align: center;">Completion</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td style="font-weight: 700; color: var(--secondary-blue);">Mechanical Overhaul</td>
-                                <td>Shaft journal reclamation, bearing replacement, housing cleaning and alignment</td>
-                                <td style="text-align: center;"><span class="badge-pass">COMPLETE</span></td>
-                                <td style="text-align: center;">{{dates.assemblyDate}}</td>
+                                <td class="p-2 font-bold bg-slate-50 text-slate-600 w-1/4">Description</td>
+                                <td class="p-2 font-medium text-slate-800 w-1/4">{{fallback job.description "N/A"}}</td>
+                                <td class="p-2 font-bold bg-slate-50 text-slate-600 w-1/4">Serial Number</td>
+                                <td class="p-2 font-medium text-slate-800 w-1/4">{{fallback job.serialNumber "N/A"}}</td>
                             </tr>
                             <tr>
-                                <td style="font-weight: 700; color: var(--secondary-blue);">Electrical Reconditioning
-                                </td>
-                                <td>Thermal baking, double-dip varnish impregnation, winding re-varnishing and high-temp
-                                    curing</td>
-                                <td style="text-align: center;"><span class="badge-pass">COMPLETE</span></td>
-                                <td style="text-align: center;">{{dates.assemblyDate}}</td>
+                                <td class="p-2 font-bold bg-slate-50 text-slate-600">Equipment Model</td>
+                                <td class="p-2 font-medium text-slate-800">{{fallback job.equipmentModel "N/A"}}</td>
+                                <td class="p-2 font-bold bg-slate-50 text-slate-600">Part Number</td>
+                                <td class="p-2 font-medium text-slate-800">{{fallback job.partNumber "N/A"}}</td>
                             </tr>
                             <tr>
-                                <td style="font-weight: 700; color: var(--secondary-blue);">Insulation Resistance
-                                    Testing</td>
-                                <td>Pre and post-overhaul IR testing across all terminal pairs - all values exceed 1
-                                    MOhm minimum</td>
-                                <td style="text-align: center;"><span class="badge-pass">PASSED</span></td>
-                                <td style="text-align: center;">{{dates.testingDate}}</td>
+                                <td class="p-2 font-bold bg-slate-50 text-slate-600">Sub Assembly Make</td>
+                                <td class="p-2 font-medium text-slate-800">{{fallback job.subAssemblyMake "N/A"}}</td>
+                                <td class="p-2 font-bold bg-slate-50 text-slate-600">Purchase Order (PO)</td>
+                                <td class="p-2 font-medium text-slate-800">{{fallback job.orderNumber "N/A"}}</td>
                             </tr>
                             <tr>
-                                <td style="font-weight: 700; color: var(--secondary-blue);">Missing Parts Procurement
-                                </td>
-                                <td>Fan housings, impellers, carbon brushes, brush holders and cables sourced and
-                                    installed</td>
-                                <td style="text-align: center;"><span class="badge-pass">COMPLETE</span></td>
-                                <td style="text-align: center;">{{dates.assemblyDate}}</td>
+                                <td class="p-2 font-bold bg-slate-50 text-slate-600">Received From</td>
+                                <td class="p-2 font-medium text-slate-800">{{fallback job.receivedFrom "N/A"}}</td>
+                                <td class="p-2 font-bold bg-slate-50 text-slate-600">Date Received</td>
+                                <td class="p-2 font-medium text-slate-800">{{fallback job.dateReceived "N/A"}}</td>
                             </tr>
                             <tr>
-                                <td style="font-weight: 700; color: var(--secondary-blue);">Quality Certification</td>
-                                <td>Final air gap verification, load test sign-off by QA Inspector
-                                </td>
-                                <td style="text-align: center;"><span class="badge-pass">CERTIFIED</span></td>
-                                <td style="text-align: center;">{{dates.testingDate}}</td>
+                                <td class="p-2 font-bold bg-slate-50 text-slate-600">Site Complaints</td>
+                                <td colspan="3" class="p-2 font-semibold text-red-700">{{fallback job.siteComplaints "No site complaints recorded."}}</td>
                             </tr>
                         </tbody>
                     </table>
+                </div>
 
-
-                    <!-- ───────────────────────────────────────────────────────────────── -->
-                    <!-- STAGE 1: INCOMING INSPECTION -->
-                    <!-- ───────────────────────────────────────────────────────────────── -->
-                    <div class="section-header">
-                        03. As Received Condition
-                    </div>
-
-
-
-
-
-                    <div style="text-align: justify; margin-bottom: 12px; font-size: 7.5pt; line-height: 1.6; background: var(--bg-light); padding: 10px 12px; border-radius: 4px; border: 1px solid var(--border-color);">
-                        {{{editable 'report.visualInspectionSummary' report.visualInspectionSummary 'Incoming visual check details are compiled in the checklists below.'}}}
-                    </div>
-
-
-
-
-
-                    <div class="sub-section-header">3.2 Initial Insulation Resistance (IR) Profile</div>
-                    <table style="margin-bottom: 6px;">
-                        <thead>
+                <!-- 2.2 Component Hours & Installation Details -->
+                <div>
+                    <h3 style="font-family: 'Montserrat','Inter',sans-serif; font-size: 8.5pt; font-weight: 700; color: #1C2541; margin: 14px 0 6px 0; text-transform: uppercase; letter-spacing: 0.03em; border-bottom: 1px dashed #E2E8F0; padding-bottom: 2px;">2.2 Component Hours &amp; Installation Details</h3>
+                    <table class="w-full border border-slate-200" style="font-size: 7.5pt; font-family: 'Inter', sans-serif">
+                        <tbody class="divide-y divide-slate-200">
                             <tr>
-                                <th>Terminal Pair</th>
-                                <th style="width: 15%; text-align: center;">Applied Volts</th>
-                                <th style="width: 15%; text-align: center;">Std Value</th>
-                                <th style="width: 15%;">IR Value</th>
-                                <th style="width: 10%;">Unit</th>
-                                <th>Remarks / Assessment</th>
+                                <td class="p-2 font-bold bg-slate-50 text-slate-600 w-1/4">Installed Hour</td>
+                                <td class="p-2 font-medium text-slate-800 w-1/4">{{fallback job.installedHour "—"}}</td>
+                                <td class="p-2 font-bold bg-slate-50 text-slate-600 w-1/4">Installed Date</td>
+                                <td class="p-2 font-medium text-slate-800 w-1/4">{{fallback job.installedDate "—"}}</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 font-bold bg-slate-50 text-slate-600">Removal Hour</td>
+                                <td class="p-2 font-medium text-slate-800">{{fallback job.removalHour "—"}}</td>
+                                <td class="p-2 font-bold bg-slate-50 text-slate-600">Removal Date</td>
+                                <td class="p-2 font-medium text-slate-800">{{fallback job.removalDate "—"}}</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 font-bold bg-slate-50 text-slate-600">Life Hours</td>
+                                <td colspan="3" class="p-2 font-medium text-slate-800">{{fallback job.lifeHour "—"}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                {{#if isWheelMotor}}
+                <div>
+                    <h3 style="font-family: 'Montserrat','Inter',sans-serif; font-size: 8.5pt; font-weight: 700; color: #1C2541; margin: 14px 0 6px 0; text-transform: uppercase; letter-spacing: 0.03em; border-bottom: 1px dashed #E2E8F0; padding-bottom: 2px;">2.3 Wheel Motor Technical Registry</h3>
+                    <table class="w-full border border-slate-200" style="font-size: 7.5pt; font-family: 'Inter', sans-serif">
+                        <tbody class="divide-y divide-slate-200 text-slate-800">
+                            <tr>
+                                <td class="p-2 font-bold bg-slate-50 text-slate-600 w-1/4">Final Drive Number</td>
+                                <td class="p-2 font-medium w-1/4">{{fallback job.finalDriveNo "—"}}</td>
+                                <td class="p-2 font-bold bg-slate-50 text-slate-600 w-1/4">Final Drive Model</td>
+                                <td class="p-2 font-medium w-1/4">{{fallback job.finalDriveModel "—"}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                {{/if}}
+
+                <!-- 2.4 Repair Scope Summary -->
+                <div>
+                    <h3 style="font-family: 'Montserrat','Inter',sans-serif; font-size: 8.5pt; font-weight: 700; color: #1C2541; margin: 14px 0 6px 0; text-transform: uppercase; letter-spacing: 0.03em; border-bottom: 1px dashed #E2E8F0; padding-bottom: 2px;">2.4 Repair Scope Summary</h3>
+                    <table class="w-full border border-slate-200" style="font-size: 7.5pt; font-family: 'Inter', sans-serif">
+                        <thead class="bg-slate-100">
+                            <tr>
+                                <th class="p-2 font-bold text-slate-600 text-left w-1/4">Scope Area</th>
+                                <th class="p-2 font-bold text-slate-600 text-left">Work Description</th>
+                                <th class="p-2 font-bold text-slate-600 text-center w-20">Status</th>
+                                <th class="p-2 font-bold text-slate-600 text-center w-24">Completion</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="divide-y divide-slate-200">
+                            <tr>
+                                <td class="p-2 font-bold text-blue-900">Mechanical Overhaul</td>
+                                <td class="p-2 text-slate-700">Shaft journal reclamation, bearing replacement, housing cleaning and alignment</td>
+                                <td class="p-2 text-center"><span class="text-[10px] font-bold bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded border border-emerald-200">COMPLETE</span></td>
+                                <td class="p-2 text-center font-medium text-slate-600">{{formatDate job.assyDate}}</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 font-bold text-blue-900">Electrical Reconditioning</td>
+                                <td class="p-2 text-slate-700">Thermal baking, double-dip varnish impregnation, winding re-varnishing and high-temp curing</td>
+                                <td class="p-2 text-center"><span class="text-[10px] font-bold bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded border border-emerald-200">COMPLETE</span></td>
+                                <td class="p-2 text-center font-medium text-slate-600">{{formatDate job.assyDate}}</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 font-bold text-blue-900">Insulation Resistance Testing</td>
+                                <td class="p-2 text-slate-700">Pre and post-overhaul IR testing across all terminal pairs — all values exceed 1 MΩ minimum</td>
+                                <td class="p-2 text-center"><span class="text-[10px] font-bold bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded border border-emerald-200">PASSED</span></td>
+                                <td class="p-2 text-center font-medium text-slate-600">{{formatDate job.sendDate}}</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 font-bold text-blue-900">Quality Certification</td>
+                                <td class="p-2 text-slate-700">Final dimensional checks, air gap verification, load test sign-off by QA Inspector</td>
+                                <td class="p-2 text-center"><span class="text-[10px] font-bold bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded border border-blue-200">CERTIFIED</span></td>
+                                <td class="p-2 text-center font-medium text-slate-600">{{formatDate job.sendDate}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="page-footer">
+            <div><strong>Thriveni Rebuild Center</strong> - Proprietary & Confidential</div>
+            <div>Generated {{formatDate ""}}</div>
+        </div>
+    </div>
+
+    <!-- PAGE 3: AS RECEIVED CONDITION -->
+    <div class="page flex flex-col px-10 py-8" style="padding-top: 32px; padding-bottom: 32px;">
+        <div class="page-header">
+            <div>
+                <span style="font-weight: 800; color: #0B132B; font-size: 11pt; letter-spacing: 0.05em; margin-right: 12px;">THRIVENI</span>
+                <span style="color: #64748B; font-weight: 600; font-size: 7.5pt; text-transform: uppercase;">Technical Overhaul Report</span>
+            </div>
+            <div style="text-align: right; font-size: 7.5pt;">
+                <div style="font-weight: 800; color: #0B132B;">{{fallback job.jobNo "N/A"}}</div>
+                <div style="color: #64748B;">{{fallback report.reportNo "N/A"}}</div>
+            </div>
+        </div>
+
+        <div class="space-y-8 flex-1">
+            <!-- 03. AS RECEIVED CONDITION -->
+            <div class="space-y-6">
+                <div class="border-b-2 border-amber-600 pb-1">
+                    <h2 style="font-family: 'Montserrat','Inter',sans-serif; font-size: 13.5pt; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: #0B132B;">03. As Received Condition</h2>
+                </div>
+
+                <p style="font-size: 8pt; text-align: justify; line-height: 1.6; background: #F8FAFC; padding: 10px 12px; border-radius: 4px; border: 1px solid #E2E8F0; color: #1E293B;">
+                    {{fallback report.visualInspectionSummary "No visual inspection summary recorded."}}
+                </p>
+
+                <div>
+                    <h3 style="font-family: 'Montserrat','Inter',sans-serif; font-size: 8.5pt; font-weight: 700; color: #1C2541; margin: 14px 0 6px 0; text-transform: uppercase; letter-spacing: 0.03em; border-bottom: 1px dashed #E2E8F0; padding-bottom: 2px;">3.2 Initial Insulation Resistance (IR) Profile</h3>
+                    <table class="w-full border border-slate-200 text-left" style="font-size: 7.5pt; font-family: 'Inter', sans-serif">
+                        <thead class="bg-slate-100">
+                            <tr>
+                                <th class="p-2 font-bold text-slate-600">Terminal Pair</th>
+                                <th class="p-2 font-bold text-slate-600 text-center">Applied Volts</th>
+                                <th class="p-2 font-bold text-slate-600 text-center">Std Value</th>
+                                <th class="p-2 font-bold text-slate-600">IR Value</th>
+                                <th class="p-2 font-bold text-slate-600">Unit</th>
+                                <th class="p-2 font-bold text-slate-600">Remarks / Assessment</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200">
                             {{#each inspection.initialIrTests}}
                             {{#if this.groupHeader}}
-                            <tr>
-                                <td colspan="6" style="background:#f1f5f9; font-weight:800; font-size:7pt; color:#334155; text-transform:uppercase; padding-top:4px; padding-bottom:4px; border-top:1px solid #e2e8f0; border-bottom:1px solid #e2e8f0;">{{this.groupHeader}}</td>
+                            <tr class="bg-slate-50 font-bold">
+                                <td colspan="6" class="p-2 text-slate-700 uppercase tracking-wide">{{this.groupHeader}}</td>
                             </tr>
                             {{/if}}
                             <tr>
-                                <td style="font-weight: 700; font-family: 'JetBrains Mono', monospace; padding-left:16px;">{{fallback this.terminalDisplay this.terminal 'N/A'}}</td>
-                                <td style="text-align: center; font-weight: 600;">{{fallback this.appliedVoltage '—'}}</td>
-                                <td style="text-align: center; font-weight: 600;">&gt; 1</td>
-                                <td class="table-data" style="color: var(--accent-red);">{{fallback this.irValue 'N/A'}}</td>
-                                <td>{{fallback this.unit 'MΩ'}}</td>
-                                <td>{{fallback this.remarks 'Requires clean & re-varnish.'}}</td>
+                                <td class="p-2 pl-6 font-mono">{{or this.terminalDisplay this.terminal}}</td>
+                                <td class="p-2 text-center">{{fallback this.appliedVoltage "—"}}</td>
+                                <td class="p-2 text-center font-semibold">&gt; 1</td>
+                                <td class="p-2 text-red-600 font-bold">{{fallback this.irValue "N/A"}}</td>
+                                <td class="p-2">{{fallback this.unit "MΩ"}}</td>
+                                <td class="p-2 text-slate-500">{{fallback this.remarks "Requires clean & re-varnish."}}</td>
+                            </tr>
+                            {{else}}
+                            <tr>
+                                <td colspan="6" class="p-4 text-center text-slate-400 italic">No initial IR test data recorded.</td>
                             </tr>
                             {{/each}}
-                            {{#unless inspection.initialIrTests}}
-                            <tr>
-                                <td colspan="6" style="text-align: center; color: var(--text-muted); font-style: italic;">No initial IR testing data recorded.</td>
-                            </tr>
-                            {{/unless}}
                         </tbody>
                     </table>
+                </div>
 
-                    <div class="sub-section-header">3.3 Initial Winding Resistance Log</div>
-                    <table style="margin-bottom: 8px;">
-                        <thead>
+                <div>
+                    <h3 style="font-family: 'Montserrat','Inter',sans-serif; font-size: 8.5pt; font-weight: 700; color: #1C2541; margin: 14px 0 6px 0; text-transform: uppercase; letter-spacing: 0.03em; border-bottom: 1px dashed #E2E8F0; padding-bottom: 2px;">3.3 Initial Winding Resistance Log</h3>
+                    <table class="w-full border border-slate-200 text-left" style="font-size: 7.5pt; font-family: 'Inter', sans-serif">
+                        <thead class="bg-slate-100">
                             <tr>
-                                <th>Terminal Group</th>
-                                <th style="width: 20%;">Measured Value</th>
-                                <th style="width: 15%;">Unit</th>
-                                <th>Remarks / Deviation</th>
+                                <th class="p-2 font-bold text-slate-600">Terminal Group</th>
+                                <th class="p-2 font-bold text-slate-600">Std Value</th>
+                                <th class="p-2 font-bold text-slate-600">Measured (Ω)</th>
+                                <th class="p-2 font-bold text-slate-600">Remarks</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            {{#each inspection.initialResistanceTests}}
+                        <tbody class="divide-y divide-slate-200">
+                            {{#each inspection.initialWrTests}}
                             {{#if this.groupHeader}}
-                            <tr>
-                                <td colspan="4" style="background:#f1f5f9; font-weight:800; font-size:7pt; color:#334155; text-transform:uppercase; padding-top:4px; padding-bottom:4px; border-top:1px solid #e2e8f0; border-bottom:1px solid #e2e8f0;">{{this.groupHeader}}</td>
+                            <tr class="bg-slate-50 font-bold">
+                                <td colspan="4" class="p-2 text-slate-700 uppercase tracking-wide">{{this.groupHeader}}</td>
                             </tr>
                             {{/if}}
                             <tr>
-                                <td style="font-weight: 700; font-family: 'JetBrains Mono', monospace; padding-left:16px;">{{fallback this.terminalDisplay this.terminals 'N/A'}}</td>
-                                <td class="table-data">{{fallback this.value 'N/A'}}</td>
-                                <td>{{fallback this.unit 'Ω'}}</td>
-                                <td>{{fallback this.remarks 'Acceptable tolerance.'}}</td>
+                                <td class="p-2 pl-6 font-mono">{{this.terminalDisplay}}</td>
+                                <td class="p-2">{{this.standardValue}}</td>
+                                <td class="p-2 font-semibold text-slate-800">{{this.value}}</td>
+                                <td class="p-2 text-slate-500">{{this.remarks}}</td>
+                            </tr>
+                            {{else}}
+                            <tr>
+                                <td colspan="4" class="p-4 text-center text-slate-400 italic">No initial winding resistance data recorded.</td>
                             </tr>
                             {{/each}}
-                            {{#unless inspection.initialResistanceTests}}
-                            <tr>
-                                <td colspan="4" style="text-align: center; color: var(--text-muted); font-style: italic;">No initial winding resistance data recorded.</td>
-                            </tr>
-                            {{/unless}}
                         </tbody>
                     </table>
+                </div>
+            </div>
 
-                    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid #475569;border-radius:4px;padding:8px 10px;margin-bottom:10px;">
-                        <div style="font-size:7.5pt;font-weight:700;color:#1e293b;margin-bottom:4px;">Initial Electrical Assessment Summary</div>
-                        <div style="text-align: justify; font-size: 7.5pt; color: #334155; line-height: 1.5;">
-                            {{{editable 'report.electricalInspectionSummary' report.electricalInspectionSummary 'Initial electrical logging is tabulated above.'}}}
-                        </div>
-                    </div>
+            <!-- 04. DISMANTLING OBSERVATIONS -->
+            <div class="space-y-6">
+                <div class="border-b-2 border-amber-600 pb-1">
+                    <h2 style="font-family: 'Montserrat','Inter',sans-serif; font-size: 13.5pt; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: #0B132B;">04. Dismantling Observations</h2>
+                </div>
 
-                    {{#if dismantling}}
-                    <!-- ───────────────────────────────────────────────────────────────── -->
-                    <!-- STAGE 2: DISMANTLING & ANALYSIS -->
-                    <!-- ───────────────────────────────────────────────────────────────── -->
-                    <div class="section-header">
-                        04. Dismantling Observations
-                    </div>
-                    <div class="sub-section-header">4.1 Parts Integrity Assessment</div>
-                    {{#if report.partsConditionAnalysis}}
-                    <div style="text-align: justify; margin-bottom: 10px; font-size: 7.5pt; line-height: 1.6; background: var(--bg-light); padding: 10px 12px; border-radius: 4px; border: 1px solid var(--border-color);">
-                        {{report.partsConditionAnalysis}}
-                    </div>
-                    {{/if}}
+                <p style="font-size: 8pt; text-align: justify; line-height: 1.6; background: #F8FAFC; padding: 10px 12px; border-radius: 4px; border: 1px solid #E2E8F0; white-space: pre-line; color: #1E293B;">
+                    {{fallback report.partsConditionAnalysis "No dismantling parts analysis recorded."}}
+                </p>
 
-
-
-
-
-
-
-
-                    <div class="section-header">
-                        05. Engineering Assessment
-                    </div>
-
-                    <div class="assessment-container">
-                        <div class="assessment-card root-cause">
-                            <div class="assessment-title">1. Root Cause of Failure</div>
-                            <p class="assessment-body">{{{editable 'failureAnalysis.rootCause' failureAnalysis.rootCause 'No root cause failure
-                                analysis details compiled.'}}}</p>
-                        </div>
-                        <div class="assessment-card evidence">
-                            <div class="assessment-title">2. Observed Evidence</div>
-                            <p class="assessment-body">{{{editable 'failureAnalysis.evidence' failureAnalysis.evidence 'No physical or electrical
-                                evidence compiled.'}}}</p>
-                        </div>
-                        <div class="assessment-card impact">
-                            <div class="assessment-title">3. Reliability Impact</div>
-                            <p class="assessment-body">{{{editable 'failureAnalysis.impact' failureAnalysis.impact 'No system or component
-                                reliability impact defined.'}}}</p>
-                        </div>
-                        <div class="assessment-card action">
-                            <div class="assessment-title">4. Recommended Action</div>
-                            <p class="assessment-body">{{{editable 'failureAnalysis.recommendedAction' failureAnalysis.recommendedAction 'No corrective
-                                recommendations generated.'}}}</p>
-                        </div>
-                    </div>
-
-                    <div style="text-align: justify; font-size: 7.5pt; line-height: 1.45;">
-                        {{{editable 'report.workPerformed' report.workPerformed 'Overhaul execution and assembly work details are not recorded.'}}}
-                    </div>
-                    {{/if}}
-
-
-                    <!-- ───────────────────────────────────────────────────────────────── -->
-                    <!-- STAGE 3: REBUILD & ASSEMBLY -->
-                    <!-- ───────────────────────────────────────────────────────────────── -->
-
-                    {{#if assembly}}
-                    <div class="section-header">
-                        06. Rebuild & Assembly
-                    </div>
-
-                    {{#if report.assemblyDescription}}
-                    <div style="text-align: justify; margin-bottom: 10px; font-size: 7.5pt; line-height: 1.6; background: var(--bg-light); padding: 10px 12px; border-radius: 4px; border: 1px solid var(--border-color);">
-                        {{report.assemblyDescription}}
-                    </div>
-                    {{/if}}
-
-                    <div class="sub-section-header">6.1 Assembly Milestones Timeline</div>
-                    <div class="timeline">
-                        {{#each assembly.timeline}}
-                        <div class="timeline-item active">
-                            <div class="timeline-marker"></div>
-                            <div class="timeline-content">
-                                <h4 class="timeline-title">{{this.title}}</h4>
-                                <p class="timeline-desc">{{this.desc}}</p>
-                            </div>
+                {{#if dismantlingChecklist}}
+                <div>
+                    <h3 style="font-family: 'Montserrat','Inter',sans-serif; font-size: 8.5pt; font-weight: 700; color: #1C2541; margin: 14px 0 6px 0; text-transform: uppercase; letter-spacing: 0.03em; border-bottom: 1px dashed #E2E8F0; padding-bottom: 2px;">4.1 Dismantling Checklist Processed</h3>
+                    <div class="grid grid-cols-2 gap-2 bg-slate-50 p-4 rounded-lg border border-slate-200">
+                        {{#each dismantlingChecklist}}
+                        <div class="flex items-center gap-2 text-xs font-medium text-slate-700">
+                            <span class="text-emerald-500">✓</span>
+                            <span>{{this}}</span>
                         </div>
                         {{/each}}
                     </div>
-                    {{/if}}
-
-
-                        {{#if testing}}
-                        <div class="section-header">
-                            07. Test Results
-                        </div>
-
-                        {{#if report.testingSummary}}
-                        <div style="text-align: justify; margin-bottom: 10px; font-size: 7.5pt; line-height: 1.6; background: var(--bg-light); padding: 10px 12px; border-radius: 4px; border: 1px solid var(--border-color);">
-                            {{report.testingSummary}}
-                        </div>
-                        {{/if}}
-
-                        <div class="sub-section-header">7.1 IR Comparison (Before vs. After)</div>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Test Parameter</th>
-                                    <th style="width: 25%;">Before Repair</th>
-                                    <th style="width: 25%;">After Repair</th>
-                                    <th style="width: 20%; text-align: center;">Result</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {{{renderTestingComparisonTable inspection.initialIrTests testing.finalIrTests}}}
-                            </tbody>
-                        </table>
-
-
-
-                        {{#if testing.finalResistanceTests}}
-                        <div class="sub-section-header">7.3 Final Winding Resistance Log</div>
-                        <table style="margin-bottom: 0;">
-                            <thead>
-                                <tr>
-                                    <th>Terminal Group</th>
-                                    <th style="width: 20%;">Measured Value</th>
-                                    <th style="width: 15%;">Unit</th>
-                                    <th>Status / Remarks</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {{#each testing.finalResistanceTests}}
-                                {{#if this.groupHeader}}
-                                <tr>
-                                    <td colspan="4" style="background:#f1f5f9; font-weight:800; font-size:7pt; color:#334155; text-transform:uppercase; padding-top:4px; padding-bottom:4px; border-top:1px solid #e2e8f0; border-bottom:1px solid #e2e8f0;">{{this.groupHeader}}</td>
-                                </tr>
-                                {{/if}}
-                                <tr>
-                                    <td style="font-weight: 700; font-family: 'JetBrains Mono', monospace; padding-left:16px;">{{fallback this.terminalDisplay this.terminals 'N/A'}}</td>
-                                    <td class="table-data">{{fallback this.value 'N/A'}}</td>
-                                    <td>{{fallback this.unit 'Ω'}}</td>
-                                    <td>{{fallback this.remarks 'Acceptable'}}</td>
-                                </tr>
-                                {{/each}}
-                            </tbody>
-                        </table>
-                        {{/if}}
-                        {{/if}}
-
-
-                        <!-- ───────────────────────────────────────────────────────────────── -->
-                        <!-- STAGE 5: DISPATCH & FINAL REVIEW -->
-                        <!-- ───────────────────────────────────────────────────────────────── -->
-                        {{#if dispatch}}
-                        <div class="section-header">
-                            08. Performance & Dispatch
-                        </div>
-
-
-
-                        <div style="text-align: justify; margin-bottom: 12px; font-size: 7.5pt;">
-                            Visual summary comparison of the component's state before starting refurbishment
-                            (as-received condition) versus after completing all assembly, testing, and painting
-                            operations (rebuilt & certified state).
-                        </div>
-
-                        <div style="display: flex; gap: 15px; margin-bottom: 15px;">
-                            <div
-                                style="flex: 1; border: 1px solid var(--border-color); border-radius: 6px; overflow: hidden; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
-                                <div
-                                    style="background: #f1f5f9; padding: 6px; font-weight: 700; text-align: center; border-bottom: 1px solid var(--border-color); font-size: 8pt; color: var(--secondary-blue); text-transform: uppercase; letter-spacing: 0.03em;">
-                                    AS-RECEIVED INITIAL STATE</div>
-                                <div
-                                    style="height: 270px; display: flex; align-items: center; justify-content: center; overflow: hidden; background: var(--bg-light);">
-                                    {{#if beforePhoto}}
-                                    <img src="{{beforePhoto}}" style="width: 100%; height: 100%; object-fit: cover;">
-                                    {{else}}
-                                    <span style="color: var(--text-muted); font-style: italic; font-size: 7.5pt;">No
-                                        received image available</span>
-                                    {{/if}}
-                                </div>
-                                <div
-                                    style="padding: 6px 8px; font-size: 7pt; color: var(--text-muted); text-align: center; background: #fff; border-top: 1px solid var(--border-color); font-weight: 600;">
-                                    INITIAL COMPONENT RECEIPT CONDITION
-                                </div>
-                            </div>
-                            <div
-                                style="flex: 1; border: 1px solid var(--border-color); border-radius: 6px; overflow: hidden; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
-                                <div
-                                    style="background: #f1f5f9; padding: 6px; font-weight: 700; text-align: center; border-bottom: 1px solid var(--border-color); font-size: 8pt; color: var(--secondary-blue); text-transform: uppercase; letter-spacing: 0.03em;">
-                                    REBUILT & CERTIFIED STATE</div>
-                                <div
-                                    style="height: 220px; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 8px; background: var(--bg-light);">
-                                    {{#if afterPhoto}}
-                                    <img src="{{afterPhoto}}"
-                                        style="max-width: 100%; max-height: 100%; object-fit: contain;">
-                                    {{else}}
-                                    <span style="color: var(--text-muted); font-style: italic; font-size: 7.5pt;">No
-                                        final image available</span>
-                                    {{/if}}
-                                </div>
-                                <div
-                                    style="padding: 6px 8px; font-size: 7pt; color: var(--accent-green); text-align: center; background: #fff; border-top: 1px solid var(--border-color); font-weight: 700;">
-                                    ✓ QUALITY CERTIFIED REBUILT STATE
-                                </div>
-                            </div>
-                        </div>
-
-                        <div style="text-align: justify; margin-bottom: 12px; font-size: 7.5pt; line-height: 1.6; background: var(--bg-light); padding: 10px 12px; border-radius: 4px; border: 1px solid var(--border-color);">
-                            {{{editable 'report.workPerformed' report.workPerformed 'Component was fully rebuilt using certified processes. Mechanical dimensions, electrical parameters, and paint finishes comply with original manufacturer guidelines. All functional run tests confirm optimal operational parameters.'}}}
-                        </div>
-                        {{/if}}
-
-
-
-
-
-
-
-
-                        <div class="section-header">
-                            09. Conclusion & Recommendations
-                        </div>
-
-                        <div class="conclusion-box">
-                            <div class="conclusion-title">
-                                <svg style="width: 12px; height: 12px; vertical-align: middle; margin-right: 3px;"
-                                    fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                                Official Technical Verdict
-                            </div>
-                            <div
-                                style="text-align: justify; font-size: 7.5pt; font-weight: 600; color: var(--accent-green); line-height: 1.45;">
-                                {{{editable 'report.finalConclusion' report.finalConclusion 'Official statement not generated yet.'}}}
-                            </div>
-                        </div>
-
-                        <div class="recommendation-box">
-                            <div class="recommendation-title">
-                                <svg style="width: 12px; height: 12px; vertical-align: middle; margin-right: 3px;"
-                                    fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
-                                    </path>
-                                </svg>
-                                Preventive Maintenance Recommendations
-                            </div>
-                            <div
-                                style="text-align: justify; font-size: 7.5pt; font-weight: 500; color: #92400e; line-height: 1.45;">
-                                {{{editable 'report.recommendations' report.recommendations 'Maintenance advice not generated yet.'}}}
-                            </div>
-                        </div>
-
-                        <div style="margin-top: 25px; display: flex; justify-content: space-between;">
-                            <div style="text-align: center; width: 200px;">
-                                <div
-                                    style="height: 25px; border-bottom: 1.5px solid var(--border-color); width: 100%; margin-bottom: 4px;">
-                                </div>
-                                <div style="font-weight: 800; font-size: 7.5pt; color: var(--primary-navy);">
-                                    INSPECTED BY</div>
-                                <div style="font-size: 7pt; color: var(--text-muted);">{{fallback user.name 'TRC
-                                    Workshop Engineer'}}</div>
-                            </div>
-                            <div style="text-align: center; width: 200px;">
-                                <div
-                                    style="height: 25px; border-bottom: 1.5px solid var(--border-color); width: 100%; margin-bottom: 4px;">
-                                </div>
-                                <div style="font-weight: 800; font-size: 7.5pt; color: var(--primary-navy);">
-                                    AUTHORISED SIGNATORY</div>
-                                <div style="font-size: 7pt; color: var(--text-muted);">Workshop Operations Manager
-                                </div>
-                            </div>
-                        </div>
-
-
-
-
-                        <!-- ───────────────────────────────────────────────────────────────── -->
-                        <!-- DYNAMIC PHOTO PAGES -->
-                        <!-- ───────────────────────────────────────────────────────────────── -->
-                        {{#each photoPages}}
-                        <div style="page-break-before: always;">
-
-                            <div class="section-header">
-                            10. Photo Documentation
-
-                            </div>
-
-                            <div class="sub-section-header">{{this.title}}</div>
-                            <div class="photo-grid">
-                                {{#each this.photos}}
-                                <div class="photo-card {{this.sizeClass}}">
-                                    <div class="photo-frame">
-                                        <img src="{{this.url}}" alt="Photo Documentation">
-                                    </div>
-                                    <div class="photo-caption">{{this.caption}}</div>
-                                </div>
-                                {{/each}}
-                            </div>
-
-                        </div>
-                        {{/each}}
-
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <!-- ───────────────────────────────────────────────────────────────── -->
-    <!-- CERTIFICATE OF CONFORMANCE -->
-    <!-- ───────────────────────────────────────────────────────────────── -->
-    <div class="page-container" style="background: #ffffff; page-break-before: always;">
-        <div class="cert-border">
-            <div class="cert-header">
-                {{#if headerLogo}}
-                <img src="{{headerLogo}}" class="cert-logo">
-                {{else}}
-                <div
-                    style="font-weight: 800; font-size: 13pt; color: var(--primary-navy); letter-spacing: 0.05em; margin-bottom: 5px;">
-                    THRIVENI RC</div>
+                </div>
                 {{/if}}
-                <div class="cert-org">THRIVENI EARTHMOVERS & INFRA PRIVATE LIMITED</div>
-                <div class="cert-facility">TECHNICAL COMPLIANCE & EQUIPMENT REBUILD FACILITY</div>
-            </div>
-
-            <div class="cert-title-block">
-                <div class="cert-main-title">CERTIFICATE OF CONFORMANCE</div>
-                <div class="cert-sub-title">Rebuild & Quality Standards Certified</div>
-            </div>
-
-            <p class="cert-body-text">
-                This document certifies that the heavy machinery electrical/mechanical component detailed below has been
-                successfully disassembled, inspected, fully rebuilt, and dynamically tested in compliance with
-                established Thriveni RC engineering processes and OEM technical standards. All performance indices were
-                verified within operational tolerances.
-            </p>
-
-            <table class="cert-details-table">
-                <tr>
-                    <td class="label">Job Reference No:</td>
-                    <td class="val">{{job.jobNo}}</td>
-                </tr>
-                <tr>
-                    <td class="label">Report Number:</td>
-                    <td class="val">{{report.reportNo}}</td>
-                </tr>
-                <tr>
-                    <td class="label">Component Model:</td>
-                    <td class="val">{{fallback job.equipmentModel 'N/A'}}</td>
-                </tr>
-                <tr>
-                    <td class="label">Description:</td>
-                    <td class="val">{{fallback job.description 'N/A'}}</td>
-                </tr>
-                <tr>
-                    <td class="label">Component Serial No:</td>
-                    <td class="val">{{fallback job.serialNumber 'N/A'}}</td>
-                </tr>
-                <tr>
-                    <td class="label">Certification Date:</td>
-                    <td class="val">{{today}}</td>
-                </tr>
-            </table>
-
-            <div class="cert-status-badge">
-                FULLY OPERATIONAL & FIT FOR SERVICE
-            </div>
-
-            {{#if qrCode}}
-            <div
-                style="margin: 8px auto 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                <img src="{{qrCode}}"
-                    style="width: 38px; height: 38px; border: 1px dashed var(--border-color); padding: 1px; background: #fff;"
-                    alt="QR Code">
-                <span
-                    style="font-size: 5.5pt; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-top: 2px; letter-spacing: 0.05em;">Verify
-                    Digital History</span>
-            </div>
-            {{/if}}
-
-            <div class="cert-signatures">
-                <div class="cert-sig-box">
-                    <div class="cert-sig-line"></div>
-                    <span class="cert-sig-title">Workshop Lead Engineer</span>
-                    <span class="cert-sig-dept">Technical Division</span>
-                </div>
-                <div class="cert-sig-box">
-                    <div class="cert-sig-line"></div>
-                    <span class="cert-sig-title">Quality Inspector</span>
-                    <span class="cert-sig-dept">Quality Assurance & QC</span>
-                </div>
-                <div class="cert-sig-box">
-                    <div class="cert-sig-line"></div>
-                    <span class="cert-sig-title">Authorised Manager</span>
-                    <span class="cert-sig-dept">Thriveni Rebuild Center</span>
-                </div>
             </div>
         </div>
-
-        <!-- FOOTER -->
-        <div class="report-footer" style="position: absolute; bottom: 0; left: 0; right: 0;">
-            <span style="font-size: 6pt; color: var(--text-muted);">Thriveni Earthmovers & Infra Pvt. Ltd.</span>
+        <div class="page-footer">
+            <div><strong>Thriveni Rebuild Center</strong> - Proprietary & Confidential</div>
+            <div>Generated {{formatDate ""}}</div>
         </div>
     </div>
 
-</body>
+    <!-- PAGE 4: ASSESSMENT & TESTING -->
+    <div class="page flex flex-col px-10 py-8" style="padding-top: 32px; padding-bottom: 32px;">
+        <div class="page-header">
+            <div>
+                <span style="font-weight: 800; color: #0B132B; font-size: 11pt; letter-spacing: 0.05em; margin-right: 12px;">THRIVENI</span>
+                <span style="color: #64748B; font-weight: 600; font-size: 7.5pt; text-transform: uppercase;">Technical Overhaul Report</span>
+            </div>
+            <div style="text-align: right; font-size: 7.5pt;">
+                <div style="font-weight: 800; color: #0B132B;">{{fallback job.jobNo "N/A"}}</div>
+                <div style="color: #64748B;">{{fallback report.reportNo "N/A"}}</div>
+            </div>
+        </div>
 
+        <div class="space-y-8 flex-1">
+            <!-- 05. ENGINEERING ASSESSMENT -->
+            <div class="space-y-6">
+                <div class="border-b-2 border-amber-600 pb-1">
+                    <h2 style="font-family: 'Montserrat','Inter',sans-serif; font-size: 13.5pt; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: #0B132B;">05. Engineering Assessment</h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-red-50/50 p-4 rounded-xl border border-red-100">
+                        <div class="text-[10px] font-bold text-red-700 uppercase tracking-widest mb-1">Root Cause</div>
+                        <div class="text-xs font-medium text-slate-700">{{fallback report.failureAnalysis.rootCause "Root cause details not analyzed."}}</div>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                        <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Observed Evidence</div>
+                        <div class="text-xs font-medium text-slate-700">{{fallback report.failureAnalysis.evidence "No visual evidence recorded."}}</div>
+                    </div>
+                    <div class="bg-amber-50/50 p-4 rounded-xl border border-amber-100">
+                        <div class="text-[10px] font-bold text-amber-800 uppercase tracking-widest mb-1">Operational Impact</div>
+                        <div class="text-xs font-medium text-slate-700">{{fallback report.failureAnalysis.impact "Operational impact not defined."}}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 06. REBUILD & ASSEMBLY -->
+            <div class="space-y-6">
+                <div class="border-b-2 border-amber-600 pb-1">
+                    <h2 style="font-family: 'Montserrat','Inter',sans-serif; font-size: 13.5pt; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: #0B132B;">06. Rebuild &amp; Assembly</h2>
+                </div>
+
+                <p style="font-size: 8pt; text-align: justify; line-height: 1.6; background: #F8FAFC; padding: 10px 12px; border-radius: 4px; border: 1px solid #E2E8F0; white-space: pre-line; color: #1E293B;">
+                    {{fallback report.assemblyDescription "No rebuild & assembly overview recorded."}}
+                </p>
+
+                {{#if assemblyChecklist}}
+                <div>
+                    <h3 style="font-family: 'Montserrat','Inter',sans-serif; font-size: 8.5pt; font-weight: 700; color: #1C2541; margin: 14px 0 6px 0; text-transform: uppercase; letter-spacing: 0.03em; border-bottom: 1px dashed #E2E8F0; padding-bottom: 2px;">6.1 Rebuild Milestones Timeline</h3>
+                    <div class="grid grid-cols-2 gap-2 bg-slate-50 p-4 rounded-lg border border-slate-200">
+                        {{#each assemblyChecklist}}
+                        <div class="flex items-center gap-2 text-xs font-medium text-slate-700">
+                            <span class="text-emerald-500">✓</span>
+                            <span>{{this}}</span>
+                        </div>
+                        {{/each}}
+                    </div>
+                </div>
+                {{/if}}
+            </div>
+
+            <!-- 07. TEST RESULTS -->
+            <div class="space-y-6">
+                <div class="border-b-2 border-amber-600 pb-1">
+                    <h2 style="font-family: 'Montserrat','Inter',sans-serif; font-size: 13.5pt; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: #0B132B;">07. Test Results</h2>
+                </div>
+
+                <p style="font-size: 8pt; text-align: justify; line-height: 1.6; background: #F8FAFC; padding: 10px 12px; border-radius: 4px; border: 1px solid #E2E8F0; white-space: pre-line; color: #1E293B;">
+                    {{fallback report.testingSummary "No final testing summary details recorded."}}
+                </p>
+
+                <div>
+                    <h3 style="font-family: 'Montserrat','Inter',sans-serif; font-size: 8.5pt; font-weight: 700; color: #1C2541; margin: 14px 0 6px 0; text-transform: uppercase; letter-spacing: 0.03em; border-bottom: 1px dashed #E2E8F0; padding-bottom: 2px;">7.1 IR Comparison (Before vs. After)</h3>
+                    <table class="w-full border border-slate-200 text-left" style="font-size: 7.5pt; font-family: 'Inter', sans-serif">
+                        <thead class="bg-slate-100">
+                            <tr>
+                                <th class="p-2 font-bold text-slate-600">Terminal</th>
+                                <th class="p-2 font-bold text-slate-600">As-Received IR</th>
+                                <th class="p-2 font-bold text-slate-600">Rebuilt IR</th>
+                                <th class="p-2 font-bold text-slate-600 text-center">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200">
+                            {{{renderTestingComparisonTable inspection.initialIrTests testing.finalIrTests}}}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div>
+                    <h3 style="font-family: 'Montserrat','Inter',sans-serif; font-size: 8.5pt; font-weight: 700; color: #1C2541; margin: 14px 0 6px 0; text-transform: uppercase; letter-spacing: 0.03em; border-bottom: 1px dashed #E2E8F0; padding-bottom: 2px;">7.2 Final Winding Resistance Log</h3>
+                    <table class="w-full border border-slate-200 text-left" style="font-size: 7.5pt; font-family: 'Inter', sans-serif">
+                        <thead class="bg-slate-100">
+                            <tr>
+                                <th class="p-2 font-bold text-slate-600">Terminal Group</th>
+                                <th class="p-2 font-bold text-slate-600">Std Value</th>
+                                <th class="p-2 font-bold text-slate-600">Measured (Ω)</th>
+                                <th class="p-2 font-bold text-slate-600 font-mono">Remarks</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200">
+                            {{#each testing.finalWrTests}}
+                            {{#if this.groupHeader}}
+                            <tr class="bg-slate-50 font-bold">
+                                <td colspan="4" class="p-2 text-slate-700 uppercase tracking-wide">{{this.groupHeader}}</td>
+                            </tr>
+                            {{/if}}
+                            <tr>
+                                <td class="p-2 pl-6 font-mono">{{this.terminalDisplay}}</td>
+                                <td class="p-2">{{this.standardValue}}</td>
+                                <td class="p-2 font-bold text-slate-800">{{this.value}}</td>
+                                <td class="p-2 text-slate-500">{{this.remarks}}</td>
+                            </tr>
+                            {{else}}
+                            <tr>
+                                <td colspan="4" class="p-4 text-center text-slate-400 italic">No final winding resistance data recorded.</td>
+                            </tr>
+                            {{/each}}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="page-footer">
+            <div><strong>Thriveni Rebuild Center</strong> - Proprietary & Confidential</div>
+            <div>Generated {{formatDate ""}}</div>
+        </div>
+    </div>
+
+    <!-- PAGE 5: PERFORMANCE, DISPATCH & CONCLUSION -->
+    <div class="page flex flex-col px-10 py-8" style="padding-top: 32px; padding-bottom: 32px;">
+        <div class="page-header">
+            <div>
+                <span style="font-weight: 800; color: #0B132B; font-size: 11pt; letter-spacing: 0.05em; margin-right: 12px;">THRIVENI</span>
+                <span style="color: #64748B; font-weight: 600; font-size: 7.5pt; text-transform: uppercase;">Technical Overhaul Report</span>
+            </div>
+            <div style="text-align: right; font-size: 7.5pt;">
+                <div style="font-weight: 800; color: #0B132B;">{{fallback job.jobNo "N/A"}}</div>
+                <div style="color: #64748B;">{{fallback report.reportNo "N/A"}}</div>
+            </div>
+        </div>
+
+        <div class="space-y-8 flex-1">
+            <!-- 08. PERFORMANCE & DISPATCH -->
+            <div class="space-y-6">
+                <div class="border-b-2 border-amber-600 pb-1">
+                    <h2 style="font-family: 'Montserrat','Inter',sans-serif; font-size: 13.5pt; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: #0B132B;">08. Performance &amp; Dispatch</h2>
+                </div>
+
+                <p style="font-size: 8pt; text-align: justify; line-height: 1.6; background: #F8FAFC; padding: 10px 12px; border-radius: 4px; border: 1px solid #E2E8F0; white-space: pre-line; color: #1E293B;">
+                    {{fallback report.workPerformed "No overhaul execution summary logged."}}
+                </p>
+
+                <div class="flex gap-4" style="height: 200px;">
+                    <div class="flex-1 border border-slate-200 rounded-lg overflow-hidden bg-slate-50 flex flex-col">
+                        <div class="bg-slate-100 p-2 font-bold text-center text-xs text-blue-900 uppercase">As-Received Condition</div>
+                        <div class="flex-1 flex items-center justify-center bg-white p-2">
+                            {{#if inspectionPhoto}}
+                                <img src="{{inspectionPhoto}}" alt="Initial State" class="max-h-full max-w-full object-contain" />
+                            {{else}}
+                                <span class="text-slate-400 text-xs italic">No photo available</span>
+                            {{/if}}
+                        </div>
+                    </div>
+                    <div class="flex-1 border border-slate-200 rounded-lg overflow-hidden bg-slate-50 flex flex-col">
+                        <div class="bg-slate-100 p-2 font-bold text-center text-xs text-blue-900 uppercase">Rebuilt & Certified State</div>
+                        <div class="flex-1 flex items-center justify-center bg-white p-2">
+                            {{#if testingPhoto}}
+                                <img src="{{testingPhoto}}" alt="Certified State" class="max-h-full max-w-full object-contain" />
+                            {{else}}
+                                <span class="text-slate-400 text-xs italic">No photo available</span>
+                            {{/if}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 09. CONCLUSION & RECOMMENDATIONS -->
+            <div class="space-y-6 mt-8">
+                <div class="border-b-2 border-amber-600 pb-1">
+                    <h2 style="font-family: 'Montserrat','Inter',sans-serif; font-size: 13.5pt; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: #0B132B;">09. Conclusion &amp; Recommendations</h2>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="bg-emerald-50/50 border border-emerald-200 rounded-xl p-6">
+                        <div class="mb-2">
+                            <h3 class="text-xs font-black text-emerald-800 uppercase tracking-wider">Official Technical Verdict</h3>
+                        </div>
+                        <p class="text-xs font-semibold text-emerald-800 leading-relaxed whitespace-pre-line">{{fallback report.finalConclusion "Conclusion verdict not generated yet."}}</p>
+                    </div>
+
+                    <div class="bg-amber-50/50 border border-amber-200 rounded-xl p-6">
+                        <div class="mb-2">
+                            <h3 class="text-xs font-black text-amber-800 uppercase tracking-wider">Preventive Maintenance Recommendations</h3>
+                        </div>
+                        <p class="text-xs font-semibold text-amber-800 leading-relaxed whitespace-pre-line">{{fallback report.recommendations "No recommendations recorded."}}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-12 flex justify-between px-10">
+                <div class="text-center">
+                    <div class="w-48 border-b border-slate-400 mb-2 h-10"></div>
+                    <div class="font-bold text-slate-800">Technician</div>
+                </div>
+                <div class="text-center">
+                    <div class="w-48 border-b border-slate-400 mb-2 h-10"></div>
+                    <div class="font-bold text-slate-800">QA Inspector</div>
+                </div>
+                <div class="text-center">
+                    <div class="w-48 border-b border-slate-400 mb-2 h-10"></div>
+                    <div class="font-bold text-slate-800">Service Manager</div>
+                </div>
+            </div>
+        </div>
+        <div class="page-footer">
+            <div><strong>Thriveni Rebuild Center</strong> - Proprietary & Confidential</div>
+            <div>Generated {{formatDate ""}}</div>
+        </div>
+    </div>
+
+    <!-- PHOTO GALLERY PAGES (Optional) -->
+    {{#if report.categorizedPhotos}}
+    <div class="page flex flex-col px-10 py-8" style="padding-top: 32px; padding-bottom: 32px;">
+        <div class="page-header">
+            <div>
+                <span style="font-weight: 800; color: #0B132B; font-size: 11pt; letter-spacing: 0.05em; margin-right: 12px;">THRIVENI</span>
+                <span style="color: #64748B; font-weight: 600; font-size: 7.5pt; text-transform: uppercase;">Technical Overhaul Report</span>
+            </div>
+            <div style="text-align: right; font-size: 7.5pt;">
+                <div style="font-weight: 800; color: #0B132B;">{{fallback job.jobNo "N/A"}}</div>
+                <div style="color: #64748B;">{{fallback report.reportNo "N/A"}}</div>
+            </div>
+        </div>
+
+        <div class="space-y-6 flex-1">
+            <div class="border-b-2 border-amber-600 pb-1">
+                <h2 style="font-family: 'Montserrat','Inter',sans-serif; font-size: 13.5pt; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: #0B132B;">10. Photo Documentation</h2>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+                {{#each report.categorizedPhotos}}
+                <div class="border border-slate-200 rounded p-2 text-center page-break-inside-avoid">
+                    <img src="{{this.url}}" class="w-full h-48 object-cover mb-2 rounded" />
+                    <div class="text-[9pt] font-bold text-slate-700 uppercase">{{this.category}}</div>
+                    <div class="text-[7.5pt] text-slate-500">{{this.description}}</div>
+                </div>
+                {{/each}}
+            </div>
+        </div>
+        <div class="page-footer">
+            <div><strong>Thriveni Rebuild Center</strong> - Proprietary & Confidential</div>
+            <div>Generated {{formatDate ""}}</div>
+        </div>
+    </div>
+    {{/if}}
+
+</body>
 </html>
