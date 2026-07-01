@@ -810,7 +810,8 @@ router.get('/pdf/:reportId', asyncHandler(async (req, res) => {
     }
   };
 
-  const pdfDir = path.join(__dirname, '../uploads/pdfs');
+  const os = require('os');
+  const pdfDir = path.join(os.tmpdir(), 'pdfs');
   if (!fs.existsSync(pdfDir)) fs.mkdirSync(pdfDir, { recursive: true });
 
   const pdfFilename = `${report.reportNo.replace(/[^A-Z0-9-]/gi, '_')}.pdf`;
