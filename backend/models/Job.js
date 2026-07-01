@@ -42,7 +42,9 @@ const jobSchema = new mongoose.Schema({
   // 'Visual Inspection & Incoming Assessment'
   // 'Dismantling & Analysis'
   // 'Pre-Assembly & Assembly'
-  // 'Testing & Dispatch'
+  // 'Testing'
+  // 'Final Drive Installation'
+  // 'Dispatch'
   // 'Report Generation'
   // 'Completed'
   stage: {

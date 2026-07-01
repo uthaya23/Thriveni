@@ -13,18 +13,11 @@ export default function TestingSummaryView({ job, data, template, onEdit }) {
     return Object.values(data.surgeTests).filter(t => t.status && t.status !== 'Pass').length;
   };
 
-  const getCompletedDispatchCount = () => {
-    if (!data.dispatchChecklist) return 0;
-    return Object.values(data.dispatchChecklist).filter(t => typeof t === 'object' ? t.checked : !!t).length;
-  };
-
   const s4 = template?.stage4 || {};
   const elecTests = s4.electricalTests || [];
   const funcTests = s4.functionalTests || [];
   const sensorTests = s4.sensorTests || [];
   const surgeTests = s4.surgeTests || [];
-  const dispatchChecklist = s4.dispatchChecklist || [];
-
   const totalFailed = getFailedTestsCount(data.electricalTests) + getFailedTestsCount(data.functionalTests) + getFailedTestsCount(data.sensorTests) + getFailedSurgeCount();
 
   return (
@@ -32,7 +25,7 @@ export default function TestingSummaryView({ job, data, template, onEdit }) {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-black text-slate-800 flex items-center gap-2">
-            <span className="text-sky-600">⚡</span> Stage 4: Testing & Dispatch Summary
+            <span className="text-sky-600">⚡</span> Stage 4: Testing Summary
           </h2>
           <p className="text-sm text-slate-500">Read-only summarized view of the final testing phase</p>
         </div>
@@ -61,11 +54,6 @@ export default function TestingSummaryView({ job, data, template, onEdit }) {
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">QA Approved</p>
             <p className="font-bold text-slate-800">{data.qaApprovedBy || 'Pending'}</p>
           </div>
-        </div>
-
-        <div className="bg-slate-50 border border-slate-100 rounded-xl p-4 flex flex-col items-center justify-center text-center">
-          <span className="text-2xl font-black text-slate-700 mb-1">{getCompletedDispatchCount()} / {dispatchChecklist.length}</span>
-          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Dispatch Readiness</span>
         </div>
 
         <div className={`border rounded-xl p-4 flex flex-col items-center justify-center text-center ${totalFailed > 0 ? 'bg-red-50 border-red-100' : 'bg-emerald-50 border-emerald-100'}`}>
@@ -281,38 +269,6 @@ export default function TestingSummaryView({ job, data, template, onEdit }) {
                 })}
               </tbody>
             </table>
-          </div>
-        </div>
-      )}
-
-      {/* DISPATCH CHECKLIST READ-ONLY */}
-      {dispatchChecklist.length > 0 && (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="bg-slate-50 border-b border-slate-200 p-4 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <FiCheckSquare className="text-slate-500" />
-              <span className="font-bold text-slate-700 uppercase tracking-wider text-xs">Dispatch Readiness Checklist</span>
-            </div>
-          </div>
-          <div className="p-0">
-            <ul className="divide-y divide-slate-100">
-              {dispatchChecklist.map((item, i) => {
-                const v = data.dispatchChecklist?.[item] || {};
-                const checked = typeof v === 'object' ? v?.checked : !!v;
-                const date = typeof v === 'object' ? v?.date : '';
-                return (
-                  <li key={i} className="flex items-center justify-between p-4 hover:bg-slate-50/50">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-5 h-5 rounded-full flex items-center justify-center ${checked ? 'bg-green-100 text-green-600' : 'bg-slate-100 text-slate-400'}`}>
-                        {checked ? <span className="text-xs">✓</span> : <span className="text-xs"></span>}
-                      </div>
-                      <span className={`text-sm ${checked ? 'text-slate-800 font-medium' : 'text-slate-400'}`}>{item}</span>
-                    </div>
-                    {checked && date && <span className="text-xs text-slate-400 font-medium">{date}</span>}
-                  </li>
-                );
-              })}
-            </ul>
           </div>
         </div>
       )}

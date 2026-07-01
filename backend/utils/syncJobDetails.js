@@ -30,8 +30,9 @@ async function syncJobDetailsFromStages(jobId) {
         const intermediateStages = [
           'Dismantling & Analysis',
           'Pre-Assembly & Assembly',
-          'Testing & Dispatch',
-          'Final Drive Installation'
+          'Testing',
+          'Final Drive Installation',
+          'Dispatch'
         ];
         if (intermediateStages.includes(job.stage)) {
           job.stage = 'Report Generation';
@@ -60,41 +61,55 @@ async function syncJobDetailsFromStages(jobId) {
       }
     }
 
-    // Stage 4 (Testing & Dispatch) -> Send date and QA approval
+    // Stage 4 (Testing) -> Testing completion date
     if (jobData.stage4) {
       const stage4Date = jobData.stage4.completionDate || jobData.stage4.startDate;
-      if (stage4Date && job.sendDate !== stage4Date) {
-        job.sendDate = stage4Date;
+      if (stage4Date && job.testingDate !== stage4Date) {
+        job.testingDate = stage4Date;
+        updated = true;
+      }
+
+      // State Machine: If Stage 4 is completed, advance to Final Drive or Dispatch
+      if (jobData.stage4.status === 'Completed' && job.stage === 'Testing') {
+        const isWheelMotor = job.componentType?.toLowerCase().includes('wheel motor') || job.equipmentModel?.toLowerCase().includes('wm');
+        
+        if (isWheelMotor) {
+           job.stage = 'Final Drive Installation';
+        } else {
+           job.stage = 'Dispatch';
+        }
+        updated = true;
+      }
+    }
+    
+    // Stage 5 (Final Drive Installation) - For Wheel Motors
+    if (jobData.stage5 && jobData.stage5.status === 'Completed' && job.stage === 'Final Drive Installation') {
+       job.stage = 'Dispatch';
+       updated = true;
+    }
+
+    // Stage 6 (Dispatch) -> Send date and QA approval
+    if (jobData.stage6) {
+      const stage6Date = jobData.stage6.completionDate || jobData.stage6.startDate;
+      if (stage6Date && job.sendDate !== stage6Date) {
+        job.sendDate = stage6Date;
         updated = true;
       }
 
       // Sync dispatch checklist for send site if available
-      const dispatchChecklist = jobData.stage4.dispatchChecklist || {};
+      const dispatchChecklist = jobData.stage6.dispatchChecklist || {};
       const sendSite = dispatchChecklist.sendSite || dispatchChecklist.site;
       if (sendSite && job.sendSite !== sendSite) {
         job.sendSite = sendSite;
         updated = true;
       }
 
-      // State Machine: If Stage 4 is completed, auto-advance stage to 'Report Generation'
-      if (jobData.stage4.status === 'Completed' && job.stage === 'Testing & Dispatch') {
-        const isWheelMotor = job.componentType?.toLowerCase().includes('wheel motor') || job.equipmentModel?.toLowerCase().includes('wm');
-        
-        // If it's a wheel motor, it needs Stage 5. So we don't skip to Report Generation yet, unless Stage 5 is also done?
-        // Let's strictly follow the user request: "If stage4.status === 'Completed', the parent Job.stage should automatically flip to 'Report Generation'"
-        if (!isWheelMotor) {
-           job.stage = 'Report Generation';
-           job.status = 'RFD'; // Ready for dispatch
-           updated = true;
-        }
+      // State Machine: If Stage 6 is completed, auto-advance stage to 'Report Generation'
+      if (jobData.stage6.status === 'Completed' && job.stage === 'Dispatch') {
+        job.stage = 'Report Generation';
+        job.status = 'RFD'; // Ready for dispatch / Report pending
+        updated = true;
       }
-    }
-    
-    // Stage 5 (Final Drive Installation) - For Wheel Motors
-    if (jobData.stage5 && jobData.stage5.status === 'Completed' && job.stage === 'Final Drive Installation') {
-       job.stage = 'Report Generation';
-       job.status = 'RFD';
-       updated = true;
     }
 
     // State Machine: If the job is marked 'Report Generation' and reports are generated/completed, or if we transition out entirely

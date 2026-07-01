@@ -9,7 +9,9 @@ const PIPELINE_STAGES = [
   'Visual Inspection & Incoming Assessment',
   'Dismantling & Analysis',
   'Pre-Assembly & Assembly',
-  'Testing & Dispatch',
+  'Testing',
+  'Final Drive Installation',
+  'Dispatch',
   'Report Generation',
   'Completed'
 ];
@@ -18,7 +20,9 @@ const STAGE_COLORS = {
   'Visual Inspection & Incoming Assessment': '#d97706',
   'Dismantling & Analysis': '#dc2626',
   'Pre-Assembly & Assembly': '#9333ea',
-  'Testing & Dispatch': '#0284c7',
+  'Testing': '#0284c7',
+  'Final Drive Installation': '#db2777',
+  'Dispatch': '#0ea5e9',
   'Report Generation': '#16a34a',
   'Completed': '#059669'
 };
@@ -26,7 +30,9 @@ const STAGE_BG = {
   'Visual Inspection & Incoming Assessment': '#fef3c7',
   'Dismantling & Analysis': '#fee2e2',
   'Pre-Assembly & Assembly': '#faf5ff',
-  'Testing & Dispatch': '#e0f2fe',
+  'Testing': '#e0f2fe',
+  'Final Drive Installation': '#fdf2f8',
+  'Dispatch': '#e0f2fe',
   'Report Generation': '#dcfce7',
   'Completed': '#ecfdf5'
 };
@@ -49,8 +55,8 @@ const normalizeStage = (stage) => {
     'Repair / Reclamation': 'Pre-Assembly & Assembly',
     'Pre-Assembly': 'Pre-Assembly & Assembly',
     'Assembly': 'Pre-Assembly & Assembly',
-    'Testing': 'Testing & Dispatch',
-    'Dispatch': 'Testing & Dispatch',
+    'Testing': 'Testing',
+    'Dispatch': 'Dispatch',
     'Report': 'Report Generation',
     'Report Generation': 'Report Generation',
   };

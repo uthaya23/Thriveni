@@ -149,6 +149,9 @@ const extractAllPhotos = (jobData, apiPhotos) => {
   if (jobData.stage4) {
     add(jobData.stage4.photos, 'Testing');
   }
+  if (jobData.stage6) {
+    add(jobData.stage6.photos, 'Dispatch');
+  }
 
   // Also add any photos that came directly from the /photos api
   (apiPhotos || []).forEach(p => {
@@ -246,7 +249,7 @@ export default function ReportTab({ jobId, job }) {
         dismantling: jobData.stage2 || {},
         assembly: jobData.stage3 || {},
         testing: jobData.stage4 || {},
-        dispatch: jobData.stage4 || {},
+        dispatch: jobData.stage6 || {},
         materials: materialsRes.data
       });
 

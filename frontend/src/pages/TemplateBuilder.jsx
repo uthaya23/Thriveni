@@ -7,7 +7,8 @@ import { FiPlus, FiSettings, FiCheckCircle, FiFileText, FiTrash2, FiList, FiSlid
 const EMPTY_STAGE_1 = { incomingChecklist: [], electricalTests: [], partsChecklist: [], surgeTests: [], sensorTests: [] };
 const EMPTY_STAGE_2 = { dismantlingChecklist: [], dimensionalMeasurements: [], componentConditionList: [] };
 const EMPTY_STAGE_3 = { preAssemblyChecklist: [], assemblyChecklist: [] };
-const EMPTY_STAGE_4 = { electricalTests: [], functionalTests: [], sensorTests: [], surgeTests: [], dispatchChecklist: [] };
+const EMPTY_STAGE_4 = { electricalTests: [], functionalTests: [], sensorTests: [], surgeTests: [] };
+const EMPTY_STAGE_6 = { dispatchChecklist: [] };
 
 // ── Generic Schemas for Table Editors ──
 const SCHEMAS = {
@@ -138,7 +139,7 @@ export default function TemplateBuilder() {
   const [formData, setFormData] = useState({
     componentKey: '', componentType: '', equipmentModel: '', description: '',
     department: 'Auto Electrical', section: 'Wheel Motor',
-    stage1: { ...EMPTY_STAGE_1 }, stage2: { ...EMPTY_STAGE_2 }, stage3: { ...EMPTY_STAGE_3 }, stage4: { ...EMPTY_STAGE_4 }
+    stage1: { ...EMPTY_STAGE_1 }, stage2: { ...EMPTY_STAGE_2 }, stage3: { ...EMPTY_STAGE_3 }, stage4: { ...EMPTY_STAGE_4 }, stage6: { ...EMPTY_STAGE_6 }
   });
   const [saving, setSaving] = useState(false);
 
@@ -168,7 +169,8 @@ export default function TemplateBuilder() {
         stage1: { ...EMPTY_STAGE_1, ...full.stage1 },
         stage2: { ...EMPTY_STAGE_2, ...full.stage2 },
         stage3: { ...EMPTY_STAGE_3, ...full.stage3 },
-        stage4: { ...EMPTY_STAGE_4, ...full.stage4 }
+        stage4: { ...EMPTY_STAGE_4, ...full.stage4 },
+        stage6: { ...EMPTY_STAGE_6, ...full.stage6 }
       });
     } catch (err) { toast.error('Failed to load full template'); }
   };
@@ -179,7 +181,7 @@ export default function TemplateBuilder() {
     setFormData({
       componentKey: '', componentType: '', equipmentModel: '', description: '',
       department: 'Auto Electrical', section: 'Wheel Motor',
-      stage1: { ...EMPTY_STAGE_1 }, stage2: { ...EMPTY_STAGE_2 }, stage3: { ...EMPTY_STAGE_3 }, stage4: { ...EMPTY_STAGE_4 }
+      stage1: { ...EMPTY_STAGE_1 }, stage2: { ...EMPTY_STAGE_2 }, stage3: { ...EMPTY_STAGE_3 }, stage4: { ...EMPTY_STAGE_4 }, stage6: { ...EMPTY_STAGE_6 }
     });
   };
 
@@ -312,7 +314,7 @@ export default function TemplateBuilder() {
 
               {/* Tabs */}
               <div className="px-6 pt-6 flex gap-2 overflow-x-auto">
-                {['Stage 1', 'Stage 2', 'Stage 3', 'Stage 4'].map(tab => (
+                {['Stage 1', 'Stage 2', 'Stage 3', 'Stage 4', 'Stage 6 (Dispatch)'].map(tab => (
                   <button 
                     key={tab} 
                     onClick={() => setActiveTab(tab)}
@@ -356,7 +358,12 @@ export default function TemplateBuilder() {
                     <GenericObjectListEditor title="Sensor Tests" schema={SCHEMAS.sensor} items={formData.stage4.sensorTests} onChange={v => updateStageArr('stage4', 'sensorTests', v)} />
                     <StringListEditor title="Surge Tests" items={formData.stage4.surgeTests} onChange={v => updateStageArr('stage4', 'surgeTests', v)} />
                     <StringListEditor title="Functional Tests" items={formData.stage4.functionalTests} onChange={v => updateStageArr('stage4', 'functionalTests', v)} />
-                    <StringListEditor title="Dispatch Checklist" items={formData.stage4.dispatchChecklist} onChange={v => updateStageArr('stage4', 'dispatchChecklist', v)} />
+                  </div>
+                )}
+
+                {activeTab === 'Stage 6 (Dispatch)' && (
+                  <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+                    <StringListEditor title="Dispatch Checklist" items={formData.stage6.dispatchChecklist} onChange={v => updateStageArr('stage6', 'dispatchChecklist', v)} />
                   </div>
                 )}
               </div>

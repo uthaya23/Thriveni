@@ -17,7 +17,7 @@ const Stage4Tab = forwardRef(({ jobId, job, template }, ref) => {
   React.useEffect(() => {
     if (data && !hasInitialized.current) {
       hasInitialized.current = true;
-      if ((data.qaApprovedDate || data.qaApprovedBy || data.overallRemarks) && !window.__stage4_edit_mode_active) {
+      if ((data.completionDate || data.overallRemarks) && !window.__stage4_edit_mode_active) {
         setIsSummaryMode(true);
       }
     }
@@ -106,13 +106,7 @@ const Stage4Tab = forwardRef(({ jobId, job, template }, ref) => {
     }));
   };
 
-  const toggleDispatch = (item) => {
-    setData(prev => {
-      const v = prev.dispatchChecklist?.[item] || {};
-      const checked = typeof v === 'object' ? v?.checked : !!v;
-      return { ...prev, dispatchChecklist: { ...(prev.dispatchChecklist || {}), [item]: { checked: !checked, date: !checked ? new Date().toISOString().split('T')[0] : '' } } };
-    });
-  };
+
 
   if (loading) return <div className="py-20 text-center text-slate-400">Loading...</div>;
   if (!data) return null;
@@ -122,7 +116,6 @@ const Stage4Tab = forwardRef(({ jobId, job, template }, ref) => {
   const funcTests = s4.functionalTests || [];
   const sensorTests = s4.sensorTests || [];
   const surgeTests = s4.surgeTests || [];
-  const dispatchChecklist = s4.dispatchChecklist || [];
 
   if (isSummaryMode) {
     return (
@@ -140,29 +133,8 @@ const Stage4Tab = forwardRef(({ jobId, job, template }, ref) => {
 
   return (
     <div className="space-y-6 pb-20">
-      {/* QA Approval Banner */}
-      {data.qaApprovedBy && (
-        <div style={{
-          background: '#f0fdf4',
-          border: '1px solid #bbf7d0',
-          borderRadius: '12px',
-          padding: '1rem 1.5rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.75rem'
-        }}>
-          <span style={{ fontSize: '1.5rem' }}>✅</span>
-          <div>
-            <div style={{ fontWeight: 700, color: '#15803d' }}>QA Approved</div>
-            <div style={{ fontSize: '0.8rem', color: '#166534' }}>
-              Approved by {data.qaApprovedBy}{data.qaApprovedDate ? ` on ${data.qaApprovedDate}` : ''}
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Header */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <TechnicianSelect value={data.technician} onChange={val => setData(p => ({ ...p, technician: val }))} />
         </div>
@@ -170,11 +142,6 @@ const Stage4Tab = forwardRef(({ jobId, job, template }, ref) => {
           <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Start Date</label>
           <input type="date" className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-medium focus:ring-2 focus:ring-blue-500 outline-none"
             value={data.startDate || ''} onChange={e => setData(p => ({ ...p, startDate: e.target.value }))} />
-        </div>
-        <div>
-          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">QA Approved By</label>
-          <input type="text" className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-medium focus:ring-2 focus:ring-blue-500 outline-none"
-            value={data.qaApprovedBy || ''} onChange={e => setData(p => ({ ...p, qaApprovedBy: e.target.value }))} placeholder="QA Engineer name" />
         </div>
       </div>
 
@@ -465,45 +432,7 @@ const Stage4Tab = forwardRef(({ jobId, job, template }, ref) => {
         </div>
       )}
 
-      {/* Dispatch Checklist */}
-      {dispatchChecklist.length > 0 && (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-          <h3 className="font-black text-slate-800 text-sm uppercase tracking-widest mb-4">Dispatch Checklist</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {dispatchChecklist.map((item, i) => {
-              const v = data.dispatchChecklist?.[item] || {};
-              const checked = typeof v === 'object' ? v?.checked : !!v;
-              const date = typeof v === 'object' ? v?.date : '';
-              return (
-                <div key={i} className={`flex items-center justify-between p-3 rounded-xl border transition-all ${checked ? 'bg-green-50 border-green-200' : 'bg-slate-50 border-slate-200 hover:border-slate-300'}`}>
-                  <div className="flex items-center gap-3 cursor-pointer flex-1" onClick={() => toggleDispatch(item)}>
-                    <div className={`w-6 h-6 rounded border-2 flex items-center justify-center transition-all ${checked ? 'bg-green-500 border-green-500 text-white' : 'bg-white border-slate-300'}`}>
-                      {checked && <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"/></svg>}
-                    </div>
-                    <span className={`text-sm font-semibold ${checked ? 'text-green-800' : 'text-slate-600'}`}>{item}</span>
-                  </div>
-                  {checked && (
-                    <input type="date" className="w-32 px-2 py-1 text-xs bg-white border border-slate-200 rounded-lg outline-none"
-                      value={date} onChange={e => setData(prev => ({ ...prev, dispatchChecklist: { ...(prev.dispatchChecklist || {}), [item]: { checked: true, date: e.target.value } } }))} />
-                  )}
-                </div>
-              );
-            })}
-          </div>
-          <div className="mt-4 pt-4 border-t border-slate-200 grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">QA Approved By</label>
-              <input type="text" className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none"
-                value={data.qaApprovedBy || ''} onChange={e => setData(p => ({ ...p, qaApprovedBy: e.target.value }))} placeholder="QA Engineer" />
-            </div>
-            <div>
-              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">QA Approval Date</label>
-              <input type="date" className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none"
-                value={data.qaApprovedDate || ''} onChange={e => setData(p => ({ ...p, qaApprovedDate: e.target.value }))} />
-            </div>
-          </div>
-        </div>
-      )}
+
 
       {/* Remarks */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">

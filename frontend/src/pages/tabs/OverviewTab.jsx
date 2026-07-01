@@ -28,8 +28,8 @@ const normalizeStage = (stage) => {
     'Repair / Reclamation': 'Pre-Assembly & Assembly',
     'Pre-Assembly': 'Pre-Assembly & Assembly',
     'Assembly': 'Pre-Assembly & Assembly',
-    'Testing': 'Testing & Dispatch',
-    'Dispatch': 'Testing & Dispatch',
+    'Testing': 'Testing',
+    'Dispatch': 'Dispatch',
     'Report': 'Report Generation',
     'Report Generation': 'Report Generation',
   };
@@ -98,7 +98,8 @@ export default function OverviewTab({ job, onUpdate, isReadOnly, setViewStage })
     addPhotos(jobData.stage1?.photos, 'Incoming Inspection');
     addPhotos(jobData.stage2?.photos, 'Dismantling');
     addPhotos(jobData.stage3?.photos, 'Assembly');
-    addPhotos(jobData.stage4?.photos, 'Testing & Dispatch');
+    addPhotos(jobData.stage4?.photos, 'Testing');
+    addPhotos(jobData.stage6?.photos, 'Dispatch');
 
     const addTestPhotos = (tests, stageName) => {
       if (tests && typeof tests === 'object') {
@@ -159,13 +160,16 @@ export default function OverviewTab({ job, onUpdate, isReadOnly, setViewStage })
   if (effectiveStage === 'Visual Inspection & Incoming Assessment' && getTestCount() === 0) {
     alerts.push({ type: 'warning', msg: 'No incoming electrical tests recorded yet' });
   }
-  if (effectiveStage === 'Testing & Dispatch') {
+  if (effectiveStage === 'Testing') {
     const stage4Tests = jobData?.stage4?.electricalTests || {};
     if (Object.keys(stage4Tests).length === 0) {
-      alerts.push({ type: 'error', msg: 'Final electrical tests missing before dispatch' });
+      alerts.push({ type: 'warning', msg: 'Final electrical tests missing' });
     }
-    const stage4Photos = jobData?.stage4?.photos || [];
-    if (stage4Photos.length === 0) {
+  }
+
+  if (effectiveStage === 'Dispatch') {
+    const stage6Photos = jobData?.stage6?.photos || [];
+    if (stage6Photos.length === 0) {
       alerts.push({ type: 'warning', msg: 'Dispatch documentation photos missing' });
     }
   }
@@ -475,12 +479,16 @@ export default function OverviewTab({ job, onUpdate, isReadOnly, setViewStage })
                     <div className="flex justify-between items-center"><span className="text-xs font-semibold text-slate-500">BOM Consumables Consumed:</span><span className="font-bold text-slate-800">{jobData.stage3?.consumablesUsed?.length || 0} items</span></div>
                     <p className="text-xs text-slate-400 italic pt-2 mt-2 border-t border-slate-100">"Component rebuild is underway with tracking of replacement parts."</p>
                   </div>
-                ) : effectiveStage === 'Testing & Dispatch' ? (
+                ) : effectiveStage === 'Testing' ? (
                   <div className="space-y-3">
                     <div className="flex justify-between items-center"><span className="text-xs font-semibold text-slate-500">Final Electrical Tests:</span><span className="font-bold text-slate-800">{jobData.stage4?.electricalTests ? Object.keys(jobData.stage4.electricalTests).length : 0} logged</span></div>
                     <div className="flex justify-between items-center"><span className="text-xs font-semibold text-slate-500">Surge Tests Applied:</span><span className="font-bold text-slate-800">{jobData.stage4?.surgeTests ? Object.keys(jobData.stage4.surgeTests).length : 0} tests</span></div>
-                    <div className="flex justify-between items-center"><span className="text-xs font-semibold text-slate-500">Dispatch Checkpoints Verified:</span><span className="font-bold text-slate-800">{jobData.stage4?.dispatchChecklist ? Object.keys(jobData.stage4.dispatchChecklist).filter(k=>jobData.stage4.dispatchChecklist[k] === true).length : 0} / {jobData.stage4?.dispatchChecklist ? Object.keys(jobData.stage4.dispatchChecklist).length : 0}</span></div>
-                    <p className="text-xs text-slate-400 italic pt-2 mt-2 border-t border-slate-100">"Performing final QA and run tests before scheduling logistical dispatch."</p>
+                    <p className="text-xs text-slate-400 italic pt-2 mt-2 border-t border-slate-100">"Performing final QA and run tests."</p>
+                  </div>
+                ) : effectiveStage === 'Dispatch' ? (
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center"><span className="text-xs font-semibold text-slate-500">Dispatch Checkpoints Verified:</span><span className="font-bold text-slate-800">{jobData.stage6?.dispatchChecklist ? Object.keys(jobData.stage6.dispatchChecklist).filter(k=>jobData.stage6.dispatchChecklist[k] === true || jobData.stage6.dispatchChecklist[k]?.checked === true).length : 0} / {jobData.stage6?.dispatchChecklist ? Object.keys(jobData.stage6.dispatchChecklist).length : 0}</span></div>
+                    <p className="text-xs text-slate-400 italic pt-2 mt-2 border-t border-slate-100">"Scheduling logistical dispatch."</p>
                   </div>
                 ) : (
                   <div className="space-y-3">
@@ -524,7 +532,7 @@ export default function OverviewTab({ job, onUpdate, isReadOnly, setViewStage })
                       { lbl: 'Stage 1', stage: 'Visual Inspection & Incoming Assessment', color: 'hover:bg-amber-50 hover:text-amber-700 hover:border-amber-300' },
                       { lbl: 'Stage 2', stage: 'Dismantling & Analysis', color: 'hover:bg-red-50 hover:text-red-700 hover:border-red-300' },
                       { lbl: 'Stage 3', stage: 'Pre-Assembly & Assembly', color: 'hover:bg-purple-50 hover:text-purple-700 hover:border-purple-300' },
-                      { lbl: 'Stage 4', stage: 'Testing & Dispatch', color: 'hover:bg-sky-50 hover:text-sky-700 hover:border-sky-300' }
+                      { lbl: 'Stage 4', stage: 'Testing', color: 'hover:bg-sky-50 hover:text-sky-700 hover:border-sky-300' }
                     ].map(btn => (
                       <button 
                         key={btn.lbl}

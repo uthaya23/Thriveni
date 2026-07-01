@@ -524,7 +524,7 @@ export default function Dashboard() {
               { icon: <FiBox />, label: 'Register Asset', link: '/inventory' },
               { icon: <FiTruck />, label: 'Receive Item', link: '/jobs' },
               { icon: <FiSearch />, label: 'Start Inspect', link: '/jobs?stage=Visual%20Inspection%20%26%20Incoming%20Assessment' },
-              { icon: <FiActivity />, label: 'Test Job', link: '/jobs?stage=Testing%20%26%20Dispatch' },
+              { icon: <FiActivity />, label: 'Test Job', link: '/jobs?stage=Testing' },
               { icon: <FiGrid />, label: 'Search Asset', link: '/inventory' },
               { icon: <FiActivity />, label: 'Search Job', link: '/jobs' },
               { icon: <FiSettings />, label: 'Master Data', link: '/production-planning' },

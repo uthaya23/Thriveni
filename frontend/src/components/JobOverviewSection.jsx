@@ -75,7 +75,9 @@ export default function JobOverviewSection({ job, setViewStage }) {
     'Visual Inspection & Incoming Assessment',
     'Dismantling & Analysis',
     'Pre-Assembly & Assembly',
-    'Testing & Dispatch',
+    'Testing',
+    'Final Drive Installation',
+    'Dispatch',
     'Report Generation',
     'Completed'
   ];
@@ -91,8 +93,8 @@ export default function JobOverviewSection({ job, setViewStage }) {
       'Repair / Reclamation': 'Pre-Assembly & Assembly',
       'Pre-Assembly': 'Pre-Assembly & Assembly',
       'Assembly': 'Pre-Assembly & Assembly',
-      'Testing': 'Testing & Dispatch',
-      'Dispatch': 'Testing & Dispatch',
+      'Testing': 'Testing',
+      'Dispatch': 'Dispatch',
       'Report': 'Report Generation',
       'Report Generation': 'Report Generation',
     };
@@ -108,8 +110,8 @@ export default function JobOverviewSection({ job, setViewStage }) {
   if (job.priority === 'High' || job.priority === 'Critical') alerts.push({ type: 'error', msg: `${job.priority} Priority Job - Expedite` });
   if (inspection && inspection.missingParts?.length > 0) alerts.push({ type: 'warning', msg: `${inspection.missingParts.length} Missing parts reported during inspection` });
   if (dismantling && dismantling.findings?.length > 0) alerts.push({ type: 'warning', msg: `Critical dismantling findings recorded` });
-  if (effectiveStage === 'Testing & Dispatch' && (!testing || testing.finalIrTests?.length === 0)) alerts.push({ type: 'error', msg: `Final IR tests missing before dispatch` });
-  if (effectiveStage === 'Testing & Dispatch' && (!dispatch || dispatch.dispatchPhotos?.length === 0)) alerts.push({ type: 'warning', msg: `Dispatch photos missing` });
+  if (effectiveStage === 'Testing' && (!testing || testing.finalIrTests?.length === 0)) alerts.push({ type: 'warning', msg: `Final IR tests missing` });
+  if (effectiveStage === 'Dispatch' && (!dispatch || dispatch.dispatchPhotos?.length === 0)) alerts.push({ type: 'warning', msg: `Dispatch photos missing` });
   if (daysOpen > 30 && effectiveStage !== 'Completed') alerts.push({ type: 'error', msg: `Job delayed - Open for > 30 days` });
 
   // Generate Activity Timeline (Mocking based on presence of data)
@@ -222,12 +224,12 @@ export default function JobOverviewSection({ job, setViewStage }) {
                 <div className="flex justify-between items-center"><span className="text-xs font-bold text-slate-500">Final IR Tests:</span><span className="font-bold text-sm">{testing?.finalIrTests?.length || 0}</span></div>
                 <div className="flex justify-between items-center"><span className="text-xs font-bold text-slate-500">Result:</span><span className={`font-bold text-sm ${testing?.result === 'Pass' ? 'text-emerald-600' : 'text-amber-600'}`}>{testing?.result || 'Pending'}</span></div>
               </div>
-            ) : (
+            ) : job.stage === 'Dispatch' ? (
               <div className="space-y-3">
                 <div className="flex justify-between items-center"><span className="text-xs font-bold text-slate-500">Dispatch Checklist:</span><span className="font-bold text-sm">{dispatch?.checklist?.filter(c=>c.checked==='Yes').length || 0} / {dispatch?.checklist?.length || 0}</span></div>
                 <div className="flex justify-between items-center"><span className="text-xs font-bold text-slate-500">Transport:</span><span className="font-bold text-sm">{dispatch?.transportDetails || 'Pending'}</span></div>
               </div>
-            )}
+            ) : null}
           </div>
         </div>
       </div>

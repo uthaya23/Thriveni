@@ -75,7 +75,7 @@ const jobDataSchema = new mongoose.Schema({
     status: { type: String, enum: ['Pending', 'In Progress', 'Completed'], default: 'Pending' }
   },
 
-  // ── Stage 4: Testing & Dispatch ──
+  // ── Stage 4: Testing ──
   stage4: {
     technician: String,
     startDate: String,
@@ -89,10 +89,6 @@ const jobDataSchema = new mongoose.Schema({
     sensorTests: { type: mongoose.Schema.Types.Mixed, default: {} },
     // { 'Armature Coil': { waveform: 'Balanced', appliedVoltage: 500, status: 'Pass' } }
     surgeTests: { type: mongoose.Schema.Types.Mixed, default: {} },
-    // { 'QA Approved': { checked: true, date: '2024-01-10' } }
-    dispatchChecklist: { type: mongoose.Schema.Types.Mixed, default: {} },
-    qaApprovedBy: String,
-    qaApprovedDate: String,
     overallRemarks: String,
     status: { type: String, enum: ['Pending', 'In Progress', 'Completed'], default: 'Pending' }
   },
@@ -107,6 +103,20 @@ const jobDataSchema = new mongoose.Schema({
     finalDriveModel: String,
     installingDate: String,
     status: { type: String, enum: ['Pending', 'In Progress', 'Completed'], default: 'Pending' }
+  },
+
+  // ── Stage 6: Dispatch ──
+  stage6: {
+    technician: String,
+    startDate: String,
+    completionDate: String,
+    photos: [String], // Dispatch Photos
+    // { 'QA Approved': { checked: true, date: '2024-01-10' } }
+    dispatchChecklist: { type: mongoose.Schema.Types.Mixed, default: {} },
+    qaApprovedBy: String,
+    qaApprovedDate: String,
+    overallRemarks: String,
+    status: { type: String, enum: ['Pending', 'In Progress', 'Completed'], default: 'Pending' }
   }
 }, { timestamps: true });
 
@@ -116,8 +126,8 @@ const AuditService = require('../services/AuditService');
 jobDataSchema.post('save', async function(doc) {
   try {
     // Determine which stage was most recently updated
-    const stages = ['stage1', 'stage2', 'stage3', 'stage4'];
-    const stageNumbers = { stage1: 1, stage2: 2, stage3: 3, stage4: 4 };
+    const stages = ['stage1', 'stage2', 'stage3', 'stage4', 'stage5', 'stage6'];
+    const stageNumbers = { stage1: 1, stage2: 2, stage3: 3, stage4: 4, stage5: 5, stage6: 6 };
 
     for (const stageName of stages) {
       if (doc[stageName]?.status === 'Completed' || doc[stageName]?.technician) {
