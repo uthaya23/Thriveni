@@ -59,8 +59,19 @@ router.get('/job/:jobId', resolveJobId('jobId'), asyncHandler(async (req, res) =
 // POST /api/reports/generate-ai
 // ─────────────────────────────────────────────
 const initiateWorkflow = asyncHandler(async (req, res) => {
-  const { jobId, additionalInstructions } = req.body;
+  let { jobId, additionalInstructions } = req.body;
   if (!jobId) return res.status(400).json(ApiResponse.badRequest('jobId is required'));
+
+  const mongoose = require('mongoose');
+  if (!mongoose.Types.ObjectId.isValid(jobId) || String(jobId).length !== 24) {
+    const jobNo = jobId.replace(/-/g, '/');
+    const Job = require('../models/Job');
+    const job = await Job.findOne({ jobNo });
+    if (!job) {
+      return res.status(404).json(ApiResponse.notFound('Job not found for the given Job Number'));
+    }
+    jobId = job._id.toString();
+  }
 
   const result = await ReportService.initiateWorkflow(jobId, additionalInstructions, req.user._id);
   res.status(result.statusCode).json(result);
