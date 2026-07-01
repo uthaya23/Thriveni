@@ -27,6 +27,12 @@ async function syncJobDetailsFromStages(jobId) {
       
       // Auto-advance to Report Generation if sent to vendor to enforce UI skip rules on backend
       if (jobData.stage1.inspectionDecision === 'Send to Vendor') {
+        if (job.delayReason !== 'Sent to Vendor') {
+          job.delayReason = 'Sent to Vendor';
+          job.status = 'On Hold';
+          updated = true;
+        }
+        
         const intermediateStages = [
           'Dismantling & Analysis',
           'Pre-Assembly & Assembly',
@@ -36,10 +42,13 @@ async function syncJobDetailsFromStages(jobId) {
         ];
         if (intermediateStages.includes(job.stage)) {
           job.stage = 'Report Generation';
-          job.status = 'On Hold';
-          job.delayReason = 'Sent to Vendor';
           updated = true;
         }
+      } else if (job.delayReason === 'Sent to Vendor') {
+        // If they change their mind and unselect 'Send to Vendor', clear it
+        job.delayReason = '';
+        job.status = 'In Progress';
+        updated = true;
       }
     }
 

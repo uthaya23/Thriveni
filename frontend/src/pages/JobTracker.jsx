@@ -411,6 +411,9 @@ export default function JobTracker() {
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto', paddingTop: 12, borderTop: '1px dashed var(--border)' }}>
                     <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}>
                       <span className={`stage-badge ${effectiveStage.toLowerCase()}`} style={{ fontSize: '0.65rem', padding: '4px 8px' }}>{effectiveStage}</span>
+                      {job.delayReason === 'Sent to Vendor' && (
+                        <span style={{ fontSize: '0.6rem', padding: '3px 6px', background: '#f59e0b', color: '#fff', borderRadius: '4px', fontWeight: 'bold' }}>SENT TO VENDOR</span>
+                      )}
                       <span style={{
                         display: 'flex', alignItems: 'center', gap: 3,
                         fontSize: '0.75rem', fontWeight: 700, color: days > 30 ? '#dc2626' : 'var(--text-muted)',
