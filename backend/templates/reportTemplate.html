@@ -321,6 +321,7 @@
                     {{fallback report.visualInspectionSummary "No visual inspection summary recorded."}}
                 </p>
 
+                {{#if inspection.initialIrTests}}
                 <div>
                     <h3 style="font-family: 'Montserrat','Inter',sans-serif; font-size: 8.5pt; font-weight: 700; color: #1C2541; margin: 14px 0 6px 0; text-transform: uppercase; letter-spacing: 0.03em; border-bottom: 1px dashed #E2E8F0; padding-bottom: 2px;">3.2 Initial Insulation Resistance (IR) Profile</h3>
                     <table class="w-full border border-slate-200 text-left" style="font-size: 7.5pt; font-family: 'Inter', sans-serif">
@@ -349,15 +350,13 @@
                                 <td class="p-2">{{fallback this.unit "MΩ"}}</td>
                                 <td class="p-2 text-slate-500">{{fallback this.remarks "Requires clean & re-varnish."}}</td>
                             </tr>
-                            {{else}}
-                            <tr>
-                                <td colspan="6" class="p-4 text-center text-slate-400 italic">No initial IR test data recorded.</td>
-                            </tr>
                             {{/each}}
                         </tbody>
                     </table>
                 </div>
+                {{/if}}
 
+                {{#if inspection.initialWrTests}}
                 <div>
                     <h3 style="font-family: 'Montserrat','Inter',sans-serif; font-size: 8.5pt; font-weight: 700; color: #1C2541; margin: 14px 0 6px 0; text-transform: uppercase; letter-spacing: 0.03em; border-bottom: 1px dashed #E2E8F0; padding-bottom: 2px;">3.3 Initial Winding Resistance Log</h3>
                     <table class="w-full border border-slate-200 text-left" style="font-size: 7.5pt; font-family: 'Inter', sans-serif">
@@ -382,14 +381,11 @@
                                 <td class="p-2 font-semibold text-slate-800">{{this.value}}</td>
                                 <td class="p-2 text-slate-500">{{this.remarks}}</td>
                             </tr>
-                            {{else}}
-                            <tr>
-                                <td colspan="4" class="p-4 text-center text-slate-400 italic">No initial winding resistance data recorded.</td>
-                            </tr>
                             {{/each}}
                         </tbody>
                     </table>
                 </div>
+                {{/if}}
             </div>
 
             <!-- 04. DISMANTLING OBSERVATIONS -->
@@ -498,6 +494,7 @@
                     {{fallback report.testingSummary "No final testing summary details recorded."}}
                 </p>
 
+                {{#if testing.finalIrTests}}
                 <div>
                     <h3 style="font-family: 'Montserrat','Inter',sans-serif; font-size: 8.5pt; font-weight: 700; color: #1C2541; margin: 14px 0 6px 0; text-transform: uppercase; letter-spacing: 0.03em; border-bottom: 1px dashed #E2E8F0; padding-bottom: 2px;">7.1 IR Comparison (Before vs. After)</h3>
                     <table class="w-full border border-slate-200 text-left" style="font-size: 7.5pt; font-family: 'Inter', sans-serif">
@@ -514,7 +511,9 @@
                         </tbody>
                     </table>
                 </div>
+                {{/if}}
 
+                {{#if testing.finalWrTests}}
                 <div>
                     <h3 style="font-family: 'Montserrat','Inter',sans-serif; font-size: 8.5pt; font-weight: 700; color: #1C2541; margin: 14px 0 6px 0; text-transform: uppercase; letter-spacing: 0.03em; border-bottom: 1px dashed #E2E8F0; padding-bottom: 2px;">7.2 Final Winding Resistance Log</h3>
                     <table class="w-full border border-slate-200 text-left" style="font-size: 7.5pt; font-family: 'Inter', sans-serif">
@@ -539,14 +538,11 @@
                                 <td class="p-2 font-bold text-slate-800">{{this.value}}</td>
                                 <td class="p-2 text-slate-500">{{this.remarks}}</td>
                             </tr>
-                            {{else}}
-                            <tr>
-                                <td colspan="4" class="p-4 text-center text-slate-400 italic">No final winding resistance data recorded.</td>
-                            </tr>
                             {{/each}}
                         </tbody>
                     </table>
                 </div>
+                {{/if}}
             </div>
         </div>
         <div class="page-footer">
