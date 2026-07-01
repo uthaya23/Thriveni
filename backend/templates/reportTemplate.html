@@ -65,7 +65,13 @@
     <div class="page bg-cover-page flex flex-col px-14 py-10" style="padding-top: 40px; padding-bottom: 40px;">
         <div class="flex justify-between items-center mb-2">
             <!-- For logo, we use an absolute URL or inline base64 if it's broken, but standard /logo.png won't work in puppeteer without base URL. So we will just use a generic or empty logo space if not found, or use the actual URL if provided -->
-            <div style="font-size: 16pt; font-weight: 800; color: #D97706; font-family: 'Montserrat', sans-serif;">THRIVENI</div>
+            <div>
+                {{#if logo}}
+                    <img src="{{logo}}" alt="Thriveni Logo" style="height: 32px;" />
+                {{else}}
+                    <div style="font-size: 16pt; font-weight: 800; color: #D97706; font-family: 'Montserrat', sans-serif;">THRIVENI</div>
+                {{/if}}
+            </div>
             <div class="text-right text-[8pt] text-[#0B132B] font-bold leading-tight">
                 THRIVENI REBUILD CENTER<br />
                 <span class="text-[6.5pt] font-semibold text-slate-500">REBUILD & QUALITY FACILITY</span>
@@ -132,8 +138,12 @@
     <!-- PAGE 2: EXECUTIVE SUMMARY & JOB INFO -->
     <div class="page flex flex-col px-10 py-8" style="padding-top: 32px; padding-bottom: 32px;">
         <div class="page-header">
-            <div>
-                <span style="font-weight: 800; color: #0B132B; font-size: 11pt; letter-spacing: 0.05em; margin-right: 12px;">THRIVENI</span>
+            <div style="display: flex; align-items: center;">
+                {{#if logo}}
+                    <img src="{{logo}}" alt="Thriveni Logo" style="height: 20px; margin-right: 12px;" />
+                {{else}}
+                    <span style="font-weight: 800; color: #0B132B; font-size: 11pt; letter-spacing: 0.05em; margin-right: 12px;">THRIVENI</span>
+                {{/if}}
                 <span style="color: #64748B; font-weight: 600; font-size: 7.5pt; text-transform: uppercase;">Technical Overhaul Report</span>
             </div>
             <div style="text-align: right; font-size: 7.5pt;">
@@ -286,8 +296,12 @@
     <!-- PAGE 3: AS RECEIVED CONDITION -->
     <div class="page flex flex-col px-10 py-8" style="padding-top: 32px; padding-bottom: 32px;">
         <div class="page-header">
-            <div>
-                <span style="font-weight: 800; color: #0B132B; font-size: 11pt; letter-spacing: 0.05em; margin-right: 12px;">THRIVENI</span>
+            <div style="display: flex; align-items: center;">
+                {{#if logo}}
+                    <img src="{{logo}}" alt="Thriveni Logo" style="height: 20px; margin-right: 12px;" />
+                {{else}}
+                    <span style="font-weight: 800; color: #0B132B; font-size: 11pt; letter-spacing: 0.05em; margin-right: 12px;">THRIVENI</span>
+                {{/if}}
                 <span style="color: #64748B; font-weight: 600; font-size: 7.5pt; text-transform: uppercase;">Technical Overhaul Report</span>
             </div>
             <div style="text-align: right; font-size: 7.5pt;">
@@ -412,8 +426,12 @@
     <!-- PAGE 4: ASSESSMENT & TESTING -->
     <div class="page flex flex-col px-10 py-8" style="padding-top: 32px; padding-bottom: 32px;">
         <div class="page-header">
-            <div>
-                <span style="font-weight: 800; color: #0B132B; font-size: 11pt; letter-spacing: 0.05em; margin-right: 12px;">THRIVENI</span>
+            <div style="display: flex; align-items: center;">
+                {{#if logo}}
+                    <img src="{{logo}}" alt="Thriveni Logo" style="height: 20px; margin-right: 12px;" />
+                {{else}}
+                    <span style="font-weight: 800; color: #0B132B; font-size: 11pt; letter-spacing: 0.05em; margin-right: 12px;">THRIVENI</span>
+                {{/if}}
                 <span style="color: #64748B; font-weight: 600; font-size: 7.5pt; text-transform: uppercase;">Technical Overhaul Report</span>
             </div>
             <div style="text-align: right; font-size: 7.5pt;">
@@ -540,8 +558,12 @@
     <!-- PAGE 5: PERFORMANCE, DISPATCH & CONCLUSION -->
     <div class="page flex flex-col px-10 py-8" style="padding-top: 32px; padding-bottom: 32px;">
         <div class="page-header">
-            <div>
-                <span style="font-weight: 800; color: #0B132B; font-size: 11pt; letter-spacing: 0.05em; margin-right: 12px;">THRIVENI</span>
+            <div style="display: flex; align-items: center;">
+                {{#if logo}}
+                    <img src="{{logo}}" alt="Thriveni Logo" style="height: 20px; margin-right: 12px;" />
+                {{else}}
+                    <span style="font-weight: 800; color: #0B132B; font-size: 11pt; letter-spacing: 0.05em; margin-right: 12px;">THRIVENI</span>
+                {{/if}}
                 <span style="color: #64748B; font-weight: 600; font-size: 7.5pt; text-transform: uppercase;">Technical Overhaul Report</span>
             </div>
             <div style="text-align: right; font-size: 7.5pt;">
@@ -633,8 +655,12 @@
     {{#if report.categorizedPhotos}}
     <div class="page flex flex-col px-10 py-8" style="padding-top: 32px; padding-bottom: 32px;">
         <div class="page-header">
-            <div>
-                <span style="font-weight: 800; color: #0B132B; font-size: 11pt; letter-spacing: 0.05em; margin-right: 12px;">THRIVENI</span>
+            <div style="display: flex; align-items: center;">
+                {{#if logo}}
+                    <img src="{{logo}}" alt="Thriveni Logo" style="height: 20px; margin-right: 12px;" />
+                {{else}}
+                    <span style="font-weight: 800; color: #0B132B; font-size: 11pt; letter-spacing: 0.05em; margin-right: 12px;">THRIVENI</span>
+                {{/if}}
                 <span style="color: #64748B; font-weight: 600; font-size: 7.5pt; text-transform: uppercase;">Technical Overhaul Report</span>
             </div>
             <div style="text-align: right; font-size: 7.5pt;">
