@@ -747,6 +747,36 @@ router.get('/pdf/:reportId', asyncHandler(async (req, res) => {
     console.error('Failed to generate QR Code:', err);
   }
 
+  let coverPhotoBase64 = null;
+  if (report.headerLogo) {
+    const hUrl = report.headerLogo;
+    if (hUrl.startsWith('data:image')) {
+      coverPhotoBase64 = hUrl;
+    } else if (hUrl.startsWith('/uploads')) {
+      const localPath = path.join(__dirname, '..', hUrl);
+      if (fs.existsSync(localPath)) {
+        const bitmap = fs.readFileSync(localPath);
+        const ext = path.extname(localPath).slice(1) || 'png';
+        coverPhotoBase64 = `data:image/${ext};base64,${bitmap.toString('base64')}`;
+      }
+    } else if (hUrl.startsWith('http://') || hUrl.startsWith('https://')) {
+      try {
+        const headers = {};
+        if (hUrl.includes('vercel-storage.com') && process.env.BLOB_READ_WRITE_TOKEN) {
+          headers['Authorization'] = `Bearer ${process.env.BLOB_READ_WRITE_TOKEN}`;
+        }
+        const response = await fetch(hUrl, { headers });
+        if (response.ok) {
+          const buffer = await response.arrayBuffer();
+          const ext = hUrl.split('.').pop().split('?')[0] || 'png';
+          coverPhotoBase64 = `data:image/${ext};base64,${Buffer.from(buffer).toString('base64')}`;
+        }
+      } catch (err) {
+        console.warn('Failed to fetch headerLogo:', hUrl, err.message);
+      }
+    }
+  }
+
   const templateData = {
     job: {
       jobNo: job.jobNo,
@@ -772,6 +802,7 @@ router.get('/pdf/:reportId', asyncHandler(async (req, res) => {
                     (job.componentType && job.componentType.toLowerCase().includes('wheel motor'))),
     report,
     failureAnalysis: failureObj,
+    coverPhotoBase64,
     beforePhoto,
     afterPhoto,
     revisionNo,
