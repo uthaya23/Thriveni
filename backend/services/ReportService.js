@@ -502,6 +502,9 @@ Return EXACTLY this JSON structure:
       categorizedPhotos: []
     });
 
+    // Auto-sync photos from JobData stages to the report immediately
+    await ReportService.syncPhotos(report._id);
+
     await AuditService.log({
       entityType: 'Report',
       entityId: report._id,
