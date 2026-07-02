@@ -38,6 +38,33 @@ export default function MonthlyOperationsReport() {
 
 
 
+  const getWorkDoneThisMonth = (job) => {
+    const parseDate = (val) => {
+      if (!val) return null;
+      const d = new Date(val);
+      return isNaN(d.getTime()) ? null : d;
+    };
+
+    const recDate = parseDate(job.dateReceived);
+    const disDate = parseDate(job.disassyDate);
+    const assDate = parseDate(job.assyDate);
+    const compDate = parseDate(job.completedAt);
+    const sndDate = parseDate(job.sendDate);
+
+    const match = (d) => {
+      return d && d.getUTCMonth() === selectedMonth && d.getUTCFullYear() === selectedYear;
+    };
+
+    const activities = [];
+    if (match(recDate)) activities.push('Received');
+    if (match(disDate)) activities.push('Dismantled');
+    if (match(assDate)) activities.push('Assembled');
+    if (match(compDate)) activities.push('Completed');
+    if (match(sndDate)) activities.push('Dispatched');
+
+    return activities.length > 0 ? activities.join(', ') : 'In Progress';
+  };
+
   if (loading) return (
     <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center">
       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-700 mb-4"></div>
@@ -125,6 +152,7 @@ export default function MonthlyOperationsReport() {
                     <th className="px-5 py-3">Serial No</th>
                     <th className="px-5 py-3">Make</th>
                     <th className="px-5 py-3">Client / Site</th>
+                    <th className="px-5 py-3">Work Done (This Month)</th>
                     <th className="px-5 py-3 text-center">Status</th>
                     <th className="px-5 py-3 text-right">Action</th>
                   </tr>
@@ -138,6 +166,11 @@ export default function MonthlyOperationsReport() {
                       <td className="px-5 py-3 text-slate-600 font-mono font-bold">{job.serialNumber || '-'}</td>
                       <td className="px-5 py-3 text-slate-600">{job.subAssemblyMake || job.equipmentMake || '-'}</td>
                       <td className="px-5 py-3 text-slate-700 font-bold">{job.receivedFrom || '-'}</td>
+                      <td className="px-5 py-3">
+                        <span className="font-bold text-slate-700">
+                          {getWorkDoneThisMonth(job)}
+                        </span>
+                      </td>
                       <td className="px-5 py-3 text-center">
                         <span className={`px-2 py-1 rounded text-[9px] font-black uppercase tracking-widest ${
                           job.status === 'Completed' ? 'text-emerald-700 bg-emerald-50' : 
