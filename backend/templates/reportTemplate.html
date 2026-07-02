@@ -657,8 +657,33 @@
                 </div>
             </div>
 
+        </div>
+        <div class="page-footer">
+            <div><strong>Thriveni Rebuild Center</strong> - Proprietary & Confidential</div>
+            <div>Generated {{formatDate ""}}</div>
+        </div>
+    </div>
+
+    <!-- PAGE 6: CONCLUSION & SIGN OFF -->
+    <div class="page flex flex-col px-10 py-8" style="padding-top: 32px; padding-bottom: 32px;">
+        <div class="page-header">
+            <div style="display: flex; align-items: center;">
+                {{#if logo}}
+                    <img src="{{logo}}" alt="Thriveni Logo" style="height: 20px; margin-right: 12px;" />
+                {{else}}
+                    <span style="font-weight: 800; color: #0B132B; font-size: 11pt; letter-spacing: 0.05em; margin-right: 12px;">THRIVENI</span>
+                {{/if}}
+                <span style="color: #64748B; font-weight: 600; font-size: 7.5pt; text-transform: uppercase;">Technical Overhaul Report</span>
+            </div>
+            <div style="text-align: right; font-size: 7.5pt;">
+                <div style="font-weight: 800; color: #0B132B;">{{fallback job.jobNo "N/A"}}</div>
+                <div style="color: #64748B;">{{fallback report.reportNo "N/A"}}</div>
+            </div>
+        </div>
+
+        <div class="space-y-8 flex-1">
             <!-- 10. CONCLUSION & RECOMMENDATIONS -->
-            <div class="space-y-6 mt-6">
+            <div class="space-y-6">
                 <div class="border-b-2 border-amber-600 pb-1">
                     <h2 style="font-family: 'Montserrat','Inter',sans-serif; font-size: 13.5pt; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: #0B132B;">10. Conclusion &amp; Recommendations</h2>
                 </div>
@@ -680,7 +705,7 @@
                 </div>
             </div>
             
-            <div class="mt-12 flex justify-between px-10">
+            <div class="mt-auto pt-12 flex justify-between px-10">
                 <div class="text-center">
                     <div class="w-48 border-b border-slate-400 mb-2 h-10"></div>
                     <div class="font-bold text-slate-800">Technician</div>
