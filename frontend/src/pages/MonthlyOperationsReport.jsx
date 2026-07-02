@@ -23,7 +23,7 @@ export default function MonthlyOperationsReport() {
     try {
       setLoading(true);
       const res = await api.get(`/jobs/analytics/monthly?month=${selectedMonth}&year=${selectedYear}`);
-      setMonthlyData(res.data?.data || { received: [], completed: [], dispatched: [], worked: [] });
+      setMonthlyData(res.data || { received: [], completed: [], dispatched: [], worked: [] });
     } catch (err) {
       console.error(err);
       toast.error('Failed to load operations data');
