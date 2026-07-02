@@ -624,18 +624,18 @@
             </div>
 
             <!-- 09. PERFORMANCE & DISPATCH -->
-            <div class="space-y-6">
-                <div class="border-b-2 border-amber-600 pb-1">
+            <div class="space-y-6 flex flex-col flex-1">
+                <div class="border-b-2 border-amber-600 pb-1 shrink-0">
                     <h2 style="font-family: 'Montserrat','Inter',sans-serif; font-size: 13.5pt; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: #0B132B;">09. Performance &amp; Dispatch</h2>
                 </div>
 
-                <p style="font-size: 8pt; text-align: justify; line-height: 1.6; background: #F8FAFC; padding: 10px 12px; border-radius: 4px; border: 1px solid #E2E8F0; white-space: pre-line; color: #1E293B;">
+                <p class="shrink-0" style="font-size: 8pt; text-align: justify; line-height: 1.6; background: #F8FAFC; padding: 10px 12px; border-radius: 4px; border: 1px solid #E2E8F0; white-space: pre-line; color: #1E293B;">
                     {{fallback report.workPerformed "No overhaul execution summary logged."}}
                 </p>
 
-                <div class="flex gap-4" style="height: 200px;">
+                <div class="flex gap-4 flex-1 min-h-[150px]">
                     <div class="flex-1 border border-slate-200 rounded-lg overflow-hidden bg-slate-50 flex flex-col">
-                        <div class="bg-slate-100 p-2 font-bold text-center text-xs text-blue-900 uppercase">As-Received Condition</div>
+                        <div class="bg-slate-100 p-2 font-bold text-center text-xs text-blue-900 uppercase shrink-0">As-Received Condition</div>
                         <div class="flex-1 flex items-center justify-center bg-white p-2">
                             {{#if beforePhoto}}
                                 <img src="{{beforePhoto}}" alt="Initial State" class="max-h-full max-w-full object-contain" />
@@ -645,7 +645,7 @@
                         </div>
                     </div>
                     <div class="flex-1 border border-slate-200 rounded-lg overflow-hidden bg-slate-50 flex flex-col">
-                        <div class="bg-slate-100 p-2 font-bold text-center text-xs text-blue-900 uppercase">Rebuilt & Certified State</div>
+                        <div class="bg-slate-100 p-2 font-bold text-center text-xs text-blue-900 uppercase shrink-0">Rebuilt & Certified State</div>
                         <div class="flex-1 flex items-center justify-center bg-white p-2">
                             {{#if afterPhoto}}
                                 <img src="{{afterPhoto}}" alt="Certified State" class="max-h-full max-w-full object-contain" />
