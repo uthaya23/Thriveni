@@ -68,7 +68,7 @@ export default function JobOverviewSection({ job, setViewStage }) {
   const irTestsCompleted = (inspection?.initialIrTests?.length || 0) + 
                            (testing?.finalIrTests?.length || 0);
 
-  const daysOpen = Math.floor((new Date() - new Date(job.createdAt)) / (1000 * 60 * 60 * 24));
+  const daysOpen = Math.floor((new Date() - new Date(job.dateReceived || job.recDate || job.createdAt)) / (1000 * 60 * 60 * 24));
 
   // Determine stage completion % roughly
   const STAGES = [
@@ -115,8 +115,8 @@ export default function JobOverviewSection({ job, setViewStage }) {
   if (daysOpen > 30 && effectiveStage !== 'Completed') alerts.push({ type: 'error', msg: `Job delayed - Open for > 30 days` });
 
   // Generate Activity Timeline (Mocking based on presence of data)
-  const activities = [];
-  if (job.createdAt) activities.push({ date: job.createdAt, action: 'Job created & received', icon: <FiCheckCircle/> });
+  const initialDate = job.dateReceived || job.recDate || job.createdAt;
+  if (initialDate) activities.push({ date: initialDate, action: 'Job created & received', icon: <FiCheckCircle/> });
   if (inspection) activities.push({ date: inspection.updatedAt || new Date(), action: 'Inspection data updated', icon: <FiTool/> });
   if (dismantling) activities.push({ date: dismantling.updatedAt || new Date(), action: 'Dismantling work logged', icon: <FiActivity/> });
   if (assembly) activities.push({ date: assembly.updatedAt || new Date(), action: 'Assembly progress recorded', icon: <FiCheckCircle/> });

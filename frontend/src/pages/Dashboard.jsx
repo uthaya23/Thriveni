@@ -35,7 +35,11 @@ const normalizeStage = (stage) => {
   return (legacyMap[stage] || stage).toLowerCase();
 };
 
-const getDaysOpen = (dateStr) => Math.floor((new Date() - new Date(dateStr)) / (1000 * 60 * 60 * 24));
+const getDaysOpen = (job) => {
+  const startStr = job?.dateReceived || job?.recDate || job?.createdAt;
+  if (!startStr) return 0;
+  return Math.floor((new Date() - new Date(startStr)) / (1000 * 60 * 60 * 24));
+};
 
 // ─── MAIN DASHBOARD ─────────────────────────────────────────────────────────────
 export default function Dashboard() {
@@ -113,7 +117,7 @@ export default function Dashboard() {
     allJobs.forEach(job => {
       const stage = normalizeStage(job.stage);
       const isCompleted = stage === 'completed';
-      const days = getDaysOpen(job.createdAt);
+      const days = getDaysOpen(job);
       
       if (isCompleted) {
         completedCount++;
@@ -349,8 +353,8 @@ export default function Dashboard() {
           <div className="flex flex-col lg:flex-row gap-4 items-stretch">
             {STAGE_CONFIG.map((stage, idx) => {
               const stageJobs = activeJobsList.filter(j => normalizeStage(j.stage) === stage.id);
-              const delayed = stageJobs.filter(j => getDaysOpen(j.createdAt) > 15).length;
-              const maxDays = stageJobs.length ? Math.max(...stageJobs.map(j => getDaysOpen(j.createdAt))) : 0;
+              const delayed = stageJobs.filter(j => getDaysOpen(j) > 15).length;
+              const maxDays = stageJobs.length ? Math.max(...stageJobs.map(j => getDaysOpen(j))) : 0;
               
               return (
                 <React.Fragment key={stage.id}>
@@ -397,7 +401,7 @@ export default function Dashboard() {
                 <div key={job._id} onClick={() => navigate(`/jobs/${job.jobNo.replaceAll('/', '-')}`)} className="p-3 border border-red-100 rounded-lg bg-red-50 hover:bg-red-100 cursor-pointer transition-colors border-l-4 border-l-red-500">
                   <div className="flex justify-between items-center mb-1">
                     <span className="text-sm font-black text-red-900">{job.jobNo}</span>
-                    <span className="text-[10px] font-black uppercase text-red-700 bg-red-200 px-2 py-0.5 rounded-full">{getDaysOpen(job.createdAt)} Days</span>
+                    <span className="text-[10px] font-black uppercase text-red-700 bg-red-200 px-2 py-0.5 rounded-full">{getDaysOpen(job)} Days</span>
                   </div>
                   <div className="text-xs font-bold text-red-700/80">{job.stage} Pending</div>
                 </div>

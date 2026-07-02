@@ -111,7 +111,7 @@ exports.generateReport = asyncHandler(async (req, res) => {
       jobNo: job.jobNo,
       job: {
         jobNo: job.jobNo,
-        jobDate: job.createdAt,
+        jobDate: job.dateReceived || job.recDate || job.createdAt,
         customerName: job.receivedFrom || '',
         customerContact: job.customerContact || '',
         siteLocation: job.recSite || '',

@@ -239,7 +239,7 @@ router.get('/pdf/:reportId', asyncHandler(async (req, res) => {
   const dismantling = jd.stage2;
   const assembly = jd.stage3;
   const testing = jd.stage4;
-  const dispatch = jd.stage4;
+  const dispatch = jd.stage6 || jd.stage4;
 
   // Helper to convert photo to base64 for PDF embedding
   const toBase64 = (filename, isAsset = false) => {
@@ -464,10 +464,23 @@ router.get('/pdf/:reportId', asyncHandler(async (req, res) => {
 
   // Rebuild Duration in Days
   let rebuildDurationDays = 0;
-  const startDateStr = job.dateReceived || job.createdAt;
-  const start = new Date(startDateStr);
-  const end = (dispatch && dispatch.createdAt) ? new Date(dispatch.createdAt) : new Date();
-  if (!isNaN(start) && !isNaN(end)) {
+  const startDateStr = job.dateReceived || job.recDate || (inspection && (inspection.startDate || inspection.completionDate));
+  const start = startDateStr ? new Date(startDateStr) : null;
+  const isFinished = ['Completed', 'Done', 'RFD'].includes(job.status) || job.stage === 'Completed';
+  let end;
+  if (isFinished || job.sendDate) {
+    const detailDates = [
+      job.sendDate,
+      job.completedAt,
+      dispatch && (dispatch.completionDate || dispatch.startDate),
+      testing && (testing.completionDate || testing.startDate),
+      assembly && (assembly.completionDate || assembly.startDate),
+    ].filter(Boolean);
+    end = detailDates.length > 0 ? new Date(Math.max(...detailDates.map(d => new Date(d)))) : new Date();
+  } else {
+    end = new Date();
+  }
+  if (start && end && !isNaN(start.getTime()) && !isNaN(end.getTime())) {
     const diffTime = Math.abs(end - start);
     rebuildDurationDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1;
   } else {

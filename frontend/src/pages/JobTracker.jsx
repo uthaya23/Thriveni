@@ -100,8 +100,9 @@ export default function JobTracker() {
   };
 
   const getDaysOpen = (job) => {
-    if (!job.createdAt) return 1;
-    const start = new Date(job.createdAt);
+    const startStr = job.dateReceived || job.recDate || job.createdAt;
+    if (!startStr) return 1;
+    const start = new Date(startStr);
     const end = job.completedAt ? new Date(job.completedAt) : new Date();
     return Math.max(1, Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1);
   };
@@ -161,7 +162,11 @@ export default function JobTracker() {
       job.serialNumber?.toLowerCase().includes(s) ||
       job.receivedFrom?.toLowerCase().includes(s)
     );
-  }).sort((a, b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt));
+  }).sort((a, b) => {
+    const dateA = new Date(a.dateReceived || a.recDate || a.createdAt);
+    const dateB = new Date(b.dateReceived || b.recDate || b.createdAt);
+    return dateB - dateA;
+  });
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = Math.min(startIndex + itemsPerPage, filteredJobs.length);

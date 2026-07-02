@@ -153,7 +153,7 @@ export default function OverviewTab({ job, onUpdate, isReadOnly, setViewStage })
   if (job.priority === 'High' || job.priority === 'Critical') {
     alerts.push({ type: 'error', msg: `${job.priority} Priority Job - Action Required` });
   }
-  const daysOpen = Math.floor((new Date() - new Date(job.createdAt)) / (1000 * 60 * 60 * 24));
+  const daysOpen = Math.floor((new Date() - new Date(job.dateReceived || job.recDate || job.createdAt)) / (1000 * 60 * 60 * 24));
   if (daysOpen > 30 && effectiveStage !== 'Completed') {
     alerts.push({ type: 'error', msg: `Cycle time exceeded: Job open for ${daysOpen} days` });
   }

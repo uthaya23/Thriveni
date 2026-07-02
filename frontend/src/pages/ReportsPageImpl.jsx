@@ -142,7 +142,7 @@ export default function ReportsPageImpl() {
     return matchesSearch && matchesStage;
   });
 
-  const sortedJobs = [...filteredJobs].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  const sortedJobs = [...filteredJobs].sort((a, b) => new Date(b.dateReceived || b.recDate || b.createdAt) - new Date(a.dateReceived || a.recDate || a.createdAt));
 
   const uniqueStages = ['All', ...new Set(jobs.map(j => j.stage).filter(Boolean))];
 
