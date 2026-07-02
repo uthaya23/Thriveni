@@ -226,10 +226,12 @@ router.get('/pdf/:reportId', asyncHandler(async (req, res) => {
 
   const job = report.job;
   const JobData = require('../models/JobData');
-  const [jobDataDoc, photos, workDetails] = await Promise.all([
+  const Materials = require('../models/Materials');
+  const [jobDataDoc, photos, workDetails, materialsDoc] = await Promise.all([
     JobData.findOne({ job: job._id }).lean(),
     Photo.find({ job: job._id }).lean(),
-    WorkDetail.find({ jobNo: job.jobNo }).lean()
+    WorkDetail.find({ jobNo: job.jobNo }).lean(),
+    Materials.findOne({ job: job._id }).lean()
   ]);
   
   const jd = jobDataDoc || {};
@@ -482,18 +484,31 @@ router.get('/pdf/:reportId', asyncHandler(async (req, res) => {
     Object.values(dismantling.componentConditionAssessment).forEach(p => {
       if (p.reuseStatus === 'Reuse' || p.reuseStatus === 'Repair') {
         componentsRepaired++;
-      } else {
-        componentsReplaced++;
       }
     });
   }
+  
+  if (materialsDoc && materialsDoc.items) {
+    const validItems = materialsDoc.items.filter(i => i.status !== 'Not Required');
+    componentsReplaced = validItems.reduce((acc, i) => acc + (i.quantity || 1), 0);
+  }
+
   if (componentsRepaired === 0 && componentsReplaced === 0) {
     componentsRepaired = 12;
     componentsReplaced = 4;
   }
 
   // Cost analysis
-  const repairCost = parseFloat(job.totalRepairCost) || 850000;
+  let repairCost = parseFloat(job.totalRepairCost) || 0;
+  if (materialsDoc && materialsDoc.items) {
+    repairCost = materialsDoc.items.reduce((sum, item) => {
+      if (item.status === 'Not Required') return sum;
+      return sum + (item.totalCost || (item.unitCost * item.quantity) || 0);
+    }, 0);
+  }
+  
+  if (!repairCost) repairCost = 850000; // Fallback
+
   const newReplacementCost = repairCost * 3.5;
   const savingsAchieved = newReplacementCost - repairCost;
   const hasCostData = true;
