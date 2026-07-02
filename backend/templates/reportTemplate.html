@@ -575,49 +575,37 @@
                     <h2 style="font-family: 'Montserrat','Inter',sans-serif; font-size: 13.5pt; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: #0B132B;">08. Resource &amp; Cost Analysis</h2>
                 </div>
                 
-                <div class="grid grid-cols-2 gap-6">
-                    <div>
-                        <h3 style="font-family: 'Montserrat','Inter',sans-serif; font-size: 8.5pt; font-weight: 700; color: #1C2541; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.03em; border-bottom: 1px dashed #E2E8F0; padding-bottom: 2px;">Materials Requisition</h3>
-                        <table class="w-full border border-slate-200" style="font-size: 7pt; font-family: 'Inter', sans-serif">
-                            <thead>
-                                <tr class="bg-slate-100 text-slate-700 text-left">
-                                    <th class="p-1.5 border-b border-slate-200">Material Description</th>
-                                    <th class="p-1.5 border-b border-slate-200 text-center">Qty</th>
-                                    <th class="p-1.5 border-b border-slate-200 text-right">Cost</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-200 bg-white">
-                                {{#each materialsList}}
-                                <tr>
-                                    <td class="p-1.5 text-slate-800">{{this.description}}</td>
-                                    <td class="p-1.5 text-slate-600 font-mono text-center">{{this.quantity}}</td>
-                                    <td class="p-1.5 text-slate-800 font-mono text-right">{{this.totalCostFormatted}}</td>
-                                </tr>
-                                {{else}}
-                                <tr>
-                                    <td colspan="3" class="p-2 text-center text-slate-500 italic">No materials requested.</td>
-                                </tr>
-                                {{/each}}
-                            </tbody>
-                        </table>
-                    </div>
-                    <div>
-                        <h3 style="font-family: 'Montserrat','Inter',sans-serif; font-size: 8.5pt; font-weight: 700; color: #1C2541; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.03em; border-bottom: 1px dashed #E2E8F0; padding-bottom: 2px;">Cost Benefit Analysis</h3>
-                        <div class="bg-emerald-50/30 border border-emerald-200 rounded-lg p-3 space-y-3">
-                            <div class="flex justify-between items-center border-b border-emerald-100 pb-2">
-                                <span class="text-[7.5pt] font-bold text-slate-600 uppercase">Total Repair Cost</span>
-                                <span class="font-bold text-slate-800 font-mono">{{cost.repairCost}}</span>
-                            </div>
-                            <div class="flex justify-between items-center border-b border-emerald-100 pb-2">
-                                <span class="text-[7.5pt] font-bold text-slate-600 uppercase">New Replacement Value</span>
-                                <span class="font-bold text-slate-800 font-mono">{{cost.newReplacementCost}}</span>
-                            </div>
-                            <div class="flex justify-between items-center bg-emerald-100/50 p-2 rounded">
-                                <span class="text-[8pt] font-black text-emerald-800 uppercase tracking-wide">Savings Achieved</span>
-                                <span class="text-[9pt] font-black text-emerald-700 font-mono">{{cost.savingsAchieved}}</span>
-                            </div>
-                        </div>
-                    </div>
+                <div>
+                    <table class="w-full border border-slate-200" style="font-size: 8pt; font-family: 'Inter', sans-serif">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-700 text-left">
+                                <th class="p-2 border-b border-slate-200 w-1/4 uppercase tracking-wide font-bold">Material Code</th>
+                                <th class="p-2 border-b border-slate-200 w-1/2 uppercase tracking-wide font-bold">Material Description</th>
+                                <th class="p-2 border-b border-slate-200 text-center w-1/12 uppercase tracking-wide font-bold">Qty</th>
+                                <th class="p-2 border-b border-slate-200 text-right w-1/6 uppercase tracking-wide font-bold">Price</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200 bg-white">
+                            {{#each materialsList}}
+                            <tr>
+                                <td class="p-2 text-slate-600 font-mono">{{fallback this.materialCode "—"}}</td>
+                                <td class="p-2 text-slate-800 font-medium">{{this.description}}</td>
+                                <td class="p-2 text-slate-600 font-mono text-center">{{this.quantity}}</td>
+                                <td class="p-2 text-slate-800 font-mono text-right">{{this.totalCostFormatted}}</td>
+                            </tr>
+                            {{else}}
+                            <tr>
+                                <td colspan="4" class="p-4 text-center text-slate-500 italic">No materials recorded.</td>
+                            </tr>
+                            {{/each}}
+                        </tbody>
+                        <tfoot>
+                            <tr class="bg-slate-50 border-t-2 border-slate-300">
+                                <td colspan="3" class="p-2.5 text-right font-black text-slate-800 uppercase tracking-wider">Total Material Cost</td>
+                                <td class="p-2.5 text-right font-black text-emerald-700 font-mono text-[9pt]">{{cost.repairCost}}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
             </div>
 
