@@ -853,7 +853,11 @@ router.get('/pdf/:reportId', asyncHandler(async (req, res) => {
       repairCost: repairCost.toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }),
       newReplacementCost: newReplacementCost.toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }),
       savingsAchieved: savingsAchieved.toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 })
-    }
+    },
+    materialsList: materialsDoc && materialsDoc.items ? materialsDoc.items.filter(i => i.status !== 'Not Required').map(i => ({
+      ...i,
+      totalCostFormatted: (i.totalCost || (i.unitCost * i.quantity) || 0).toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 })
+    })) : []
   };
 
   const os = require('os');

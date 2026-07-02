@@ -577,29 +577,27 @@
                 
                 <div class="grid grid-cols-2 gap-6">
                     <div>
-                        <h3 style="font-family: 'Montserrat','Inter',sans-serif; font-size: 8.5pt; font-weight: 700; color: #1C2541; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.03em; border-bottom: 1px dashed #E2E8F0; padding-bottom: 2px;">Material &amp; Labor Summary</h3>
-                        <table class="w-full border border-slate-200" style="font-size: 7.5pt; font-family: 'Inter', sans-serif">
-                            <tbody class="divide-y divide-slate-200">
-                                <tr>
-                                    <td class="p-2 font-bold bg-slate-50 text-slate-600 w-2/3">Total Labor Hours</td>
-                                    <td class="p-2 font-medium text-slate-800 font-mono">{{totalLaborHours}} Hrs</td>
+                        <h3 style="font-family: 'Montserrat','Inter',sans-serif; font-size: 8.5pt; font-weight: 700; color: #1C2541; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.03em; border-bottom: 1px dashed #E2E8F0; padding-bottom: 2px;">Materials Requisition</h3>
+                        <table class="w-full border border-slate-200" style="font-size: 7pt; font-family: 'Inter', sans-serif">
+                            <thead>
+                                <tr class="bg-slate-100 text-slate-700 text-left">
+                                    <th class="p-1.5 border-b border-slate-200">Material Description</th>
+                                    <th class="p-1.5 border-b border-slate-200 text-center">Qty</th>
+                                    <th class="p-1.5 border-b border-slate-200 text-right">Cost</th>
                                 </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200 bg-white">
+                                {{#each materialsList}}
                                 <tr>
-                                    <td class="p-2 font-bold bg-slate-50 text-slate-600">Rebuild Duration</td>
-                                    <td class="p-2 font-medium text-slate-800 font-mono">{{rebuildDurationDays}} Days</td>
+                                    <td class="p-1.5 text-slate-800">{{this.description}}</td>
+                                    <td class="p-1.5 text-slate-600 font-mono text-center">{{this.quantity}}</td>
+                                    <td class="p-1.5 text-slate-800 font-mono text-right">{{this.totalCostFormatted}}</td>
                                 </tr>
+                                {{else}}
                                 <tr>
-                                    <td class="p-2 font-bold bg-slate-50 text-slate-600">Components Repaired</td>
-                                    <td class="p-2 font-medium text-slate-800 font-mono">{{componentsRepaired}}</td>
+                                    <td colspan="3" class="p-2 text-center text-slate-500 italic">No materials requested.</td>
                                 </tr>
-                                <tr>
-                                    <td class="p-2 font-bold bg-slate-50 text-slate-600">Components Replaced</td>
-                                    <td class="p-2 font-medium text-slate-800 font-mono">{{componentsReplaced}}</td>
-                                </tr>
-                                <tr>
-                                    <td class="p-2 font-bold bg-slate-50 text-slate-600">Missing Parts Logged</td>
-                                    <td class="p-2 font-medium text-slate-800 font-mono text-red-600">{{missingSummary.totalMissing}}</td>
-                                </tr>
+                                {{/each}}
                             </tbody>
                         </table>
                     </div>
