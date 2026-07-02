@@ -728,10 +728,10 @@ export default function ReportTab({ jobId, job }) {
               </div>
               <div className="border-b-[4px] border-[#E58200] mb-12"></div>
 
-              <div className="text-center mb-4 text-[14pt] font-semibold text-[#D97706] uppercase tracking-[0.08em]" style={{ fontFamily: "'Montserrat', 'Inter', sans-serif" }}>Technical Overhaul Report</div>
-              <div className="text-center mb-3 text-[28pt] font-extrabold text-[#0B132B] leading-tight" style={{ fontFamily: "'Montserrat', 'Inter', sans-serif" }}>Industrial Rebuild Report</div>
+              <div className="text-center mb-4 text-[14pt] font-semibold text-[#D97706] uppercase tracking-[0.08em]" style={{ fontFamily: "'Montserrat', 'Inter', sans-serif" }}>THRIVENI REBUILD CENTER</div>
+              <div className="text-center mb-3 text-[28pt] font-extrabold text-[#0B132B] leading-tight" style={{ fontFamily: "'Montserrat', 'Inter', sans-serif" }}>TECHNICAL OVERHAUL REPORT</div>
               <div className="text-center mb-8 text-[12pt] font-medium text-slate-500 uppercase tracking-[0.03em]" style={{ fontFamily: "'Inter', sans-serif" }}>
-                {job?.equipmentModel || "N/A"} — {job?.description || "N/A"}
+                {job?.equipmentModel || "N/A"} {job?.description || "N/A"}
               </div>
 
               <div className="mx-auto w-[500px] mb-8 border border-slate-200 rounded-lg p-1 bg-white h-[350px] relative flex items-center justify-center overflow-hidden group">
