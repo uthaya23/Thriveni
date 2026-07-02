@@ -431,11 +431,25 @@ router.get('/pdf/:reportId', asyncHandler(async (req, res) => {
     }
   });
 
-  // 3. Before & After Photo extraction from categorizedPhotos arrays
-  const beforePhoto = (categorizedPhotos.initial && categorizedPhotos.initial[0] && categorizedPhotos.initial[0].url) || null;
-  const afterPhoto = (categorizedPhotos.dispatch && categorizedPhotos.dispatch[0] && categorizedPhotos.dispatch[0].url) ||
-                     (categorizedPhotos.testing && categorizedPhotos.testing[0] && categorizedPhotos.testing[0].url) ||
-                     (categorizedPhotos.assembly && categorizedPhotos.assembly[0] && categorizedPhotos.assembly[0].url) || null;
+  // 3. Before & After Photo extraction
+  let beforePhoto = null;
+  let afterPhoto = null;
+
+  if (report.beforePhotoUrl) {
+    beforePhoto = toBase64(report.beforePhotoUrl);
+  }
+  if (!beforePhoto) {
+    beforePhoto = (categorizedPhotos.initial && categorizedPhotos.initial[0] && categorizedPhotos.initial[0].url) || null;
+  }
+
+  if (report.afterPhotoUrl) {
+    afterPhoto = toBase64(report.afterPhotoUrl);
+  }
+  if (!afterPhoto) {
+    afterPhoto = (categorizedPhotos.dispatch && categorizedPhotos.dispatch[0] && categorizedPhotos.dispatch[0].url) ||
+                 (categorizedPhotos.testing && categorizedPhotos.testing[0] && categorizedPhotos.testing[0].url) ||
+                 (categorizedPhotos.assembly && categorizedPhotos.assembly[0] && categorizedPhotos.assembly[0].url) || null;
+  }
 
   // 4. Component Rebuild dates & KPI metrics
   const today = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });

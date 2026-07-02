@@ -1378,23 +1378,82 @@ export default function ReportTab({ jobId, job }) {
                 )}
 
                 <div className="flex gap-4">
-                  <div className="flex-1 border border-slate-200 rounded-lg overflow-hidden bg-slate-50">
-                    <div className="bg-slate-100 p-2 font-bold text-center text-xs text-blue-900 uppercase">As-Received Condition</div>
-                    <div className="h-44 flex items-center justify-center bg-white p-2">
-                      {stageData.inspection?.photos?.length > 0 ? (
-                        <img src={getImageUrl(stageData.inspection.photos[0])} alt="Initial State" className="max-h-full max-w-full object-contain" />
+                  <div className="flex-1 border border-slate-200 rounded-lg overflow-hidden bg-slate-50 relative group">
+                    <div className="bg-slate-100 p-2 font-bold text-center text-xs text-blue-900 uppercase relative z-30">As-Received Condition</div>
+                    <div className="h-44 flex items-center justify-center bg-white p-2 relative">
+                      {editingField === 'beforePhoto' ? (
+                        <div className="absolute inset-0 bg-slate-900/95 z-20 flex flex-col p-2 overflow-y-auto">
+                          <div className="flex justify-between items-center mb-2 sticky top-0 bg-slate-900/95 pb-1">
+                            <span className="text-white font-bold text-[10px] tracking-wide">SELECT PHOTO</span>
+                            <button onClick={() => setEditingField(null)} className="text-white bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded text-[10px] font-bold uppercase">Close</button>
+                          </div>
+                          <div className="grid grid-cols-2 gap-2">
+                            {allJobPhotos.map(photo => {
+                              const url = photo.url || `/uploads/photos/${photo.filename}`;
+                              return (
+                                <div key={photo._id} onClick={() => { setEditedData({ ...editedData, beforePhotoUrl: url }); setEditingField(null); }} className="cursor-pointer bg-black rounded overflow-hidden aspect-[4/3] border border-transparent hover:border-blue-500 transition-all">
+                                  <img src={getImageUrl(url)} className="w-full h-full object-cover opacity-80 hover:opacity-100" />
+                                </div>
+                              )
+                            })}
+                          </div>
+                        </div>
                       ) : (
-                        <span className="text-slate-400 text-xs italic">No photo available</span>
+                        <>
+                          {editedData.beforePhotoUrl || stageData.inspection?.photos?.length > 0 ? (
+                            <>
+                              <img src={getImageUrl(editedData.beforePhotoUrl || stageData.inspection.photos[0])} alt="Initial State" className="max-h-full max-w-full object-contain" />
+                              <button
+                                onClick={() => setEditingField('beforePhoto')}
+                                className="absolute inset-0 bg-black/50 text-white font-bold tracking-widest text-[10px] uppercase flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                              >
+                                <FiCamera className="mr-1" size={14} /> Change Photo
+                              </button>
+                            </>
+                          ) : (
+                            <span className="text-slate-400 text-xs italic">No photo available</span>
+                          )}
+                        </>
                       )}
                     </div>
                   </div>
-                  <div className="flex-1 border border-slate-200 rounded-lg overflow-hidden bg-slate-50">
-                    <div className="bg-slate-100 p-2 font-bold text-center text-xs text-blue-900 uppercase">Rebuilt & Certified State</div>
-                    <div className="h-44 flex items-center justify-center bg-white p-2">
-                      {stageData.testing?.photos?.length > 0 ? (
-                        <img src={getImageUrl(stageData.testing.photos[0])} alt="Certified State" className="max-h-full max-w-full object-contain" />
+                  
+                  <div className="flex-1 border border-slate-200 rounded-lg overflow-hidden bg-slate-50 relative group">
+                    <div className="bg-slate-100 p-2 font-bold text-center text-xs text-blue-900 uppercase relative z-30">Rebuilt & Certified State</div>
+                    <div className="h-44 flex items-center justify-center bg-white p-2 relative">
+                      {editingField === 'afterPhoto' ? (
+                        <div className="absolute inset-0 bg-slate-900/95 z-20 flex flex-col p-2 overflow-y-auto">
+                          <div className="flex justify-between items-center mb-2 sticky top-0 bg-slate-900/95 pb-1">
+                            <span className="text-white font-bold text-[10px] tracking-wide">SELECT PHOTO</span>
+                            <button onClick={() => setEditingField(null)} className="text-white bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded text-[10px] font-bold uppercase">Close</button>
+                          </div>
+                          <div className="grid grid-cols-2 gap-2">
+                            {allJobPhotos.map(photo => {
+                              const url = photo.url || `/uploads/photos/${photo.filename}`;
+                              return (
+                                <div key={photo._id} onClick={() => { setEditedData({ ...editedData, afterPhotoUrl: url }); setEditingField(null); }} className="cursor-pointer bg-black rounded overflow-hidden aspect-[4/3] border border-transparent hover:border-blue-500 transition-all">
+                                  <img src={getImageUrl(url)} className="w-full h-full object-cover opacity-80 hover:opacity-100" />
+                                </div>
+                              )
+                            })}
+                          </div>
+                        </div>
                       ) : (
-                        <span className="text-slate-400 text-xs italic">No photo available</span>
+                        <>
+                          {editedData.afterPhotoUrl || stageData.testing?.photos?.length > 0 ? (
+                            <>
+                              <img src={getImageUrl(editedData.afterPhotoUrl || stageData.testing.photos[0])} alt="Certified State" className="max-h-full max-w-full object-contain" />
+                              <button
+                                onClick={() => setEditingField('afterPhoto')}
+                                className="absolute inset-0 bg-black/50 text-white font-bold tracking-widest text-[10px] uppercase flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                              >
+                                <FiCamera className="mr-1" size={14} /> Change Photo
+                              </button>
+                            </>
+                          ) : (
+                            <span className="text-slate-400 text-xs italic">No photo available</span>
+                          )}
+                        </>
                       )}
                     </div>
                   </div>

@@ -24,6 +24,11 @@ const reportSchema = new mongoose.Schema({
   pdfPath: String,
   pdfUrl: String,
 
+  // Manually selected photos for PDF 
+  headerLogo: String,
+  beforePhotoUrl: String,
+  afterPhotoUrl: String,
+
   // Prompt used
   promptUsed: String,
 
