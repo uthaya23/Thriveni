@@ -1400,19 +1400,19 @@ export default function ReportTab({ jobId, job }) {
                         </div>
                       ) : (
                         <>
+                        <>
                           {editedData.beforePhotoUrl || stageData.inspection?.photos?.length > 0 ? (
-                            <>
-                              <img src={getImageUrl(editedData.beforePhotoUrl || stageData.inspection.photos[0])} alt="Initial State" className="max-h-full max-w-full object-contain" />
-                              <button
-                                onClick={() => setEditingField('beforePhoto')}
-                                className="absolute inset-0 bg-black/50 text-white font-bold tracking-widest text-[10px] uppercase flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"
-                              >
-                                <FiCamera className="mr-1" size={14} /> Change Photo
-                              </button>
-                            </>
+                            <img src={getImageUrl(editedData.beforePhotoUrl || stageData.inspection.photos[0])} alt="Initial State" className="max-h-full max-w-full object-contain" />
                           ) : (
                             <span className="text-slate-400 text-xs italic">No photo available</span>
                           )}
+                          <button
+                            onClick={() => setEditingField('beforePhoto')}
+                            className="absolute inset-0 bg-black/50 text-white font-bold tracking-widest text-[10px] uppercase flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                          >
+                            <FiCamera className="mr-1" size={14} /> {editedData.beforePhotoUrl || stageData.inspection?.photos?.length > 0 ? 'Change Photo' : 'Select Photo'}
+                          </button>
+                        </>
                         </>
                       )}
                     </div>
@@ -1440,19 +1440,19 @@ export default function ReportTab({ jobId, job }) {
                         </div>
                       ) : (
                         <>
+                        <>
                           {editedData.afterPhotoUrl || stageData.testing?.photos?.length > 0 ? (
-                            <>
-                              <img src={getImageUrl(editedData.afterPhotoUrl || stageData.testing.photos[0])} alt="Certified State" className="max-h-full max-w-full object-contain" />
-                              <button
-                                onClick={() => setEditingField('afterPhoto')}
-                                className="absolute inset-0 bg-black/50 text-white font-bold tracking-widest text-[10px] uppercase flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"
-                              >
-                                <FiCamera className="mr-1" size={14} /> Change Photo
-                              </button>
-                            </>
+                            <img src={getImageUrl(editedData.afterPhotoUrl || stageData.testing.photos[0])} alt="Certified State" className="max-h-full max-w-full object-contain" />
                           ) : (
                             <span className="text-slate-400 text-xs italic">No photo available</span>
                           )}
+                          <button
+                            onClick={() => setEditingField('afterPhoto')}
+                            className="absolute inset-0 bg-black/50 text-white font-bold tracking-widest text-[10px] uppercase flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                          >
+                            <FiCamera className="mr-1" size={14} /> {editedData.afterPhotoUrl || stageData.testing?.photos?.length > 0 ? 'Change Photo' : 'Select Photo'}
+                          </button>
+                        </>
                         </>
                       )}
                     </div>
