@@ -802,11 +802,11 @@ export default function ReportTab({ jobId, job }) {
                     </div>
                   </div>
                   <div className="p-4 border-b border-r border-slate-100 flex flex-col justify-center">
-                    <div className="text-slate-400 text-[6.5pt] font-bold uppercase tracking-widest mb-1 flex items-center gap-1.5"><FiCalendar size={10} /> Received Date</div>
+                    <div className="text-slate-400 text-[6.5pt] font-bold uppercase tracking-widest mb-1 flex items-center gap-1.5"><FiCalendar size={10} /> Received</div>
                     <div className="font-extrabold text-[#0B132B] text-[9.5pt]">{editedData?.createdAt ? new Date(editedData.createdAt).toLocaleDateString() : 'N/A'}</div>
                   </div>
                   <div className="p-4 border-b border-slate-100 flex flex-col justify-center">
-                    <div className="text-slate-400 text-[6.5pt] font-bold uppercase tracking-widest mb-1 flex items-center gap-1.5"><FiCheckCircle size={10} /> Release Date</div>
+                    <div className="text-slate-400 text-[6.5pt] font-bold uppercase tracking-widest mb-1 flex items-center gap-1.5"><FiCheckCircle size={10} /> Release</div>
                     <div className="font-extrabold text-[#0B132B] text-[9.5pt]">Pending QA Signoff</div>
                   </div>
                   <div className="p-4 border-t-0 border-slate-100 flex flex-col justify-center col-span-2">
