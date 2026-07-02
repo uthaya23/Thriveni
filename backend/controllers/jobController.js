@@ -94,6 +94,19 @@ class JobController {
   }
 
   /**
+   * Get monthly analytics
+   */
+  static async getMonthlyAnalytics(req, res, next) {
+    try {
+      const { month, year } = req.query;
+      const result = await JobService.getMonthlyAnalytics(Number(month), Number(year));
+      res.status(result.statusCode).json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
    * Bulk update jobs
    */
   static async bulkUpdateJobs(req, res, next) {

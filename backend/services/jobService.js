@@ -551,6 +551,59 @@ class JobService {
   }
 
   /**
+   * Get monthly analytics
+   */
+  static async getMonthlyAnalytics(month, year) {
+    try {
+      if (month === undefined || year === undefined || isNaN(month) || isNaN(year)) {
+        return ApiResponse.badRequest('Valid month and year are required');
+      }
+
+      const jobs = await Job.find({ isDeleted: { $ne: true } }).lean();
+      
+      const monthlyData = { received: [], completed: [], dispatched: [], worked: [] };
+      
+      jobs.forEach(j => {
+        // 1. Received
+        const recDate = new Date(j.dateReceived || j.createdAt);
+        const isRecThisMonth = recDate.getMonth() === month && recDate.getFullYear() === year;
+        if (isRecThisMonth) monthlyData.received.push(j);
+        
+        // 2. Completed
+        let isCompThisMonth = false;
+        if (j.status === 'Completed' && j.updatedAt) {
+          const compDate = new Date(j.updatedAt);
+          isCompThisMonth = compDate.getMonth() === month && compDate.getFullYear() === year;
+          if (isCompThisMonth) monthlyData.completed.push(j);
+        }
+        
+        // 3. Dispatched
+        let isDispThisMonth = false;
+        if (j.sendDate) {
+          const dispDate = new Date(j.sendDate);
+          isDispThisMonth = dispDate.getMonth() === month && dispDate.getFullYear() === year;
+          if (isDispThisMonth) monthlyData.dispatched.push(j);
+        }
+        
+        // 4. Worked (Active at any point during the selected month)
+        const start = new Date(j.createdAt);
+        const end = (j.status === 'Completed' && j.updatedAt) ? new Date(j.updatedAt) : new Date();
+        const monthStart = new Date(year, month, 1);
+        const monthEnd = new Date(year, month + 1, 0, 23, 59, 59);
+        
+        if (start <= monthEnd && end >= monthStart) {
+          monthlyData.worked.push(j);
+        }
+      });
+
+      return ApiResponse.success('Monthly analytics retrieved', monthlyData);
+    } catch (error) {
+      Logger.error('Error retrieving monthly analytics', error);
+      throw error;
+    }
+  }
+
+  /**
    * Bulk update jobs
    */
   static async bulkUpdateJobs(jobIds, updateData, updatedBy = null) {

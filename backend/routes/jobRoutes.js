@@ -33,6 +33,7 @@ router.delete('/:id', notTechnician, validateRequest(jobIdSchema, 'params'), asy
 
 // Job statistics
 router.get('/stats/summary', asyncHandler(JobController.getJobStats));
+router.get('/analytics/monthly', asyncHandler(JobController.getMonthlyAnalytics));
 
 // Filtered job queries
 router.get('/status/:status', validateRequest(jobQuerySchema, 'query'), asyncHandler(JobController.getJobsByStatus));

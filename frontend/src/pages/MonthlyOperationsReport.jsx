@@ -8,7 +8,6 @@ import {
 
 export default function MonthlyOperationsReport() {
   const navigate = useNavigate();
-  const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
@@ -18,12 +17,13 @@ export default function MonthlyOperationsReport() {
   const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   const years = Array.from({length: 5}, (_, i) => new Date().getFullYear() - i);
 
-  const fetchJobs = async () => {
+  const [monthlyData, setMonthlyData] = useState({ received: [], completed: [], dispatched: [], worked: [] });
+
+  const fetchMonthlyData = async () => {
     try {
       setLoading(true);
-      const res = await api.get('/jobs/all?limit=2000');
-      const jobsData = res.data?.jobs || res.data || [];
-      setJobs(Array.isArray(jobsData) ? jobsData : []);
+      const res = await api.get(`/jobs/analytics/monthly?month=${selectedMonth}&year=${selectedYear}`);
+      setMonthlyData(res.data?.data || { received: [], completed: [], dispatched: [], worked: [] });
     } catch (err) {
       console.error(err);
       toast.error('Failed to load operations data');
@@ -33,44 +33,10 @@ export default function MonthlyOperationsReport() {
   };
 
   useEffect(() => {
-    fetchJobs();
-  }, []);
+    fetchMonthlyData();
+  }, [selectedMonth, selectedYear]);
 
-  // --- Monthly Report Logic ---
-  const monthlyData = { received: [], completed: [], dispatched: [], worked: [] };
-  
-  jobs.forEach(j => {
-    // 1. Received
-    const recDate = new Date(j.dateReceived || j.createdAt);
-    const isRecThisMonth = recDate.getMonth() === selectedMonth && recDate.getFullYear() === selectedYear;
-    if (isRecThisMonth) monthlyData.received.push(j);
-    
-    // 2. Completed
-    let isCompThisMonth = false;
-    if (j.status === 'Completed' && j.updatedAt) {
-      const compDate = new Date(j.updatedAt);
-      isCompThisMonth = compDate.getMonth() === selectedMonth && compDate.getFullYear() === selectedYear;
-      if (isCompThisMonth) monthlyData.completed.push(j);
-    }
-    
-    // 3. Dispatched
-    let isDispThisMonth = false;
-    if (j.sendDate) {
-      const dispDate = new Date(j.sendDate);
-      isDispThisMonth = dispDate.getMonth() === selectedMonth && dispDate.getFullYear() === selectedYear;
-      if (isDispThisMonth) monthlyData.dispatched.push(j);
-    }
-    
-    // 4. Worked (Active at any point during the selected month)
-    const start = new Date(j.createdAt);
-    const end = (j.status === 'Completed' && j.updatedAt) ? new Date(j.updatedAt) : new Date(); // If not completed, it's ongoing
-    const monthStart = new Date(selectedYear, selectedMonth, 1);
-    const monthEnd = new Date(selectedYear, selectedMonth + 1, 0, 23, 59, 59);
-    
-    if (start <= monthEnd && end >= monthStart) {
-      monthlyData.worked.push(j);
-    }
-  });
+
 
   if (loading) return (
     <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center">
@@ -107,7 +73,7 @@ export default function MonthlyOperationsReport() {
               </select>
             </div>
           </div>
-          <button onClick={fetchJobs} className="bg-white border border-slate-200 text-slate-600 px-4 py-2 rounded-lg font-bold text-xs flex items-center gap-2 hover:bg-slate-50 shadow-sm transition-all">
+          <button onClick={fetchMonthlyData} className="bg-white border border-slate-200 text-slate-600 px-4 py-2 rounded-lg font-bold text-xs flex items-center gap-2 hover:bg-slate-50 shadow-sm transition-all">
             <FiRefreshCw /> Refresh Data
           </button>
         </div>
