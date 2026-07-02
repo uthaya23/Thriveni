@@ -565,7 +565,7 @@ class JobService {
       
       jobs.forEach(j => {
         // 1. Received
-        const recDate = new Date(j.dateReceived || j.createdAt);
+        const recDate = new Date(normalizeDate(j.dateReceived) || j.createdAt);
         const isRecThisMonth = recDate.getMonth() === month && recDate.getFullYear() === year;
         if (isRecThisMonth) monthlyData.received.push(j);
         
@@ -580,7 +580,7 @@ class JobService {
         // 3. Dispatched
         let isDispThisMonth = false;
         if (j.sendDate) {
-          const dispDate = new Date(j.sendDate);
+          const dispDate = new Date(normalizeDate(j.sendDate));
           isDispThisMonth = dispDate.getMonth() === month && dispDate.getFullYear() === year;
           if (isDispThisMonth) monthlyData.dispatched.push(j);
         }
