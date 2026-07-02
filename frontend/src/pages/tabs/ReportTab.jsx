@@ -5,7 +5,8 @@ import {
   FiCpu, FiCheckCircle, FiCheck, FiClock, FiFileText,
   FiRefreshCw, FiZap, FiEdit3, FiSave,
   FiLayout, FiImage, FiSettings, FiCheckSquare,
-  FiXCircle, FiEye, FiAlertCircle, FiDownload, FiInfo, FiTrash2, FiCamera
+  FiXCircle, FiEye, FiAlertCircle, FiDownload, FiInfo, FiTrash2, FiCamera,
+  FiBriefcase, FiTag, FiLayers, FiCalendar, FiTool
 } from 'react-icons/fi';
 
 const formatReportText = (text) => {
@@ -772,47 +773,49 @@ export default function ReportTab({ jobId, job }) {
                 )}
               </div>
 
-              <div className="mx-auto w-[600px] border border-slate-200 rounded-lg py-3 px-4 bg-white shadow-sm mt-auto mb-10">
-                <div className="font-extrabold text-[9pt] text-[#0B132B] mb-1.5 uppercase">Job & Report Registry</div>
-                <div className="border-b-[2px] border-[#E58200] mb-3"></div>
-                <table className="w-full text-[8.5pt]">
-                  <tbody>
-                    <tr>
-                      <td className="w-1/2 pb-3">
-                        <div className="text-slate-500 text-[7pt] font-semibold uppercase mb-0.5">Job Reference No</div>
-                        <div className="font-extrabold text-[#0B132B] text-[9pt]">{job?.jobNo}</div>
-                      </td>
-                      <td className="w-1/2 pb-3">
-                        <div className="text-slate-500 text-[7pt] font-semibold uppercase mb-0.5">Report Number</div>
-                        <div className="font-extrabold text-[#0B132B] text-[9pt]">{editedData?.reportNo}</div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="w-1/2 pb-3">
-                        <div className="text-slate-500 text-[7pt] font-semibold uppercase mb-0.5">Component Serial No</div>
-                        <div className="font-extrabold text-[#0B132B] text-[9pt]">
-                          {editingField === 'jobInfo' ? <input value={editedJob?.serialNumber || ''} onChange={e => handleJobTextChange('serialNumber', e.target.value)} className="w-48 border border-slate-300 rounded p-1" /> : (editedJob?.serialNumber || 'N/A')}
-                        </div>
-                      </td>
-                      <td className="w-1/2 pb-3">
-                        <div className="text-slate-500 text-[7pt] font-semibold uppercase mb-0.5">Model / Part No</div>
-                        <div className="font-extrabold text-[#0B132B] text-[9pt]">
-                          {editingField === 'jobInfo' ? <input value={editedJob?.partNumber || ''} onChange={e => handleJobTextChange('partNumber', e.target.value)} className="w-48 border border-slate-300 rounded p-1" /> : (editedJob?.partNumber || 'N/A')}
-                        </div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="w-1/2 pb-3">
-                        <div className="text-slate-500 text-[7pt] font-semibold uppercase mb-0.5">Received Date</div>
-                        <div className="font-extrabold text-[#0B132B] text-[9pt]">{editedData?.createdAt ? new Date(editedData.createdAt).toLocaleDateString() : 'N/A'}</div>
-                      </td>
-                      <td className="w-1/2 pb-3">
-                        <div className="text-slate-500 text-[7pt] font-semibold uppercase mb-0.5">Dispatch / Release Date</div>
-                        <div className="font-extrabold text-[#0B132B] text-[9pt]">Pending QA Signoff</div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+              <div className="mx-auto w-[600px] border border-slate-200 rounded-xl bg-white shadow-sm mt-auto mb-10 overflow-hidden">
+                <div className="bg-slate-50 border-b border-slate-200 py-3 px-5 flex items-center justify-between">
+                  <div className="font-black text-[9pt] text-[#0B132B] uppercase tracking-wider">Job & Report Registry</div>
+                  <div className="text-[7pt] font-bold text-slate-400 uppercase tracking-widest">{editedData?.reportNo}</div>
+                </div>
+                <div className="grid grid-cols-2">
+                  <div className="p-4 border-b border-r border-slate-100 flex flex-col justify-center">
+                    <div className="text-slate-400 text-[6.5pt] font-bold uppercase tracking-widest mb-1 flex items-center gap-1.5"><FiBriefcase size={10} /> Job No.</div>
+                    <div className="font-extrabold text-[#0B132B] text-[9.5pt]">{job?.jobNo || 'N/A'}</div>
+                  </div>
+                  <div className="p-4 border-b border-slate-100 flex flex-col justify-center">
+                    <div className="text-slate-400 text-[6.5pt] font-bold uppercase tracking-widest mb-1 flex items-center gap-1.5"><FiTag size={10} /> Order No.</div>
+                    <div className="font-extrabold text-[#0B132B] text-[9.5pt]">
+                      {editingField === 'jobInfo' ? <input value={editedJob?.orderNumber || ''} onChange={e => handleJobTextChange('orderNumber', e.target.value)} className="w-full border border-slate-300 rounded p-1" /> : (editedJob?.orderNumber || 'N/A')}
+                    </div>
+                  </div>
+                  <div className="p-4 border-b border-r border-slate-100 flex flex-col justify-center">
+                    <div className="text-slate-400 text-[6.5pt] font-bold uppercase tracking-widest mb-1 flex items-center gap-1.5"><FiCpu size={10} /> Component Serial No.</div>
+                    <div className="font-extrabold text-[#0B132B] text-[9.5pt]">
+                      {editingField === 'jobInfo' ? <input value={editedJob?.serialNumber || ''} onChange={e => handleJobTextChange('serialNumber', e.target.value)} className="w-full border border-slate-300 rounded p-1" /> : (editedJob?.serialNumber || 'N/A')}
+                    </div>
+                  </div>
+                  <div className="p-4 border-b border-slate-100 flex flex-col justify-center">
+                    <div className="text-slate-400 text-[6.5pt] font-bold uppercase tracking-widest mb-1 flex items-center gap-1.5"><FiLayers size={10} /> Model / Part No.</div>
+                    <div className="font-extrabold text-[#0B132B] text-[9.5pt]">
+                      {editingField === 'jobInfo' ? <input value={editedJob?.partNumber || ''} onChange={e => handleJobTextChange('partNumber', e.target.value)} className="w-full border border-slate-300 rounded p-1" /> : (editedJob?.partNumber || 'N/A')}
+                    </div>
+                  </div>
+                  <div className="p-4 border-b border-r border-slate-100 flex flex-col justify-center">
+                    <div className="text-slate-400 text-[6.5pt] font-bold uppercase tracking-widest mb-1 flex items-center gap-1.5"><FiCalendar size={10} /> Received Date</div>
+                    <div className="font-extrabold text-[#0B132B] text-[9.5pt]">{editedData?.createdAt ? new Date(editedData.createdAt).toLocaleDateString() : 'N/A'}</div>
+                  </div>
+                  <div className="p-4 border-b border-slate-100 flex flex-col justify-center">
+                    <div className="text-slate-400 text-[6.5pt] font-bold uppercase tracking-widest mb-1 flex items-center gap-1.5"><FiCheckCircle size={10} /> Release Date</div>
+                    <div className="font-extrabold text-[#0B132B] text-[9.5pt]">Pending QA Signoff</div>
+                  </div>
+                  <div className="p-4 border-t-0 border-slate-100 flex flex-col justify-center col-span-2">
+                    <div className="text-slate-400 text-[6.5pt] font-bold uppercase tracking-widest mb-1 flex items-center gap-1.5"><FiTool size={10} /> Make</div>
+                    <div className="font-extrabold text-[#0B132B] text-[9.5pt]">
+                      {editingField === 'jobInfo' ? <input value={editedJob?.subAssemblyMake || ''} onChange={e => handleJobTextChange('subAssemblyMake', e.target.value)} className="w-full border border-slate-300 rounded p-1" /> : (editedJob?.subAssemblyMake || 'N/A')}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
