@@ -781,8 +781,15 @@ router.get('/pdf/:reportId', asyncHandler(async (req, res) => {
     const hUrl = report.headerLogo;
     if (hUrl.startsWith('data:image')) {
       coverPhotoBase64 = hUrl;
-    } else if (hUrl.startsWith('/uploads')) {
-      const localPath = path.join(__dirname, '..', hUrl);
+    } else if (hUrl.startsWith('/uploads') || hUrl.startsWith('uploads/') || hUrl.startsWith('uploads\\')) {
+      // Strip leading slashes to prevent absolute path resolution on Windows
+      let relativePath = hUrl;
+      if (hUrl.startsWith('/uploads/')) relativePath = hUrl.substring(9);
+      else if (hUrl.startsWith('/uploads\\')) relativePath = hUrl.substring(9);
+      else if (hUrl.startsWith('uploads/')) relativePath = hUrl.substring(8);
+      else if (hUrl.startsWith('uploads\\')) relativePath = hUrl.substring(8);
+
+      const localPath = path.join(__dirname, '../uploads', relativePath);
       if (fs.existsSync(localPath)) {
         const bitmap = fs.readFileSync(localPath);
         const ext = path.extname(localPath).slice(1) || 'png';
