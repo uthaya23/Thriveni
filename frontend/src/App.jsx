@@ -22,6 +22,7 @@ import AssetDetailPage from './pages/AssetDetailPage';
 import AuditLogs from './pages/AuditLogs';
 import TemplateBuilder from './pages/TemplateBuilder';
 import PublicJobView from './pages/PublicJobView';
+import MonthlyOperationsReport from './pages/MonthlyOperationsReport';
 
 const PrivateRoute = ({ children, adminOnly, notTechnician }) => {
   const { user } = useAuth();
@@ -56,6 +57,7 @@ export default function App() {
             <Route path="inventory" element={<PrivateRoute notTechnician><InventoryDashboard /></PrivateRoute>} />
             <Route path="inventory/report" element={<PrivateRoute notTechnician><ConsumptionReport /></PrivateRoute>} />
             <Route path="reports" element={<ReportsPage />} />
+            <Route path="monthly-report" element={<MonthlyOperationsReport />} />
             <Route path="production-planning" element={<PrivateRoute notTechnician><ProductionPlanningHub /></PrivateRoute>} />
             <Route path="users" element={<PrivateRoute adminOnly><UserManagement /></PrivateRoute>} />
             <Route path="admin" element={<PrivateRoute adminOnly><AdminPage /></PrivateRoute>} />
