@@ -580,37 +580,37 @@ class JobService {
         const assDate = parseJobDate(j.assyDate);
         const sndDate = parseJobDate(j.sendDate);
         const compDate = parseJobDate(j.completedAt);
-        const createdDate = parseJobDate(j.createdAt);
-        const updatedDate = parseJobDate(j.updatedAt);
+
+        const matchMonthYear = (d) => {
+          return d && d.getUTCMonth() === month && d.getUTCFullYear() === year;
+        };
 
         // 1. Received (strictly by dateReceived/recDate)
-        const isRecThisMonth = recDate && recDate.getMonth() === month && recDate.getFullYear() === year;
-        if (isRecThisMonth) monthlyData.received.push(j);
-        
-        // 2. Completed
-        const isCompleted = j.status === 'Completed' || j.status === 'Done' || j.stage === 'Completed';
-        const completionDate = compDate || (isCompleted ? (sndDate || assDate || updatedDate) : null);
-        const isCompThisMonth = completionDate && completionDate.getMonth() === month && completionDate.getFullYear() === year;
-        if (isCompThisMonth) monthlyData.completed.push(j);
-        
-        // 3. Dispatched (strictly by sendDate)
-        const isDispThisMonth = sndDate && sndDate.getMonth() === month && sndDate.getFullYear() === year;
-        if (isDispThisMonth) monthlyData.dispatched.push(j);
-        
-        // 4. Worked (Active work period overlaps with the selected month)
-        // Start of work: Use dateReceived/recDate or disassyDate or assyDate. Fall back to createdAt only if no details are set.
-        const start = recDate || disDate || assDate || createdDate;
-        
-        // End of work: if completed/done/dispatched, use the completed/send/assembly date
-        let end;
-        if (isCompleted || sndDate) {
-          end = sndDate || compDate || assDate || updatedDate;
-        } else {
-          end = new Date();
+        if (matchMonthYear(recDate)) {
+          monthlyData.received.push(j);
         }
         
-        const isWorkedThisMonth = start && end && start <= monthEnd && end >= monthStart;
-        if (isWorkedThisMonth) monthlyData.worked.push(j);
+        // 2. Completed (strictly by completedAt)
+        if (matchMonthYear(compDate)) {
+          monthlyData.completed.push(j);
+        }
+        
+        // 3. Dispatched (strictly by sendDate)
+        if (matchMonthYear(sndDate)) {
+          monthlyData.dispatched.push(j);
+        }
+        
+        // 4. Worked (strictly if any of the detail dates is in the selected month)
+        const isWorkedThisMonth = 
+          matchMonthYear(recDate) ||
+          matchMonthYear(disDate) ||
+          matchMonthYear(assDate) ||
+          matchMonthYear(sndDate) ||
+          matchMonthYear(compDate);
+
+        if (isWorkedThisMonth) {
+          monthlyData.worked.push(j);
+        }
       });
 
       return ApiResponse.success('Monthly analytics retrieved', monthlyData);
